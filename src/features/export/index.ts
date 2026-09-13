@@ -6,6 +6,7 @@ export {
   type ExportResult,
 } from "./exportPng";
 export { toPngFileName, toSafeBaseName } from "./filename";
+export { inlineSvgPaintStyles } from "./svgStyles";
 export {
   computeExportGeometry,
   formatScale,

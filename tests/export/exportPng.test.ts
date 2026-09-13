@@ -265,3 +265,92 @@ describe("findViewportElement", () => {
     expect(findViewportElement(null)).toBeNull();
   });
 });
+
+/**
+ * 実機で「ノードは写るのにエッジが1本も写らない」不具合が出たため、その再発防止。
+ *
+ * 原因は html-to-image が SVG の子孫にインラインスタイルを付けないこと
+ * （src/features/export/svgStyles.ts に根拠を記載）。ここで固定できるのは
+ * **画像化の瞬間にエッジの線の指定が DOM 上に存在すること**と
+ * **終わったら必ず元に戻すこと**の2点だけ。
+ * jsdom は SVG を描画しないので「本当に線が写るか」は検証できていない。
+ */
+describe("エッジの線を写すための下ごしらえ", () => {
+  function addEdge(viewport: HTMLElement): SVGElement {
+    const edges = document.createElement("div");
+    edges.className = "react-flow__edges";
+    /*
+     * 線の指定を path 自身の style 属性には置かない。実機では
+     * `.react-flow__edge-path { stroke: … }` という「CSS にしか無い」状態で、
+     * それこそが html-to-image で消える条件だから。
+     * jsdom はスタイルシートを解決しないので、同じ条件（計算済みスタイルには
+     * 現れるが、その要素自身の style 属性には無い）を継承で作る。
+     */
+    edges.innerHTML = `
+      <svg style="overflow: visible; position: absolute">
+        <g class="react-flow__edge" style="stroke: rgb(32, 30, 29); stroke-width: 1px">
+          <path class="react-flow__edge-path" d="M0,0 C10,0 10,10 20,10" fill="none" />
+        </g>
+      </svg>`;
+    viewport.append(edges);
+    const path = viewport.querySelector<SVGElement>(".react-flow__edge-path");
+    if (path === null) throw new Error("テストの前提が壊れています");
+    return path;
+  }
+
+  it("画像化の瞬間、エッジの線が style 属性として焼き込まれている", async () => {
+    const { viewport, save } = setup();
+    const path = addEdge(viewport);
+
+    // 下ごしらえの前は、path 自身は線の指定を持っていない。
+    expect(path.hasAttribute("style")).toBe(false);
+
+    let strokeAtRenderTime: string | null = null;
+    await exportMapToPng({
+      viewport,
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      title: "m",
+      render: async () => {
+        strokeAtRenderTime = path.style.getPropertyValue("stroke");
+        return PNG;
+      },
+      save,
+    });
+
+    expect(strokeAtRenderTime).toBe("rgb(32, 30, 29)");
+  });
+
+  it("書き出しが終わったら DOM を元に戻す（画面に痕跡を残さない）", async () => {
+    const { viewport, save } = setup();
+    addEdge(viewport);
+    const before = viewport.innerHTML;
+
+    await exportMapToPng({
+      viewport,
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      title: "m",
+      render: async () => PNG,
+      save,
+    });
+
+    expect(viewport.innerHTML).toBe(before);
+  });
+
+  it("画像化が失敗しても DOM を元に戻す", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { viewport, save } = setup();
+    addEdge(viewport);
+    const before = viewport.innerHTML;
+
+    const result = await exportMapToPng({
+      viewport,
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      title: "m",
+      render: () => Promise.reject(new Error("boom")),
+      save,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(viewport.innerHTML).toBe(before);
+  });
+});

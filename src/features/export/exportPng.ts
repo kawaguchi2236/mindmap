@@ -16,6 +16,7 @@ import { toPng } from "html-to-image";
 import { resolveBackgroundColor } from "./background";
 import { toPngFileName } from "./filename";
 import { computeExportGeometry, type ExportGeometryOptions, type Rect } from "./geometry";
+import { inlineSvgPaintStyles } from "./svgStyles";
 
 /** html-to-image の `toPng` と同じ形。テストで差し替えるために切り出している。 */
 export type RenderToPng = (
@@ -116,19 +117,30 @@ export async function exportMapToPng(params: ExportMapToPngParams): Promise<Expo
       0,
     );
 
-    const dataUrl = await render(viewport, {
-      backgroundColor: params.backgroundColor ?? resolveBackgroundColor(viewport),
-      width: geometry.width,
-      height: geometry.height,
-      // 端末の DPR に結果を左右させない。上限の計算と実際の出力を一致させる。
-      pixelRatio: 1,
-      style: {
-        width: `${geometry.width}px`,
-        height: `${geometry.height}px`,
-        transform: `translate(${x}px, ${y}px) scale(${zoom})`,
-        transformOrigin: "0 0",
-      },
-    });
+    /*
+     * html-to-image は SVG の子孫にインラインスタイルを付けないため、
+     * CSS だけで色が決まっているエッジの線が消える（svgStyles.ts の説明を参照）。
+     * 直前に焼き込み、終わったら必ず戻す。
+     */
+    const restoreSvgStyles = inlineSvgPaintStyles(viewport);
+    let dataUrl: string;
+    try {
+      dataUrl = await render(viewport, {
+        backgroundColor: params.backgroundColor ?? resolveBackgroundColor(viewport),
+        width: geometry.width,
+        height: geometry.height,
+        // 端末の DPR に結果を左右させない。上限の計算と実際の出力を一致させる。
+        pixelRatio: 1,
+        style: {
+          width: `${geometry.width}px`,
+          height: `${geometry.height}px`,
+          transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
+        },
+      });
+    } finally {
+      restoreSvgStyles();
+    }
 
     if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/png")) {
       return { ok: false, message: GENERIC_FAILURE };
