@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { AppHeader, AppShell, Sidebar } from "@/components/layout";
 import { ThemeToggle, useTheme } from "@/components/theme";
+import { AdSlot } from "@/features/ads";
 import { SignOutButton } from "@/features/auth/SignOutButton";
 import type { SessionUser } from "@/features/auth/session";
 import styles from "./SettingsScreen.module.css";
@@ -73,7 +74,9 @@ export function SettingsScreen({ user }: SettingsScreenProps) {
       <ThemeSection />
       <AccountSection user={user} />
 
-      {/* 広告帯（無料プランのみ）の差し込み位置。実装は task.md §14。エディタには出さない（CLAUDE.md §15）。 */}
+      {/* 広告帯（無料プランのみ）。設定の項目をすべて出し切ったあとに置く。
+          エディタには出さない（CLAUDE.md §15）。 */}
+      <AdSlot slot="settings" signedIn={user !== null} />
     </AppShell>
   );
 }

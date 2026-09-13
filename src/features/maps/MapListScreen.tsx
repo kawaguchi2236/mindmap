@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader, AppShell, Sidebar } from "@/components/layout";
 import { Button, Icon, Input, Modal } from "@/components/ui";
+import { AdSlot } from "@/features/ads";
 import type { ID, MindMapSummary } from "@/lib/model/types";
 import { describeSyncState, formatIndex, formatRelativeTime } from "./format";
 import { visibleMaps } from "./select";
@@ -176,7 +177,9 @@ export function MapListScreen({ signedIn }: MapListScreenProps) {
         </div>
       )}
 
-      {/* 広告帯（無料プランのみ）の差し込み位置。実装は task.md §14。エディタには出さない（CLAUDE.md §15）。 */}
+      {/* 広告帯（無料プランのみ）。エディタには出さない（CLAUDE.md §15）。
+          一覧の行の間には挟まないこと — 検索とスクロールの邪魔になる。 */}
+      <AdSlot slot="map-list" signedIn={signedIn} />
 
       <Modal
         open={deleteTarget !== null}

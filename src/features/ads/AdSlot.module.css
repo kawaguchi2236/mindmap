@@ -1,0 +1,49 @@
+/*
+ * 広告枠の見た目。
+ *
+ * 色・余白・角丸はすべてトークン変数で指定する。ダークモードのメディアクエリは
+ * ここに書かない — globals.css が「OS 追従 / 明示ライト / 明示ダーク」の3状態ぶんの
+ * トークンを定義済みで、var() を使っている限り自動で追従する。
+ *
+ * 本文より目立たせないこと。広告は画面の主役ではない（CLAUDE.md §17）。
+ */
+
+.slot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2) var(--space-3);
+
+  /*
+   * 高さを先に確保する。あとから中身が入っても周りの要素が動かないようにするため
+   * （読んでいる途中で本文が飛ぶのが、広告で一番嫌われる挙動）。
+   */
+  min-height: 90px;
+
+  margin-top: var(--space-8);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+/* 事業者 ID 未設定のときの仮表示。実物と見分けがつくよう破線にする。 */
+.placeholder {
+  border-style: dashed;
+}
+
+/* 「広告」であることの表示。コンテンツに偽装しない。 */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.note {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
