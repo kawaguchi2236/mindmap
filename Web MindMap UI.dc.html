@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="stylesheet" href="_ds/broadsheet-212a4913-43a2-49c8-b162-e6aac318e29f/styles.css"><script src="_ds/broadsheet-212a4913-43a2-49c8-b162-e6aac318e29f/_ds_bundle.js"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Shippori+Mincho:wght@400;600&family=Manrope:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css"><style>
+:root{
+--ui:"Manrope","Zen Kaku Gothic New",system-ui,sans-serif;
+--display:"Source Serif 4","Shippori Mincho",Georgia,serif;
+--mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+body{margin:0;background:#e6e4e2;font-family:var(--ui)}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent)}
+.dv-turn{padding:44px 48px 36px;border-bottom:1px solid rgba(32,30,29,.10);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 22px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-text);color:var(--color-bg);border-radius:var(--radius-md);text-decoration:none}
+.dv-tname{font:600 14px/1.2 var(--ui);color:var(--color-text)}
+.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(32,30,29,.09);color:var(--color-text);border-radius:var(--radius-md);text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:9px;font:400 12px/1.3 var(--ui);color:rgba(32,30,29,.6)}
+.dv-card{max-width:100%;background:var(--color-bg);border:1px solid rgba(32,30,29,.14);box-shadow:var(--shadow-md);overflow:hidden}
+.dv-opt:target .dv-oid{background:var(--color-accent);color:#fff}
+.dv-next{margin:26px 0 0;font:12px/1.6 var(--ui);color:rgba(32,30,29,.55)}
+</style></helmet>
+
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">残りの画面を <a class="dv-oid" href="#2b">2b</a> / <a class="dv-oid" href="#2c">2c</a> の言語で作り直し / The rest of the screens in the new language</span></div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a"><div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>ログイン / Login</div>
+<div class="dv-card" style="width:760px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);padding:44px 56px 40px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="width:11px;height:11px;background:var(--color-accent);display:block;transform:translateY(-1px)"></span><span style="font:600 15px/1 var(--ui)">MindMap</span></div>
+
+<div style="margin-top:auto">
+<p style="margin:0 0 18px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.16em">SIGN IN · はじめる</p>
+<h1 style="margin:0 0 18px;font:400 54px/1.08 var(--display);letter-spacing:-.02em">思考を止めずに、<br>書き出す。</h1>
+<p style="margin:0 0 44px;font:400 15px/1.8 var(--ui);color:var(--color-neutral-700);max-width:40ch">保存操作はありません。オフラインでも編集でき、ログインすると端末をまたいで同期します。</p>
+
+<div style="border-top:2px solid var(--color-text)">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 2px;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="display:flex;align-items:center;gap:14px;font:400 17px/1 var(--display)"><i class="ph-duotone ph-google-logo" style="font-size:18px;color:var(--color-neutral-800)"></i>Google でログイン</span>
+<i class="ph-duotone ph-arrow-right" style="font-size:16px;color:var(--color-accent-700)"></i>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 2px;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="display:flex;align-items:center;gap:14px;font:400 17px/1 var(--display)"><i class="ph-duotone ph-envelope-simple" style="font-size:18px;color:var(--color-neutral-800)"></i>メールでログイン<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">MAGIC LINK</span></span>
+<i class="ph-duotone ph-arrow-right" style="font-size:16px;color:var(--color-accent-700)"></i>
+</div>
+</div>
+
+<button style="all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:34px;padding:17px 0;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:500 16px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)">ログインせずに始める</button>
+<p style="margin:14px 0 0;font:400 12px/1.7 var(--ui);color:var(--color-neutral-700)">この端末に保存され、あとからログインしても引き継がれます。<br><span style="font:500 10px/1.7 var(--mono);letter-spacing:.1em">GUEST MAPS ARE MIGRATED ON LOGIN</span></p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3b"><div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>設定 / Settings</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);padding:44px 56px 0">
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="width:11px;height:11px;background:var(--color-accent);display:block;transform:translateY(-1px)"></span><span style="font:600 15px/1 var(--ui)">MindMap</span></div>
+<div style="display:flex;align-items:center;gap:26px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><span style="cursor:pointer" style-hover="color:var(--color-accent-700)">マップ</span><span style="cursor:pointer" style-hover="color:var(--color-accent-700)">テンプレート</span><span style="color:var(--color-text);border-bottom:1px solid var(--color-accent);padding-bottom:4px">設定</span></div>
+</div>
+
+<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:52px;padding-bottom:16px;border-bottom:2px solid var(--color-text)">
+<h1 style="margin:0;font:400 52px/1.05 var(--display);letter-spacing:-.02em">設定</h1>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:8px">KENJI S. · FREE PLAN</span>
+</div>
+<div style="height:3px;background:var(--color-text);margin-top:1px"></div>
+
+<div style="display:grid;grid-template-columns:190px 1fr;gap:0 40px;margin-top:34px">
+<div style="font:500 10px/1.6 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">ACCOUNT<br>アカウント</div>
+<div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">名前</span><span style="display:flex;align-items:center;gap:12px;font:400 14px/1 var(--ui);color:var(--color-neutral-700)">Kenji S.<i class="ph-duotone ph-pencil-simple" style="font-size:14px"></i></span></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">メール</span><span style="font:400 14px/1 var(--ui);color:var(--color-neutral-700)">kenji@example.com</span></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">プラン</span><span style="display:flex;align-items:center;gap:16px"><span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">FREE</span><a href="#3b" style="font:400 14px/1 var(--ui);color:var(--color-accent-2-700);text-decoration:none;border-bottom:1px solid var(--color-accent-2)">Pro にする</a></span></div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:190px 1fr;gap:0 40px;margin-top:44px">
+<div style="font:500 10px/1.6 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">APPEARANCE<br>表示と保存</div>
+<div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--color-neutral-300)">
+<span><span style="font:400 17px/1.3 var(--display);display:block">ダークモード</span><span style="font:400 12px/1.6 var(--ui);color:var(--color-neutral-700)">システム設定に従う</span></span>
+<span style="display:flex;gap:22px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><span>ライト</span><span>ダーク</span><span style="color:var(--color-text);border-bottom:1px solid var(--color-accent);padding-bottom:4px">システム</span></span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--color-neutral-300)">
+<span><span style="font:400 17px/1.3 var(--display);display:block">自動保存</span><span style="font:400 12px/1.6 var(--ui);color:var(--color-neutral-700)">常に有効。手動保存はありません。</span></span>
+<span style="width:42px;height:22px;background:var(--color-accent);border-radius:11px;display:flex;align-items:center;justify-content:flex-end;padding:0 3px;box-sizing:border-box"><span style="width:16px;height:16px;background:#fff;border-radius:50%;display:block"></span></span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--color-neutral-300)">
+<span><span style="font:400 17px/1.3 var(--display);display:block">クラウド同期</span><span style="font:400 12px/1.6 var(--ui);color:var(--color-neutral-700)">最終同期 2分前 · 6 マップ</span></span>
+<span style="width:42px;height:22px;background:var(--color-accent);border-radius:11px;display:flex;align-items:center;justify-content:flex-end;padding:0 3px;box-sizing:border-box"><span style="width:16px;height:16px;background:#fff;border-radius:50%;display:block"></span></span>
+</div>
+<div style="display:flex;align-items:center;gap:24px;padding:22px 0 0">
+<button style="all:unset;font:400 14px/1 var(--ui);color:var(--color-neutral-700);border-bottom:1px solid var(--color-neutral-400);padding-bottom:3px;cursor:pointer" style-hover="color:var(--color-accent-700);border-color:var(--color-accent)">ログアウト</button>
+<a href="#3d" style="font:400 14px/1 var(--ui);color:var(--color-neutral-700);text-decoration:none">ショートカット一覧</a>
+</div>
+</div>
+</div>
+
+<div style="margin-top:auto;display:flex;align-items:center;gap:20px;padding:20px 0 26px">
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;white-space:nowrap">ADVERTISEMENT</span>
+<div style="flex:1;height:74px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.05) 0 6px,transparent 6px 12px);display:flex;align-items:center;justify-content:center;font:400 11px/1 var(--mono);color:var(--color-neutral-700)">970 × 90</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3c"><div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>テンプレート / Templates</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);padding:44px 56px 0">
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="width:11px;height:11px;background:var(--color-accent);display:block;transform:translateY(-1px)"></span><span style="font:600 15px/1 var(--ui)">MindMap</span></div>
+<div style="display:flex;align-items:center;gap:26px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><span style="cursor:pointer" style-hover="color:var(--color-accent-700)">マップ</span><span style="color:var(--color-text);border-bottom:1px solid var(--color-accent);padding-bottom:4px">テンプレート</span><span style="cursor:pointer" style-hover="color:var(--color-accent-700)">設定</span></div>
+</div>
+
+<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:52px;padding-bottom:16px;border-bottom:2px solid var(--color-text)">
+<h1 style="margin:0;font:400 52px/1.05 var(--display);letter-spacing:-.02em">テンプレート</h1>
+<div style="display:flex;gap:24px;font:400 13px/1 var(--ui);color:var(--color-neutral-700);padding-bottom:8px"><span style="color:var(--color-text);border-bottom:1px solid var(--color-accent);padding-bottom:4px">ビジネス</span><span>学習</span><span>ブレスト</span><span>キャリア</span><span>読書</span></div>
+</div>
+<div style="height:3px;background:var(--color-text);margin-top:1px"></div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:38px 34px;margin-top:38px">
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><g fill="none" stroke="#9b9797"><rect x="2" y="8" width="72" height="36"></rect><rect x="82" y="8" width="72" height="36"></rect><rect x="2" y="52" width="72" height="36"></rect></g><rect x="82" y="52" width="72" height="36" fill="#0088b0" opacity=".16" stroke="#0088b0"></rect></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">SWOT 分析</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">4 NODES</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><line x1="4" y1="48" x2="160" y2="48" stroke="#9b9797"></line><circle cx="28" cy="48" r="6" fill="#0088b0"></circle><circle cx="80" cy="48" r="6" fill="#bab6b6"></circle><circle cx="132" cy="48" r="6" fill="#bab6b6"></circle><rect x="16" y="20" width="26" height="7" fill="#d7d3d3"></rect><rect x="68" y="66" width="26" height="7" fill="#d7d3d3"></rect><rect x="120" y="20" width="26" height="7" fill="#d7d3d3"></rect></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">ロードマップ</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">12 NODES</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><g fill="none" stroke="#9b9797"><path d="M46,48 C70,48 70,20 96,20"></path><path d="M46,48 L96,48"></path><path d="M46,48 C70,48 70,76 96,76"></path></g><rect x="8" y="41" width="36" height="14" fill="#0088b0"></rect><rect x="98" y="14" width="52" height="11" fill="#bab6b6"></rect><rect x="98" y="42" width="52" height="11" fill="#bab6b6"></rect><rect x="98" y="70" width="52" height="11" fill="#bab6b6"></rect></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">WBS 分解</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">9 NODES</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><rect x="4" y="14" width="150" height="14" fill="#0088b0" opacity=".65"></rect><rect x="4" y="40" width="104" height="11" fill="#bab6b6"></rect><rect x="4" y="60" width="124" height="11" fill="#bab6b6"></rect><rect x="4" y="80" width="84" height="11" fill="#bab6b6"></rect></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">OKR 設計</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">7 NODES</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><g fill="none" stroke="#9b9797"><path d="M84,48 L44,20"></path><path d="M84,48 L124,20"></path><path d="M84,48 L44,76"></path><path d="M84,48 L124,76"></path></g><circle cx="84" cy="48" r="10" fill="#0088b0"></circle><circle cx="44" cy="20" r="6" fill="#bab6b6"></circle><circle cx="124" cy="20" r="6" fill="#bab6b6"></circle><circle cx="44" cy="76" r="6" fill="#bab6b6"></circle><circle cx="124" cy="76" r="6" fill="#bab6b6"></circle></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">アイデア整理</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">5 NODES · ブレスト</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><rect x="4" y="14" width="58" height="66" fill="none" stroke="#9b9797"></rect><rect x="14" y="26" width="38" height="8" fill="#bab6b6"></rect><rect x="14" y="40" width="38" height="8" fill="#bab6b6"></rect><rect x="78" y="26" width="72" height="12" fill="#0088b0" opacity=".65"></rect><rect x="78" y="46" width="56" height="9" fill="#bab6b6"></rect><rect x="78" y="62" width="64" height="9" fill="#bab6b6"></rect></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">読書メモ</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">6 NODES · 読書</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center"><svg width="170" height="96" aria-hidden="true"><rect x="4" y="18" width="46" height="58" fill="none" stroke="#9b9797"></rect><rect x="60" y="18" width="46" height="58" fill="none" stroke="#9b9797"></rect><rect x="116" y="18" width="34" height="58" fill="#0088b0" opacity=".16" stroke="#0088b0"></rect></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">学習ノート</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">8 NODES · 学習</div>
+</div>
+
+<div style="cursor:pointer">
+<div style="height:120px;border-bottom:1px solid var(--color-neutral-300);display:flex;align-items:center;justify-content:flex-start"><svg width="170" height="96" aria-hidden="true"><rect x="4" y="14" width="150" height="68" fill="none" stroke="#bab6b6" stroke-dasharray="5 5"></rect><line x1="72" y1="48" x2="86" y2="48" stroke="#0088b0"></line><line x1="79" y1="41" x2="79" y2="55" stroke="#0088b0"></line></svg></div>
+<div style="margin-top:12px;font:400 20px/1.25 var(--display)">空のマップ</div>
+<div style="margin-top:6px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">START BLANK</div>
+</div>
+</div>
+
+<div style="margin-top:auto;display:flex;align-items:center;gap:20px;padding:20px 0 26px">
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;white-space:nowrap">ADVERTISEMENT</span>
+<div style="flex:1;height:74px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.05) 0 6px,transparent 6px 12px);display:flex;align-items:center;justify-content:center;font:400 11px/1 var(--mono);color:var(--color-neutral-700)">970 × 90</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3d"><div class="dv-olabel"><a class="dv-oid" href="#3d">3d</a>ショートカット一覧（Ctrl + /）/ Shortcuts</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;position:relative;background:var(--color-bg);font-family:var(--ui);overflow:hidden">
+<svg width="1280" height="800" style="position:absolute;inset:0;opacity:.35" aria-hidden="true"><g fill="none" stroke="rgba(32,30,29,.3)" stroke-width="1"><path d="M300,400 C380,400 380,250 460,250"></path><path d="M300,400 L460,400"></path><path d="M300,400 C380,400 380,550 460,550"></path></g><rect x="140" y="386" width="160" height="28" fill="#d7d3d3"></rect><rect x="460" y="236" width="150" height="24" fill="#eae9e9"></rect><rect x="460" y="386" width="44" height="24" fill="#eae9e9"></rect><rect x="460" y="536" width="70" height="24" fill="#eae9e9"></rect></svg>
+<div style="position:absolute;inset:0;background:rgba(243,242,242,.86)"></div>
+
+<div style="position:absolute;inset:0;padding:64px 80px;display:flex;flex-direction:column">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid var(--color-text)">
+<h1 style="margin:0;font:400 46px/1.05 var(--display);letter-spacing:-.02em">ショートカット</h1>
+<span style="display:flex;align-items:center;gap:18px;padding-bottom:8px"><span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">CTRL + / TO CLOSE</span><i class="ph-duotone ph-x" style="font-size:18px;color:var(--color-neutral-800);cursor:pointer"></i></span>
+</div>
+<div style="height:3px;background:var(--color-text);margin-top:1px"></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 72px;margin-top:38px">
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px">NODES · ノード</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">同階層に追加</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">ENTER</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">子ノードを追加</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">TAB</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">1階層上へ移動</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">SHIFT + TAB</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">削除（子ごと）</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">DELETE</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">編集を終了 → 選択解除</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">ESC</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300);border-bottom:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">ノード間を移動</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">↑ ↓ ← →</span></div>
+</div>
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px">EDIT &amp; VIEW · 編集と表示</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">元に戻す</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">⌘ Z</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">やり直す</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">⌘ ⇧ Z</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">コピー / 貼り付け</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">⌘ C / V</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">ズーム</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">⌘ + WHEEL</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">中央へ戻る</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">⌘ 0</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-top:1px solid var(--color-neutral-300);border-bottom:1px solid var(--color-neutral-300)"><span style="font:400 17px/1.3 var(--display)">PNG 書き出し</span><span style="font:500 11px/1 var(--mono);color:var(--color-neutral-800);letter-spacing:.08em">⌘ ⇧ E</span></div>
+</div>
+</div>
+
+<p style="margin:auto 0 0;font:400 13px/1.7 var(--ui);color:var(--color-neutral-700);max-width:52ch;padding-bottom:8px">テキスト編集中は Backspace が文字削除を優先します。<span style="font:500 10px/1.7 var(--mono);letter-spacing:.1em">WHILE EDITING, BACKSPACE DELETES CHARACTERS — NOT THE NODE.</span></p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3e"><div class="dv-olabel"><a class="dv-oid" href="#3e">3e</a>初回起動・空状態 / First run</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;position:relative;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);overflow:hidden;padding:44px 56px">
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="width:11px;height:11px;background:var(--color-accent);display:block;transform:translateY(-1px)"></span><span style="font:600 15px/1 var(--ui)">MindMap</span></div>
+<div style="display:flex;align-items:center;gap:22px"><span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">GUEST · SAVED ON THIS DEVICE</span><a href="#3a" style="font:400 13px/1 var(--ui);color:var(--color-accent-700);text-decoration:none;border-bottom:1px solid var(--color-accent);padding-bottom:3px">ログイン</a></div>
+</div>
+
+<div style="position:absolute;left:56px;top:280px;max-width:560px">
+<p style="margin:0 0 18px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.16em">FIRST RUN · まだマップがありません</p>
+<h1 style="margin:0 0 20px;font:400 54px/1.08 var(--display);letter-spacing:-.02em">最初のマップを<br>作りましょう。</h1>
+<p style="margin:0 0 38px;font:400 15px/1.8 var(--ui);color:var(--color-neutral-700)">中心のことばを書いて <span style="font:500 11px/1 var(--mono);letter-spacing:.06em">TAB</span> を押すだけ。保存操作はありません。</p>
+<div style="display:flex;align-items:center;gap:26px">
+<button style="all:unset;display:flex;align-items:center;gap:10px;padding:16px 26px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:500 15px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-plus" style="font-size:16px"></i>新しいマップを作る</button>
+<a href="#3c" style="font:400 14px/1 var(--ui);color:var(--color-neutral-700);text-decoration:none;border-bottom:1px solid var(--color-neutral-400);padding-bottom:4px">テンプレートから始める</a>
+</div>
+</div>
+
+<svg width="470" height="330" style="position:absolute;right:80px;top:50%;transform:translateY(-50%)" aria-hidden="true">
+<g fill="none" stroke="#bab6b6" stroke-width="1" stroke-dasharray="4 5"><path d="M150,165 C200,165 200,88 250,88"></path><path d="M150,165 L250,165"></path><path d="M150,165 C200,165 200,242 250,242"></path></g>
+<text x="24" y="172" font-family="Source Serif 4, serif" font-size="26" fill="#201e1d">中心の語</text>
+<line x1="22" y1="184" x2="146" y2="184" stroke="#0088b0" stroke-width="2"></line>
+<rect x="252" y="72" width="130" height="30" fill="none" stroke="#d7d3d3" stroke-dasharray="4 5"></rect>
+<rect x="252" y="149" width="130" height="30" fill="none" stroke="#d7d3d3" stroke-dasharray="4 5"></rect>
+<rect x="252" y="226" width="130" height="30" fill="none" stroke="#d7d3d3" stroke-dasharray="4 5"></rect>
+<text x="268" y="169" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1.4" fill="#605d5d">TAB TO ADD</text>
+<g stroke="#bab6b6" stroke-width="1"><path d="M6,6 h12 M6,6 v12 M464,324 h-12 M464,324 v-12"></path></g>
+</svg>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3f"><div class="dv-olabel"><a class="dv-oid" href="#3f">3f</a>同期・オフライン・削除の状態 / States</div>
+<div class="dv-card" style="width:760px">
+<div style="min-height:800px;padding:44px 48px;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);display:flex;flex-direction:column;gap:38px">
+
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px;border-bottom:2px solid var(--color-text)">STATUS · ヘッダー表示</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 26px;padding-top:16px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)">
+<span style="display:flex;align-items:center;gap:7px"><i class="ph-duotone ph-circle-notch" style="font-size:14px"></i>保存中</span>
+<span style="display:flex;align-items:center;gap:7px"><i class="ph-duotone ph-check" style="font-size:14px;color:var(--color-accent)"></i>保存済み</span>
+<span style="display:flex;align-items:center;gap:7px"><i class="ph-duotone ph-cloud-check" style="font-size:14px;color:var(--color-accent)"></i>同期済み</span>
+<span style="display:flex;align-items:center;gap:7px"><i class="ph-duotone ph-cloud-arrow-up" style="font-size:14px"></i>同期待ち 3件</span>
+<span style="display:flex;align-items:center;gap:7px;color:var(--color-accent-2-700)"><i class="ph-duotone ph-cloud-warning" style="font-size:14px;color:var(--color-accent-2)"></i>同期失敗</span>
+</div>
+</div>
+
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px;border-bottom:2px solid var(--color-text)">OFFLINE · オフライン帯</div>
+<div style="display:flex;align-items:flex-start;gap:14px;padding:18px 0;border-bottom:1px solid var(--color-neutral-300)">
+<i class="ph-duotone ph-wifi-slash" style="font-size:18px;color:var(--color-neutral-800);margin-top:2px"></i>
+<span style="font:400 15px/1.7 var(--display);color:var(--color-text)">オフラインです。編集はこの端末に保存され、接続が戻ると自動で同期します。<br><span style="font:500 10px/1.7 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">EDITS ARE SAVED LOCALLY AND WILL SYNC AUTOMATICALLY</span></span>
+</div>
+</div>
+
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px;border-bottom:2px solid var(--color-text)">SYNC FAILED · 同期失敗</div>
+<div style="display:flex;align-items:flex-start;gap:14px;padding:18px 18px 18px 16px;margin-top:14px;background:var(--color-bg);box-shadow:var(--shadow-md);border-radius:var(--radius-md)">
+<span style="width:2px;align-self:stretch;background:var(--color-accent-2);display:block"></span>
+<div style="flex:1">
+<div style="font:400 18px/1.35 var(--display)">クラウド同期に失敗しました</div>
+<div style="margin-top:6px;font:400 13px/1.7 var(--ui);color:var(--color-neutral-700)">ローカルのデータは保持されています。編集はそのまま続けられます。</div>
+<div style="margin-top:14px;display:flex;gap:22px;font:400 13px/1 var(--ui)"><span style="color:var(--color-accent-700);border-bottom:1px solid var(--color-accent);padding-bottom:3px;cursor:pointer">再試行</span><span style="color:var(--color-neutral-700);cursor:pointer">詳細</span></div>
+</div>
+<i class="ph-duotone ph-x" style="font-size:15px;color:var(--color-neutral-700)"></i>
+</div>
+</div>
+
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px;border-bottom:2px solid var(--color-text)">MIGRATION · ログイン時の引き継ぎ</div>
+<div style="display:flex;align-items:flex-start;gap:14px;padding:18px 0;border-bottom:1px solid var(--color-neutral-300)">
+<i class="ph-duotone ph-arrows-clockwise" style="font-size:18px;color:var(--color-accent-700);margin-top:2px"></i>
+<span style="font:400 15px/1.7 var(--display)">この端末の 2 件のマップをアカウントに引き継ぎました。<br><span style="font:500 10px/1.7 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">2 GUEST MAPS MIGRATED</span></span>
+</div>
+</div>
+
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px;border-bottom:2px solid var(--color-text)">DELETE · 削除確認</div>
+<div style="max-width:460px;margin-top:16px;padding:26px 28px;background:var(--color-bg);box-shadow:var(--shadow-lg);border-radius:var(--radius-md)">
+<h3 style="margin:0 0 10px;font:400 22px/1.3 var(--display)">「Q3 OKR」を削除しますか？</h3>
+<p style="margin:0 0 24px;font:400 13px/1.7 var(--ui);color:var(--color-neutral-700)">このマップと 14 個のノードが削除されます。取り消せません。</p>
+<div style="display:flex;gap:14px;justify-content:flex-end;align-items:center">
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700);cursor:pointer">キャンセル</span>
+<button style="all:unset;padding:10px 18px;background:var(--color-accent-2);color:#fff;border-radius:var(--radius-md);font:500 13px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-2-700)">削除する</button>
+</div>
+</div>
+</div>
+
+<div>
+<div style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;padding-bottom:12px;border-bottom:2px solid var(--color-text)">PNG EXPORT · 書き出し</div>
+<div style="display:flex;flex-direction:column;gap:0;font:400 14px/1 var(--ui)">
+<span style="display:flex;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--color-neutral-300);color:var(--color-neutral-700)"><i class="ph-duotone ph-image" style="font-size:15px;color:var(--color-accent)"></i>PNG を生成中… マップ全体 <span style="font:500 10px/1 var(--mono);letter-spacing:.1em">1240 × 860</span></span>
+<span style="display:flex;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--color-neutral-300);color:var(--color-accent-2-700)"><i class="ph-duotone ph-warning" style="font-size:15px;color:var(--color-accent-2)"></i>書き出しに失敗しました — 再試行</span>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">次の指示の例：「<a class="dv-oid" href="#2a">2a</a> のダーク版を全画面に展開して」・「<a class="dv-oid" href="#3b">3b</a> の設定をもっと余白多めに」・「この言語で操作できるプロトタイプを作って」</p>
+</section>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">モダン方向 — 枠をやめ、余白と文字組みで構造をつくる / Boxless, typographic direction</span></div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a"><div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Studio — 暗いキャンバス、浮かぶ最小クローム / Dark studio canvas</div>
+<div class="dv-card" style="width:1280px;border-color:rgba(255,255,255,.14)">
+<div style="height:800px;position:relative;background:#1a1918;overflow:hidden;font-family:var(--ui)">
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.09) 1px,transparent 1px);background-size:30px 30px"></div>
+
+<svg width="1280" height="800" style="position:absolute;inset:0" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.24)" stroke-width="1">
+<path d="M300,400 C380,400 380,250 460,250"></path>
+<path d="M300,400 L460,400"></path>
+<path d="M300,400 C380,400 380,550 460,550"></path>
+<path d="M614,250 C690,250 690,195 760,195"></path>
+<path d="M614,250 C690,250 690,305 760,305"></path>
+<path d="M504,400 C640,400 640,368 760,368"></path>
+<path d="M504,400 C640,400 640,432 760,432"></path>
+<path d="M504,550 C640,550 640,518 760,518"></path>
+<path d="M504,550 C640,550 640,582 760,582"></path>
+</g>
+<g stroke="rgba(255,255,255,.22)" stroke-width="1"><path d="M28,28 h14 M28,28 v14 M1252,772 h-14 M1252,772 v-14"></path></g>
+</svg>
+
+<div style="position:absolute;left:140px;top:379px;font:400 34px/42px var(--display);color:#faf8f6;letter-spacing:-.01em">LaterList</div>
+<div style="position:absolute;left:140px;top:428px;font:500 10px/1 var(--mono);color:rgba(255,255,255,.34);letter-spacing:.14em">ROOT · 14 NODES</div>
+
+<div style="position:absolute;left:460px;top:235px;font:400 22px/30px var(--display);color:rgba(255,255,255,.88)">マーケティング</div>
+<div style="position:absolute;left:460px;top:385px;font:400 22px/30px var(--display);color:#8ad6f2;border-bottom:1px solid #62c5ee;padding-bottom:4px">開発</div>
+<div style="position:absolute;left:460px;top:535px;font:400 22px/30px var(--display);color:rgba(255,255,255,.88)">収益化</div>
+
+<div style="position:absolute;left:760px;top:182px;font:400 17px/26px var(--display);color:rgba(255,255,255,.6)">X / SNS</div>
+<div style="position:absolute;left:760px;top:292px;font:400 17px/26px var(--display);color:rgba(255,255,255,.6)">SEO</div>
+<div style="position:absolute;left:760px;top:355px;font:400 17px/26px var(--display);color:rgba(255,255,255,.6)">キャンバス実装</div>
+<div style="position:absolute;left:760px;top:419px;display:flex;align-items:center;gap:9px"><span style="font:400 17px/26px var(--display);color:#faf8f6">オフライン同期</span><span style="width:2px;height:20px;background:#62c5ee;display:block"></span></div>
+<div style="position:absolute;left:760px;top:505px;font:400 17px/26px var(--display);color:rgba(255,255,255,.6)">広告（Free）</div>
+<div style="position:absolute;left:760px;top:569px;display:flex;align-items:center;gap:9px"><span style="font:400 17px/26px var(--display);color:rgba(255,255,255,.6)">Pro</span><span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid rgba(255,255,255,.3);border-radius:50%;font:500 9px/1 var(--mono);color:rgba(255,255,255,.55)">3</span></div>
+
+<div style="position:absolute;left:40px;top:34px;display:flex;align-items:baseline;gap:14px">
+<span style="width:10px;height:10px;background:#62c5ee;display:block;transform:translateY(-1px)"></span>
+<span style="font:600 14px/1 var(--ui);color:#faf8f6;letter-spacing:.01em">LaterList</span>
+<span style="font:500 10px/1 var(--mono);color:rgba(255,255,255,.4);letter-spacing:.14em">SAVED · SYNCED 2M AGO</span>
+</div>
+
+<div style="position:absolute;right:40px;top:30px;display:flex;align-items:center;gap:20px;font:400 12px/1 var(--ui);color:rgba(255,255,255,.62)">
+<span style="cursor:pointer" style-hover="color:#8ad6f2">元に戻す</span>
+<span style="color:rgba(255,255,255,.28)">やり直す</span>
+<span style="cursor:pointer" style-hover="color:#8ad6f2">PNG</span>
+<span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font:500 11px/1 var(--ui);color:#faf8f6">K</span>
+</div>
+
+<div style="position:absolute;left:50%;bottom:38px;transform:translateX(-50%);display:flex;align-items:center;gap:22px;padding:13px 22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);backdrop-filter:blur(12px)">
+<span style="display:flex;align-items:center;gap:9px;font:400 13px/1 var(--ui);color:#faf8f6">子ノード<span style="font:500 10px/1 var(--mono);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.22);border-radius:2px;padding:4px 6px">TAB</span></span>
+<span style="display:flex;align-items:center;gap:9px;font:400 13px/1 var(--ui);color:#faf8f6">同階層<span style="font:500 10px/1 var(--mono);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.22);border-radius:2px;padding:4px 6px">ENTER</span></span>
+<span style="width:1px;height:18px;background:rgba(255,255,255,.16)"></span>
+<span style="display:flex;align-items:center;gap:9px;font:400 13px/1 var(--ui);color:rgba(255,255,255,.66)">中央へ<span style="font:500 10px/1 var(--mono);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.22);border-radius:2px;padding:4px 6px">⌘0</span></span>
+</div>
+
+<div style="position:absolute;right:40px;bottom:40px;display:flex;align-items:center;gap:14px;font:500 10px/1 var(--mono);color:rgba(255,255,255,.4);letter-spacing:.12em">
+<span>100%</span><span style="color:rgba(255,255,255,.22)">|</span><span>CTRL + /</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b"><div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Press — 紙のキャンバス、枠なし。選択中だけ道具が出る / Paper canvas, contextual toolbar</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;position:relative;background:var(--color-bg);overflow:hidden;font-family:var(--ui)">
+
+<svg width="1280" height="800" style="position:absolute;inset:0" aria-hidden="true"><g fill="none" stroke="rgba(32,30,29,.22)" stroke-width="1">
+<path d="M300,400 C380,400 380,250 460,250"></path>
+<path d="M300,400 L460,400"></path>
+<path d="M300,400 C380,400 380,550 460,550"></path>
+<path d="M614,250 C690,250 690,195 760,195"></path>
+<path d="M614,250 C690,250 690,305 760,305"></path>
+<path d="M504,400 C640,400 640,368 760,368"></path>
+<path d="M504,400 C640,400 640,432 760,432"></path>
+<path d="M504,550 C640,550 640,518 760,518"></path>
+<path d="M504,550 C640,550 640,582 760,582"></path>
+</g>
+<g stroke="rgba(32,30,29,.28)" stroke-width="1"><path d="M28,28 h14 M28,28 v14 M1252,772 h-14 M1252,772 v-14"></path></g>
+</svg>
+
+<div style="position:absolute;left:140px;top:379px;font:400 34px/42px var(--display);color:var(--color-text);letter-spacing:-.01em">LaterList</div>
+<div style="position:absolute;left:140px;top:428px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">ROOT · 14 NODES</div>
+
+<div style="position:absolute;left:460px;top:235px;font:400 22px/30px var(--display);color:var(--color-text)">マーケティング</div>
+<div style="position:absolute;left:460px;top:385px;font:400 22px/30px var(--display);color:var(--color-accent-800);border-bottom:1px solid var(--color-accent);padding-bottom:4px">開発</div>
+<div style="position:absolute;left:460px;top:535px;font:400 22px/30px var(--display);color:var(--color-text)">収益化</div>
+
+<div style="position:absolute;left:760px;top:182px;font:400 17px/26px var(--display);color:var(--color-neutral-700)">X / SNS</div>
+<div style="position:absolute;left:760px;top:292px;font:400 17px/26px var(--display);color:var(--color-neutral-700)">SEO</div>
+<div style="position:absolute;left:760px;top:355px;font:400 17px/26px var(--display);color:var(--color-neutral-700)">キャンバス実装</div>
+<div style="position:absolute;left:760px;top:419px;display:flex;align-items:center;gap:9px"><span style="font:400 17px/26px var(--display);color:var(--color-text)">オフライン同期</span><span style="width:2px;height:20px;background:var(--color-accent);display:block"></span></div>
+<div style="position:absolute;left:760px;top:505px;font:400 17px/26px var(--display);color:var(--color-neutral-700)">広告（Free）</div>
+<div style="position:absolute;left:760px;top:569px;display:flex;align-items:center;gap:9px"><span style="font:400 17px/26px var(--display);color:var(--color-neutral-700)">Pro</span><span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid var(--color-neutral-400);border-radius:50%;font:500 9px/1 var(--mono);color:var(--color-neutral-700)">3</span></div>
+
+<div style="position:absolute;left:432px;top:344px;display:flex;align-items:center;gap:16px;padding:9px 14px;background:var(--color-bg);box-shadow:var(--shadow-md);border-radius:var(--radius-md)">
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">SELECTED</span>
+<span style="width:1px;height:14px;background:var(--color-neutral-300)"></span>
+<i class="ph-duotone ph-plus" style="font-size:15px;color:var(--color-accent-700);cursor:pointer"></i>
+<i class="ph-duotone ph-text-aa" style="font-size:15px;color:var(--color-neutral-800);cursor:pointer"></i>
+<i class="ph-duotone ph-caret-double-left" style="font-size:15px;color:var(--color-neutral-800);cursor:pointer"></i>
+<i class="ph-duotone ph-trash" style="font-size:15px;color:var(--color-neutral-800);cursor:pointer"></i>
+</div>
+
+<div style="position:absolute;left:40px;top:34px;display:flex;align-items:baseline;gap:14px">
+<span style="width:10px;height:10px;background:var(--color-accent);display:block;transform:translateY(-1px)"></span>
+<span style="font:600 14px/1 var(--ui);color:var(--color-text)">LaterList</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">SAVED · SYNCED 2M AGO</span>
+</div>
+<div style="position:absolute;right:40px;top:30px;display:flex;align-items:center;gap:20px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)">
+<span style="cursor:pointer" style-hover="color:var(--color-accent-700)">元に戻す</span>
+<span style="color:var(--color-neutral-400)">やり直す</span>
+<span style="cursor:pointer" style-hover="color:var(--color-accent-700)">PNG</span>
+<span style="width:26px;height:26px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:500 11px/1 var(--ui);color:var(--color-neutral-800)">K</span>
+</div>
+
+<div style="position:absolute;left:40px;bottom:40px;display:flex;align-items:center;gap:26px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)">
+<span>Tab 子ノード</span><span>Enter 同階層</span><span>⌘0 中央へ</span>
+</div>
+<div style="position:absolute;right:40px;bottom:40px;font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.12em">100% · CTRL + /</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c"><div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Index — 一覧を「目次」として組む（カードなし）/ Map list as an index</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);padding:44px 56px 0">
+
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="width:11px;height:11px;background:var(--color-accent);display:block;transform:translateY(-1px)"></span><span style="font:600 15px/1 var(--ui);letter-spacing:.01em">MindMap</span></div>
+<div style="display:flex;align-items:center;gap:26px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)">
+<span style="cursor:pointer" style-hover="color:var(--color-accent-700)">テンプレート</span>
+<span style="cursor:pointer" style-hover="color:var(--color-accent-700)">設定</span>
+<span style="width:28px;height:28px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:500 11px/1 var(--ui);color:var(--color-neutral-800)">K</span>
+</div>
+</div>
+
+<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:52px;padding-bottom:16px;border-bottom:2px solid var(--color-text)">
+<h1 style="margin:0;font:400 52px/1.05 var(--display);letter-spacing:-.02em">マップ</h1>
+<div style="display:flex;align-items:center;gap:30px;padding-bottom:6px">
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em">6 MAPS · FREE PLAN</span>
+<span style="display:flex;align-items:center;gap:8px;font:400 13px/1 var(--ui);color:var(--color-neutral-700);border-bottom:1px solid var(--color-neutral-400);padding-bottom:4px;width:170px"><i class="ph-duotone ph-magnifying-glass" style="font-size:14px"></i>検索</span>
+<button style="all:unset;display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:500 13px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-plus" style="font-size:14px"></i>新しいマップ</button>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;gap:0;margin-top:1px;height:3px;background:var(--color-text)"></div>
+
+<div style="flex:1;min-height:0;margin-top:8px">
+
+<div style="display:grid;grid-template-columns:34px 1fr 190px 150px 24px;align-items:baseline;gap:0 22px;padding:22px 0;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="font:500 11px/1 var(--mono);color:var(--color-neutral-700)">01</span>
+<span style="font:400 26px/1.2 var(--display)">LaterList</span>
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">マーケティング · 開発 · 収益化</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">5分前 · SYNCED</span>
+<i class="ph-duotone ph-arrow-up-right" style="font-size:15px;color:var(--color-accent-700);justify-self:end"></i>
+</div>
+
+<div style="display:grid;grid-template-columns:34px 1fr 190px 150px 24px;align-items:baseline;gap:0 22px;padding:22px 0;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="font:500 11px/1 var(--mono);color:var(--color-neutral-700)">02</span>
+<span style="font:400 26px/1.2 var(--display)">3D Printer 事業計画</span>
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">市場 · 原価 · 販路</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">昨日 · LOCAL</span>
+<i class="ph-duotone ph-arrow-up-right" style="font-size:15px;color:var(--color-neutral-400);justify-self:end"></i>
+</div>
+
+<div style="display:grid;grid-template-columns:34px 1fr 190px 150px 24px;align-items:baseline;gap:0 22px;padding:22px 0;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="font:500 11px/1 var(--mono);color:var(--color-neutral-700)">03</span>
+<span style="font:400 26px/1.2 var(--display)">読書メモ — 思考の整理学</span>
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">引用 · 要約 · 実践</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">3日前 · SYNCED</span>
+<i class="ph-duotone ph-arrow-up-right" style="font-size:15px;color:var(--color-neutral-400);justify-self:end"></i>
+</div>
+
+<div style="display:grid;grid-template-columns:34px 1fr 190px 150px 24px;align-items:baseline;gap:0 22px;padding:22px 0;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="font:500 11px/1 var(--mono);color:var(--color-neutral-700)">04</span>
+<span style="font:400 26px/1.2 var(--display)">Q3 OKR</span>
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">Objective · KR</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-accent-2-700);letter-spacing:.1em">1週間前 · FAILED</span>
+<i class="ph-duotone ph-arrow-up-right" style="font-size:15px;color:var(--color-neutral-400);justify-self:end"></i>
+</div>
+
+<div style="display:grid;grid-template-columns:34px 1fr 190px 150px 24px;align-items:baseline;gap:0 22px;padding:22px 0;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="font:500 11px/1 var(--mono);color:var(--color-neutral-700)">05</span>
+<span style="font:400 26px/1.2 var(--display)">新規事業ブレスト</span>
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">課題 · 解決案 · 検証</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">2週間前 · SYNCED</span>
+<i class="ph-duotone ph-arrow-up-right" style="font-size:15px;color:var(--color-neutral-400);justify-self:end"></i>
+</div>
+
+<div style="display:grid;grid-template-columns:34px 1fr 190px 150px 24px;align-items:baseline;gap:0 22px;padding:22px 0;border-bottom:1px solid var(--color-neutral-300);cursor:pointer" style-hover="background:var(--color-accent-100)">
+<span style="font:500 11px/1 var(--mono);color:var(--color-neutral-700)">06</span>
+<span style="font:400 26px/1.2 var(--display)">学習ノート — TypeScript</span>
+<span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">型 · 総称 · 推論</span>
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.1em">1ヶ月前 · SYNCED</span>
+<i class="ph-duotone ph-arrow-up-right" style="font-size:15px;color:var(--color-neutral-400);justify-self:end"></i>
+</div>
+
+</div>
+
+<div style="display:flex;align-items:center;gap:20px;padding:20px 0 26px">
+<span style="font:500 10px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.14em;white-space:nowrap">ADVERTISEMENT</span>
+<div style="flex:1;height:74px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.05) 0 6px,transparent 6px 12px);display:flex;align-items:center;justify-content:center;font:400 11px/1 var(--mono);color:var(--color-neutral-700)">970 × 90</div>
+<a href="#2c" style="font:400 12px/1 var(--ui);color:var(--color-accent-2-700);text-decoration:none;white-space:nowrap;border-bottom:1px solid var(--color-accent-2)">広告を消す</a>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">次の指示の例：「<a class="dv-oid" href="#2a">2a</a> の方向で全画面を作り直して」・「<a class="dv-oid" href="#2b">2b</a> の選択ツールバーをもっと小さく」・「<a class="dv-oid" href="#2c">2c</a> の目次レイアウトでテンプレート画面も」</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Web MindMap Phase 1 — 画面モックアップ / Screen mockups</span></div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>編集画面 A — 文字組みのツリー、フローティング最小ツールバー / Editor A · typographic tree</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+
+<div style="height:56px;flex:none;display:flex;align-items:center;gap:16px;padding:0 20px;border-bottom:1px solid rgba(32,30,29,.12)">
+<div style="display:flex;align-items:center;gap:9px"><span style="width:13px;height:13px;background:var(--color-accent);display:block"></span><span style="font:600 15px/1 var(--ui);letter-spacing:.01em">MindMap</span></div>
+<span style="width:1px;height:22px;background:rgba(32,30,29,.14)"></span>
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font:600 17px/1 var(--ui)">LaterList</span><i class="ph-duotone ph-pencil-simple" style="font-size:14px;color:rgba(32,30,29,.4)"></i></div>
+<span style="font:400 12px/1 var(--ui);color:var(--color-neutral-700);display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-check-circle" style="font-size:14px;color:var(--color-accent)"></i>保存済み · Saved</span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+<button style="all:unset;display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-arrow-counter-clockwise" style="font-size:15px"></i>元に戻す</button>
+<button style="all:unset;display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-400);cursor:default"><i class="ph-duotone ph-arrow-clockwise" style="font-size:15px"></i>やり直す</button>
+<span style="width:1px;height:20px;background:rgba(32,30,29,.14);margin:0 8px"></span>
+<button style="all:unset;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:var(--radius-md);border:1px solid rgba(32,30,29,.22);font:400 13px/1 var(--ui);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)"><i class="ph-duotone ph-image" style="font-size:15px"></i>PNG 書き出し</button>
+<span style="width:30px;height:30px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:600 12px/1 var(--ui);color:var(--color-neutral-800);margin-left:8px">K</span>
+</div>
+</div>
+
+<div style="flex:1;position:relative;background-image:radial-gradient(circle,rgba(32,30,29,.11) 1px,transparent 1px);background-size:26px 26px;overflow:hidden">
+
+<svg width="1280" height="744" style="position:absolute;inset:0" aria-hidden="true"><g fill="none" stroke="rgba(32,30,29,.3)" stroke-width="1.25">
+<path d="M285,350 C345,350 350,200 410,200"></path>
+<path d="M285,350 L410,350"></path>
+<path d="M285,350 C345,350 350,500 410,500"></path>
+<path d="M560,200 C630,200 630,150 690,150"></path>
+<path d="M560,200 C630,200 630,255 690,255"></path>
+<path d="M470,350 C580,350 580,320 690,320"></path>
+<path d="M470,350 C580,350 580,390 690,390"></path>
+<path d="M470,500 C580,500 580,470 690,470"></path>
+<path d="M470,500 C580,500 580,540 690,540"></path>
+</g></svg>
+
+<div style="position:absolute;left:120px;top:331px;font:600 30px/38px var(--display);border-bottom:2px solid var(--color-accent);padding-bottom:3px">LaterList</div>
+
+<div style="position:absolute;left:410px;top:185px;font:400 22px/30px var(--display);border-bottom:1px solid rgba(32,30,29,.28)">マーケティング</div>
+<div style="position:absolute;left:410px;top:335px;font:600 22px/30px var(--display);color:var(--color-accent-700);border-bottom:2px solid var(--color-accent);outline:2px solid var(--color-accent);outline-offset:6px">開発</div>
+<div style="position:absolute;left:410px;top:485px;font:400 22px/30px var(--display);border-bottom:1px solid rgba(32,30,29,.28)">収益化</div>
+
+<div style="position:absolute;left:690px;top:137px;font:400 17px/26px var(--display);color:var(--color-neutral-700);border-bottom:1px dotted rgba(32,30,29,.3)">X / SNS</div>
+<div style="position:absolute;left:690px;top:242px;font:400 17px/26px var(--display);color:var(--color-neutral-700);border-bottom:1px dotted rgba(32,30,29,.3)">SEO</div>
+<div style="position:absolute;left:690px;top:307px;font:400 17px/26px var(--display);color:var(--color-neutral-700);border-bottom:1px dotted rgba(32,30,29,.3)">キャンバス実装</div>
+<div style="position:absolute;left:690px;top:377px;display:flex;align-items:center;gap:8px"><span style="font:400 17px/26px var(--display);color:var(--color-text);border-bottom:1px solid var(--color-accent);padding-right:1px">オフライン同期</span><span style="width:2px;height:22px;background:var(--color-accent);display:block"></span></div>
+<div style="position:absolute;left:690px;top:457px;font:400 17px/26px var(--display);color:var(--color-neutral-700);border-bottom:1px dotted rgba(32,30,29,.3)">広告（Free）</div>
+<div style="position:absolute;left:690px;top:527px;display:flex;align-items:center;gap:9px"><span style="font:400 17px/26px var(--display);color:var(--color-neutral-700);border-bottom:1px dotted rgba(32,30,29,.3)">Pro</span><span style="display:flex;align-items:center;justify-content:center;width:17px;height:17px;border:1px solid rgba(32,30,29,.3);border-radius:var(--radius-md);font:600 10px/1 var(--mono);color:var(--color-neutral-700)">3</span></div>
+
+<div style="position:absolute;left:690px;top:412px;font:400 12px/1 var(--ui);color:var(--color-neutral-700);display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-keyboard" style="font-size:14px;color:var(--color-accent)"></i>Tab で子ノード · Enter で同階層</div>
+
+<div style="position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;background:var(--color-bg);border:1px solid rgba(32,30,29,.16);box-shadow:var(--shadow-md);border-radius:var(--radius-md);padding:5px">
+<button style="all:unset;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:var(--radius-md);background:var(--color-accent);color:#fff;font:400 13px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-plus" style="font-size:15px"></i>子ノード <span style="font:400 11px/1 var(--mono);opacity:.75">Tab</span></button>
+<button style="all:unset;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-arrow-elbow-down-left" style="font-size:15px"></i>同階層 <span style="font:400 11px/1 var(--mono);color:var(--color-neutral-700)">Enter</span></button>
+<span style="width:1px;height:22px;background:rgba(32,30,29,.14);margin:0 6px"></span>
+<button style="all:unset;display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-md);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-arrows-in-cardinal" style="font-size:16px"></i></button>
+<button style="all:unset;display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-md);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-trash" style="font-size:16px"></i></button>
+</div>
+
+<div style="position:absolute;right:24px;bottom:26px;display:flex;align-items:center;gap:2px;background:var(--color-bg);border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);padding:4px">
+<button style="all:unset;padding:6px 10px;border-radius:var(--radius-md);font:400 15px/1 var(--ui);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)">−</button>
+<span style="font:400 12px/1 var(--mono);color:var(--color-neutral-700);padding:0 4px">100%</span>
+<button style="all:unset;padding:6px 10px;border-radius:var(--radius-md);font:400 15px/1 var(--ui);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)">+</button>
+<span style="width:1px;height:18px;background:rgba(32,30,29,.14);margin:0 3px"></span>
+<button style="all:unset;display:flex;padding:6px 9px;border-radius:var(--radius-md);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-crosshair" style="font-size:15px"></i></button>
+</div>
+
+<div style="position:absolute;left:24px;bottom:30px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)">Ctrl + / &nbsp;ショートカット一覧 · Shortcuts</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>編集画面 B — カード型ノード＋左ツールレール / Editor B · carded nodes, left rail</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+
+<div style="width:60px;flex:none;border-right:1px solid rgba(32,30,29,.12);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px">
+<span style="width:14px;height:14px;background:var(--color-accent);display:block;margin-bottom:16px"></span>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-accent-100);color:var(--color-accent-700);cursor:pointer"><i class="ph-duotone ph-cursor" style="font-size:19px"></i></button>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-hand" style="font-size:19px"></i></button>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-plus-circle" style="font-size:19px"></i></button>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-tree-structure" style="font-size:19px"></i></button>
+<span style="width:24px;height:1px;background:rgba(32,30,29,.16);margin:10px 0"></span>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-arrow-counter-clockwise" style="font-size:19px"></i></button>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-400);cursor:default"><i class="ph-duotone ph-arrow-clockwise" style="font-size:19px"></i></button>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:4px;align-items:center">
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-image" style="font-size:19px"></i></button>
+<button style="all:unset;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--radius-md);color:var(--color-neutral-700);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-question" style="font-size:19px"></i></button>
+<span style="width:30px;height:30px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:600 12px/1 var(--ui);color:var(--color-neutral-800);margin-top:6px">K</span>
+</div>
+</div>
+
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:52px;flex:none;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid rgba(32,30,29,.08)">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font:600 17px/1 var(--ui)">LaterList</span><span style="font:400 12px/1 var(--ui);color:var(--color-neutral-700)">保存済み · Saved 5分前</span></div>
+<div style="position:absolute;right:18px;display:flex;align-items:center;gap:8px">
+<span style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);font:400 12px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-check" style="font-size:14px;color:var(--color-accent)"></i>同期済み</span>
+<button style="all:unset;padding:6px 13px;border-radius:var(--radius-md);background:var(--color-accent);color:#fff;font:400 13px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)">PNG</button>
+</div>
+</div>
+
+<div style="flex:1;position:relative;background:var(--color-bg);overflow:hidden">
+<svg width="1220" height="748" style="position:absolute;inset:0" aria-hidden="true"><g fill="none" stroke="#bab6b6" stroke-width="1.5">
+<path d="M300,350 C360,350 350,206 400,206"></path>
+<path d="M300,350 L400,350"></path>
+<path d="M300,350 C360,350 350,494 400,494"></path>
+<path d="M575,206 C640,206 635,152 680,152"></path>
+<path d="M575,206 C640,206 635,258 680,258"></path>
+<path d="M500,350 C590,350 590,318 680,318"></path>
+<path d="M500,350 C590,350 590,384 680,384"></path>
+<path d="M500,494 C590,494 590,462 680,462"></path>
+<path d="M500,494 C590,494 590,528 680,528"></path>
+</g></svg>
+
+<div style="position:absolute;left:130px;top:326px;padding:12px 22px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:600 24px/1.25 var(--ui);box-shadow:var(--shadow-md)">LaterList</div>
+
+<div style="position:absolute;left:400px;top:184px;padding:9px 16px;background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.18);border-radius:var(--radius-md);font:400 18px/1.3 var(--ui)">マーケティング</div>
+<div style="position:absolute;left:400px;top:328px;padding:9px 16px;background:var(--color-neutral-100);border:2px solid var(--color-accent);border-radius:var(--radius-md);font:600 18px/1.3 var(--ui);color:var(--color-accent-700);box-shadow:var(--shadow-sm)">開発</div>
+<div style="position:absolute;left:400px;top:472px;padding:9px 16px;background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.18);border-radius:var(--radius-md);font:400 18px/1.3 var(--ui)">収益化</div>
+
+<div style="position:absolute;left:680px;top:135px;padding:7px 13px;background:var(--color-accent-100);border-radius:var(--radius-md);font:400 15px/1.3 var(--ui);color:var(--color-accent-800)">X / SNS</div>
+<div style="position:absolute;left:680px;top:241px;padding:7px 13px;background:var(--color-accent-100);border-radius:var(--radius-md);font:400 15px/1.3 var(--ui);color:var(--color-accent-800)">SEO</div>
+<div style="position:absolute;left:680px;top:301px;padding:7px 13px;background:var(--color-accent-100);border-radius:var(--radius-md);font:400 15px/1.3 var(--ui);color:var(--color-accent-800)">キャンバス実装</div>
+<div style="position:absolute;left:680px;top:367px;padding:7px 13px;background:var(--color-neutral-100);border:1px solid var(--color-accent);border-radius:var(--radius-md);font:400 15px/1.3 var(--ui);color:var(--color-text)">オフライン同期<span style="display:inline-block;width:2px;height:16px;background:var(--color-accent);vertical-align:-3px;margin-left:3px"></span></div>
+<div style="position:absolute;left:680px;top:445px;padding:7px 13px;background:var(--color-accent-100);border-radius:var(--radius-md);font:400 15px/1.3 var(--ui);color:var(--color-accent-800)">広告（Free）</div>
+<div style="position:absolute;left:680px;top:511px;display:flex;align-items:center;gap:8px"><span style="padding:7px 13px;background:var(--color-accent-100);border-radius:var(--radius-md);font:400 15px/1.3 var(--ui);color:var(--color-accent-800)">Pro</span><span style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--color-neutral-300);border-radius:50%;font:600 10px/1 var(--mono);color:var(--color-neutral-800)">3</span></div>
+
+<div style="position:absolute;right:24px;bottom:24px;display:flex;flex-direction:column;border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);background:var(--color-bg);overflow:hidden">
+<button style="all:unset;padding:8px 12px;text-align:center;font:400 15px/1 var(--ui);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)">+</button>
+<span style="height:1px;background:rgba(32,30,29,.12)"></span>
+<button style="all:unset;padding:8px 12px;text-align:center;font:400 15px/1 var(--ui);color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)">−</button>
+<span style="height:1px;background:rgba(32,30,29,.12)"></span>
+<button style="all:unset;padding:8px 11px;display:flex;color:var(--color-neutral-800);cursor:pointer" style-hover="background:var(--color-accent-100);color:var(--color-accent-700)"><i class="ph-duotone ph-crosshair" style="font-size:15px"></i></button>
+</div>
+<div style="position:absolute;left:24px;bottom:26px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)">ドラッグで移動 · ホイールでズーム</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>マップ一覧 A — カードグリッド＋右カラム広告 / Map list A</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+<div style="height:60px;flex:none;display:flex;align-items:center;gap:18px;padding:0 32px;border-bottom:1px solid rgba(32,30,29,.12)">
+<div style="display:flex;align-items:center;gap:9px"><span style="width:13px;height:13px;background:var(--color-accent);display:block"></span><span style="font:600 16px/1 var(--ui)">MindMap</span></div>
+<div style="flex:1;max-width:360px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(32,30,29,.22);padding:6px 2px"><i class="ph-duotone ph-magnifying-glass" style="font-size:15px;color:var(--color-neutral-700)"></i><span style="font:400 14px/1 var(--ui);color:var(--color-neutral-700)">マップ名で検索 / Search maps</span></div>
+<div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+<button style="all:unset;display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:400 14px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-plus" style="font-size:15px"></i>新しいマップ</button>
+<span style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:600 12px/1 var(--ui);color:var(--color-neutral-800)">K</span>
+</div>
+</div>
+
+<div style="flex:1;display:flex;min-height:0">
+<div style="flex:1;padding:34px 32px;min-width:0">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+<h2 style="margin:0;font:600 26px/1.2 var(--display)">最近開いたマップ</h2>
+<div style="display:flex;align-items:center;gap:16px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><span style="color:var(--color-accent-700);border-bottom:1px solid var(--color-accent);padding-bottom:2px">すべて</span><span>ローカルのみ</span><span>同期済み</span><i class="ph-duotone ph-funnel" style="font-size:15px"></i></div>
+</div>
+<p style="margin:0 0 26px;font:400 13px/1.5 var(--ui);color:var(--color-neutral-700)">6 maps · Free plan</p>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+
+<div style="background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);overflow:hidden">
+<div style="height:112px;background:var(--color-surface);position:relative;border-bottom:1px solid rgba(32,30,29,.10)"><svg width="100%" height="112" aria-hidden="true"><g fill="none" stroke="#9b9797" stroke-width="1"><path d="M60,56 C90,56 92,32 118,32"></path><path d="M60,56 L118,56"></path><path d="M60,56 C90,56 92,80 118,80"></path></g><rect x="28" y="50" width="30" height="12" fill="#0088b0"></rect><rect x="120" y="27" width="42" height="10" fill="#bab6b6"></rect><rect x="120" y="51" width="52" height="10" fill="#bab6b6"></rect><rect x="120" y="75" width="36" height="10" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font:600 17px/1.3 var(--ui)">LaterList</span><i class="ph-duotone ph-dots-three" style="font-size:16px;color:var(--color-neutral-700)"></i></div>
+<div style="margin-top:8px;display:flex;align-items:center;gap:8px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)"><span>更新 5分前</span><span style="width:3px;height:3px;background:var(--color-neutral-400);border-radius:50%"></span><span style="display:flex;align-items:center;gap:4px"><i class="ph-duotone ph-cloud-check" style="font-size:13px;color:var(--color-accent)"></i>同期済み</span></div>
+</div>
+</div>
+
+<div style="background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);overflow:hidden">
+<div style="height:112px;background:var(--color-surface);position:relative;border-bottom:1px solid rgba(32,30,29,.10)"><svg width="100%" height="112" aria-hidden="true"><g fill="none" stroke="#9b9797" stroke-width="1"><path d="M70,56 C100,56 102,38 128,38"></path><path d="M70,56 C100,56 102,74 128,74"></path></g><rect x="34" y="50" width="34" height="12" fill="#0088b0"></rect><rect x="130" y="33" width="46" height="10" fill="#bab6b6"></rect><rect x="130" y="69" width="38" height="10" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font:600 17px/1.3 var(--ui)">3D Printer 事業計画</span><i class="ph-duotone ph-dots-three" style="font-size:16px;color:var(--color-neutral-700)"></i></div>
+<div style="margin-top:8px;display:flex;align-items:center;gap:8px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)"><span>更新 昨日</span><span style="width:3px;height:3px;background:var(--color-neutral-400);border-radius:50%"></span><span style="display:flex;align-items:center;gap:4px"><i class="ph-duotone ph-hard-drives" style="font-size:13px;color:var(--color-neutral-700)"></i>ローカルのみ</span></div>
+</div>
+</div>
+
+<div style="background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);overflow:hidden">
+<div style="height:112px;background:var(--color-surface);position:relative;border-bottom:1px solid rgba(32,30,29,.10)"><svg width="100%" height="112" aria-hidden="true"><g fill="none" stroke="#9b9797" stroke-width="1"><path d="M56,56 C86,56 88,26 114,26"></path><path d="M56,56 L114,56"></path><path d="M56,56 C86,56 88,86 114,86"></path></g><rect x="24" y="50" width="30" height="12" fill="#0088b0"></rect><rect x="116" y="21" width="50" height="10" fill="#bab6b6"></rect><rect x="116" y="51" width="34" height="10" fill="#bab6b6"></rect><rect x="116" y="81" width="44" height="10" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font:600 17px/1.3 var(--ui)">読書メモ — 思考の整理学</span><i class="ph-duotone ph-dots-three" style="font-size:16px;color:var(--color-neutral-700)"></i></div>
+<div style="margin-top:8px;display:flex;align-items:center;gap:8px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)"><span>更新 3日前</span><span style="width:3px;height:3px;background:var(--color-neutral-400);border-radius:50%"></span><span style="display:flex;align-items:center;gap:4px"><i class="ph-duotone ph-cloud-check" style="font-size:13px;color:var(--color-accent)"></i>同期済み</span></div>
+</div>
+</div>
+
+<div style="background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);overflow:hidden">
+<div style="height:112px;background:var(--color-surface);position:relative;border-bottom:1px solid rgba(32,30,29,.10)"><svg width="100%" height="112" aria-hidden="true"><g fill="none" stroke="#9b9797" stroke-width="1"><path d="M64,56 C94,56 96,40 122,40"></path><path d="M64,56 C94,56 96,72 122,72"></path></g><rect x="30" y="50" width="32" height="12" fill="#0088b0"></rect><rect x="124" y="35" width="40" height="10" fill="#bab6b6"></rect><rect x="124" y="67" width="48" height="10" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font:600 17px/1.3 var(--ui)">Q3 OKR</span><i class="ph-duotone ph-dots-three" style="font-size:16px;color:var(--color-neutral-700)"></i></div>
+<div style="margin-top:8px;display:flex;align-items:center;gap:8px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)"><span>更新 1週間前</span><span style="width:3px;height:3px;background:var(--color-neutral-400);border-radius:50%"></span><span style="display:flex;align-items:center;gap:4px"><i class="ph-duotone ph-cloud-warning" style="font-size:13px;color:var(--color-accent-2)"></i>同期失敗</span></div>
+</div>
+</div>
+
+<div style="border:1px dashed rgba(32,30,29,.28);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:196px;color:var(--color-neutral-700);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)">
+<i class="ph-duotone ph-plus" style="font-size:24px"></i>
+<span style="font:400 14px/1 var(--ui)">新しいマップ</span>
+<span style="font:400 11px/1 var(--mono);color:var(--color-neutral-700)">N</span>
+</div>
+</div>
+</div>
+
+<div style="width:320px;flex:none;border-left:1px solid rgba(32,30,29,.10);padding:34px 28px;display:flex;flex-direction:column;gap:20px">
+<div style="font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">広告 / AD — FREE PLAN</div>
+<div style="height:250px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(32,30,29,.16);display:flex;align-items:center;justify-content:center;font:400 11px/1.6 var(--mono);color:var(--color-neutral-700);text-align:center">300 × 250<br>display ad</div>
+<div style="height:250px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(32,30,29,.16);display:flex;align-items:center;justify-content:center;font:400 11px/1.6 var(--mono);color:var(--color-neutral-700);text-align:center">300 × 250<br>display ad</div>
+<div style="margin-top:auto;padding-top:20px;border-top:1px solid rgba(32,30,29,.10)">
+<p style="margin:0 0 10px;font:400 13px/1.5 var(--ui);color:var(--color-neutral-700)">広告なしで使う / Remove ads</p>
+<button style="all:unset;display:block;text-align:center;padding:9px 0;border:1px solid var(--color-accent-2);border-radius:var(--radius-md);color:var(--color-accent-2-700);font:400 13px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-2-100)">Pro にアップグレード</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>マップ一覧 B — 一覧表＋下部広告バナー / Map list B · dense table</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+<div style="height:60px;flex:none;display:flex;align-items:center;gap:18px;padding:0 32px;border-bottom:1px solid rgba(32,30,29,.12)">
+<div style="display:flex;align-items:center;gap:9px"><span style="width:13px;height:13px;background:var(--color-accent);display:block"></span><span style="font:600 16px/1 var(--ui)">MindMap</span></div>
+<div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+<div style="display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(32,30,29,.22);padding:6px 2px;width:240px"><i class="ph-duotone ph-magnifying-glass" style="font-size:15px;color:var(--color-neutral-700)"></i><span style="font:400 14px/1 var(--ui);color:var(--color-neutral-700)">検索</span></div>
+<button style="all:unset;display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:400 14px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-plus" style="font-size:15px"></i>新しいマップ</button>
+<span style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:600 12px/1 var(--ui);color:var(--color-neutral-800)">K</span>
+</div>
+</div>
+
+<div style="flex:1;display:flex;min-height:0">
+<div style="width:190px;flex:none;padding:30px 0 30px 32px;display:flex;flex-direction:column;gap:3px">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--color-accent-100);border-radius:var(--radius-md);color:var(--color-accent-700);font:600 14px/1 var(--ui)"><i class="ph-duotone ph-squares-four" style="font-size:16px"></i>すべてのマップ</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;color:var(--color-neutral-700);font:400 14px/1 var(--ui)"><i class="ph-duotone ph-clock-counter-clockwise" style="font-size:16px"></i>最近</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;color:var(--color-neutral-700);font:400 14px/1 var(--ui)"><i class="ph-duotone ph-layout" style="font-size:16px"></i>テンプレート</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;color:var(--color-neutral-700);font:400 14px/1 var(--ui)"><i class="ph-duotone ph-gear" style="font-size:16px"></i>設定</div>
+</div>
+
+<div style="flex:1;padding:30px 32px;min-width:0;display:flex;flex-direction:column">
+<h2 style="margin:0 0 22px;font:600 26px/1.2 var(--display)">すべてのマップ <span style="font:400 15px/1 var(--ui);color:var(--color-neutral-700)">6</span></h2>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;font:400 12px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.05em;padding-bottom:10px;border-bottom:1px solid rgba(32,30,29,.22)"><span>NAME / マップ名</span><span>UPDATED</span><span>STATUS</span><span></span></div>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;align-items:center;padding:15px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:600 17px/1.3 var(--ui)">LaterList</span><span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">5分前</span><span style="display:flex;align-items:center;gap:6px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-check" style="font-size:15px;color:var(--color-accent)"></i>同期済み</span><i class="ph-duotone ph-dots-three" style="font-size:17px;color:var(--color-neutral-700);justify-self:end"></i></div>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;align-items:center;padding:15px 0;border-bottom:1px solid rgba(32,30,29,.10);background:var(--color-surface)"><span style="font:600 17px/1.3 var(--ui)">3D Printer 事業計画</span><span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">昨日</span><span style="display:flex;align-items:center;gap:6px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-hard-drives" style="font-size:15px"></i>ローカルのみ</span><i class="ph-duotone ph-dots-three" style="font-size:17px;color:var(--color-neutral-800);justify-self:end"></i></div>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;align-items:center;padding:15px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:600 17px/1.3 var(--ui)">読書メモ — 思考の整理学</span><span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">3日前</span><span style="display:flex;align-items:center;gap:6px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-check" style="font-size:15px;color:var(--color-accent)"></i>同期済み</span><i class="ph-duotone ph-dots-three" style="font-size:17px;color:var(--color-neutral-700);justify-self:end"></i></div>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;align-items:center;padding:15px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:600 17px/1.3 var(--ui)">Q3 OKR</span><span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">1週間前</span><span style="display:flex;align-items:center;gap:6px;font:400 13px/1 var(--ui);color:var(--color-accent-2-700)"><i class="ph-duotone ph-cloud-warning" style="font-size:15px;color:var(--color-accent-2)"></i>同期失敗</span><i class="ph-duotone ph-dots-three" style="font-size:17px;color:var(--color-neutral-700);justify-self:end"></i></div>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;align-items:center;padding:15px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:600 17px/1.3 var(--ui)">新規事業ブレスト</span><span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">2週間前</span><span style="display:flex;align-items:center;gap:6px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-check" style="font-size:15px;color:var(--color-accent)"></i>同期済み</span><i class="ph-duotone ph-dots-three" style="font-size:17px;color:var(--color-neutral-700);justify-self:end"></i></div>
+
+<div style="display:grid;grid-template-columns:1fr 150px 150px 44px;gap:0 20px;align-items:center;padding:15px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:600 17px/1.3 var(--ui)">学習ノート — TypeScript</span><span style="font:400 13px/1 var(--ui);color:var(--color-neutral-700)">1ヶ月前</span><span style="display:flex;align-items:center;gap:6px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-check" style="font-size:15px;color:var(--color-accent)"></i>同期済み</span><i class="ph-duotone ph-dots-three" style="font-size:17px;color:var(--color-neutral-700);justify-self:end"></i></div>
+
+<div style="margin-top:auto;padding-top:26px">
+<div style="font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em;margin-bottom:8px">広告 / AD — FREE PLAN</div>
+<div style="height:90px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(32,30,29,.16);display:flex;align-items:center;justify-content:center;font:400 11px/1 var(--mono);color:var(--color-neutral-700)">728 × 90 leaderboard</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>ログイン / Login</div>
+<div class="dv-card" style="width:760px">
+<div style="height:800px;display:flex;flex-direction:column;justify-content:center;padding:0 84px;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+<span style="width:16px;height:16px;background:var(--color-accent);display:block;margin-bottom:28px"></span>
+<h1 style="margin:0 0 10px;font:600 42px/1.15 var(--display);letter-spacing:-.01em">Web MindMap</h1>
+<p style="margin:0 0 46px;font:400 16px/1.6 var(--ui);color:var(--color-neutral-700);max-width:36ch">思考を止めずに書き出すためのマインドマップ。<br>Keep thinking — the tool stays out of the way.</p>
+
+<button style="all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 0;border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);font:400 15px/1 var(--ui);cursor:pointer;margin-bottom:10px" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)"><i class="ph-duotone ph-google-logo" style="font-size:18px"></i>Google でログイン</button>
+<button style="all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 0;border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);font:400 15px/1 var(--ui);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)"><i class="ph-duotone ph-envelope-simple" style="font-size:18px"></i>メールでログイン（Magic Link）</button>
+
+<div style="display:flex;align-items:center;gap:16px;margin:34px 0 30px"><span style="height:1px;flex:1;background:rgba(32,30,29,.14)"></span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-700)">OR / または</span><span style="height:1px;flex:1;background:rgba(32,30,29,.14)"></span></div>
+
+<button style="all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 0;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:400 16px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-arrow-right" style="font-size:18px"></i>ログインせずに始める</button>
+<p style="margin:14px 0 0;font:400 13px/1.6 var(--ui);color:var(--color-neutral-700)">作成したマップはこの端末に保存され、あとからログインしても引き継がれます。<br><span style="color:var(--color-neutral-700)">Guest maps are kept and migrated on login.</span></p>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>設定 / Settings</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+<div style="height:60px;flex:none;display:flex;align-items:center;gap:18px;padding:0 32px;border-bottom:1px solid rgba(32,30,29,.12)">
+<div style="display:flex;align-items:center;gap:9px"><span style="width:13px;height:13px;background:var(--color-accent);display:block"></span><span style="font:600 16px/1 var(--ui)">MindMap</span></div>
+<span style="font:400 14px/1 var(--ui);color:var(--color-neutral-700)">設定 / Settings</span>
+<span style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:600 12px/1 var(--ui);color:var(--color-neutral-800);margin-left:auto">K</span>
+</div>
+<div style="flex:1;display:flex;min-height:0">
+<div style="flex:1;padding:40px 48px;max-width:720px">
+
+<h2 style="margin:0 0 4px;font:600 24px/1.2 var(--display)">アカウント</h2>
+<p style="margin:0 0 22px;font:400 12px/1 var(--mono);color:var(--color-neutral-700)">ACCOUNT</p>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:400 15px/1.4 var(--ui)">名前 / Name</span><span style="display:flex;align-items:center;gap:10px;font:400 15px/1.4 var(--ui);color:var(--color-neutral-700)">Kenji S.<i class="ph-duotone ph-pencil-simple" style="font-size:15px;color:var(--color-neutral-700)"></i></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:400 15px/1.4 var(--ui)">メール / Email</span><span style="font:400 15px/1.4 var(--ui);color:var(--color-neutral-700)">kenji@example.com</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(32,30,29,.10)"><span style="font:400 15px/1.4 var(--ui)">プラン / Plan</span><span style="display:flex;align-items:center;gap:12px"><span style="padding:3px 9px;background:var(--color-surface);border-radius:var(--radius-md);font:400 12px/1.5 var(--mono);color:var(--color-neutral-800)">FREE</span><a href="#1f" style="font:400 14px/1 var(--ui);color:var(--color-accent-2-700);text-decoration:none;border-bottom:1px solid var(--color-accent-2)">Pro にアップグレード</a></span></div>
+
+<h2 style="margin:44px 0 4px;font:600 24px/1.2 var(--display)">表示と保存</h2>
+<p style="margin:0 0 22px;font:400 12px/1 var(--mono);color:var(--color-neutral-700)">APPEARANCE &amp; SAVING</p>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(32,30,29,.10)">
+<span><span style="font:400 15px/1.4 var(--ui);display:block">ダークモード / Dark mode</span><span style="font:400 12px/1.5 var(--ui);color:var(--color-neutral-700)">システム設定に従う</span></span>
+<span style="display:flex;border:1px solid rgba(32,30,29,.22);border-radius:var(--radius-md);overflow:hidden"><span style="padding:7px 14px;font:400 13px/1 var(--ui);color:var(--color-neutral-700)">ライト</span><span style="padding:7px 14px;font:400 13px/1 var(--ui);color:var(--color-neutral-700);border-left:1px solid rgba(32,30,29,.16)">ダーク</span><span style="padding:7px 14px;font:400 13px/1 var(--ui);background:var(--color-accent);color:#fff;border-left:1px solid rgba(32,30,29,.16)">システム</span></span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(32,30,29,.10)">
+<span><span style="font:400 15px/1.4 var(--ui);display:block">自動保存 / Autosave</span><span style="font:400 12px/1.5 var(--ui);color:var(--color-neutral-700)">常に有効。手動保存は不要です。</span></span>
+<span style="width:44px;height:24px;background:var(--color-accent);border-radius:12px;display:flex;align-items:center;justify-content:flex-end;padding:0 3px;box-sizing:border-box"><span style="width:18px;height:18px;background:#fff;border-radius:50%;display:block"></span></span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(32,30,29,.10)">
+<span><span style="font:400 15px/1.4 var(--ui);display:block">クラウド同期 / Cloud sync</span><span style="font:400 12px/1.5 var(--ui);color:var(--color-neutral-700)">最終同期 2分前 · 6 マップ</span></span>
+<span style="width:44px;height:24px;background:var(--color-accent);border-radius:12px;display:flex;align-items:center;justify-content:flex-end;padding:0 3px;box-sizing:border-box"><span style="width:18px;height:18px;background:#fff;border-radius:50%;display:block"></span></span>
+</div>
+
+<div style="margin-top:44px;display:flex;align-items:center;gap:20px">
+<button style="all:unset;padding:10px 18px;border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);font:400 14px/1 var(--ui);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)">ログアウト / Sign out</button>
+<a href="#1f" style="font:400 13px/1 var(--ui);color:var(--color-neutral-700);text-decoration:none">キーボードショートカット一覧</a>
+</div>
+</div>
+
+<div style="width:320px;flex:none;border-left:1px solid rgba(32,30,29,.10);padding:40px 28px">
+<div style="font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em;margin-bottom:14px">広告 / AD — FREE PLAN</div>
+<div style="height:600px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(32,30,29,.16);display:flex;align-items:center;justify-content:center;font:400 11px/1.6 var(--mono);color:var(--color-neutral-700);text-align:center">300 × 600<br>half page</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>テンプレート一覧 / Templates</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+<div style="height:60px;flex:none;display:flex;align-items:center;gap:18px;padding:0 32px;border-bottom:1px solid rgba(32,30,29,.12)">
+<div style="display:flex;align-items:center;gap:9px"><span style="width:13px;height:13px;background:var(--color-accent);display:block"></span><span style="font:600 16px/1 var(--ui)">MindMap</span></div>
+<div style="flex:1;max-width:320px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(32,30,29,.22);padding:6px 2px"><i class="ph-duotone ph-magnifying-glass" style="font-size:15px;color:var(--color-neutral-700)"></i><span style="font:400 14px/1 var(--ui);color:var(--color-neutral-700)">テンプレートを検索</span></div>
+<span style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-300);display:flex;align-items:center;justify-content:center;font:600 12px/1 var(--ui);color:var(--color-neutral-800);margin-left:auto">K</span>
+</div>
+
+<div style="padding:34px 32px 0">
+<h2 style="margin:0 0 4px;font:600 26px/1.2 var(--display)">テンプレートから始める</h2>
+<p style="margin:0 0 24px;font:400 13px/1.5 var(--ui);color:var(--color-neutral-700)">Start from a template — 構造だけが入った空のマップが作られます。</p>
+<div style="display:flex;gap:26px;font:400 14px/1 var(--ui);color:var(--color-neutral-700);border-bottom:1px solid rgba(32,30,29,.14);padding-bottom:12px">
+<span style="color:var(--color-accent-700);font-weight:600;border-bottom:2px solid var(--color-accent);padding-bottom:12px;margin-bottom:-13px">ビジネス</span><span>学習</span><span>ブレスト</span><span>キャリア</span><span>読書</span>
+</div>
+</div>
+
+<div style="flex:1;padding:26px 32px 0;min-height:0">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><rect x="8" y="8" width="64" height="34" fill="none" stroke="#9b9797"></rect><rect x="78" y="8" width="64" height="34" fill="none" stroke="#9b9797"></rect><rect x="8" y="48" width="64" height="34" fill="none" stroke="#9b9797"></rect><rect x="78" y="48" width="64" height="34" fill="#0088b0" opacity=".18" stroke="#0088b0"></rect></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">SWOT 分析</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">4 ノード · ビジネス</div></div>
+</div>
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><line x1="10" y1="45" x2="140" y2="45" stroke="#9b9797"></line><circle cx="30" cy="45" r="7" fill="#0088b0"></circle><circle cx="70" cy="45" r="7" fill="#bab6b6"></circle><circle cx="110" cy="45" r="7" fill="#bab6b6"></circle><rect x="18" y="20" width="24" height="8" fill="#d7d3d3"></rect><rect x="58" y="62" width="24" height="8" fill="#d7d3d3"></rect><rect x="98" y="20" width="24" height="8" fill="#d7d3d3"></rect></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">ロードマップ</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">12 ノード · ビジネス</div></div>
+</div>
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><g fill="none" stroke="#9b9797"><path d="M40,45 C60,45 60,20 82,20"></path><path d="M40,45 L82,45"></path><path d="M40,45 C60,45 60,70 82,70"></path></g><rect x="12" y="39" width="28" height="12" fill="#0088b0"></rect><rect x="84" y="15" width="40" height="10" fill="#bab6b6"></rect><rect x="84" y="40" width="40" height="10" fill="#bab6b6"></rect><rect x="84" y="65" width="40" height="10" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">WBS 分解</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">9 ノード · ビジネス</div></div>
+</div>
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><rect x="20" y="14" width="110" height="12" fill="#0088b0" opacity=".7"></rect><rect x="20" y="36" width="80" height="10" fill="#bab6b6"></rect><rect x="20" y="54" width="94" height="10" fill="#bab6b6"></rect><rect x="20" y="72" width="64" height="10" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">OKR 設計</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">7 ノード · ビジネス</div></div>
+</div>
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><g fill="none" stroke="#9b9797"><path d="M75,45 L40,20"></path><path d="M75,45 L110,20"></path><path d="M75,45 L40,70"></path><path d="M75,45 L110,70"></path></g><circle cx="75" cy="45" r="10" fill="#0088b0"></circle><circle cx="40" cy="20" r="6" fill="#bab6b6"></circle><circle cx="110" cy="20" r="6" fill="#bab6b6"></circle><circle cx="40" cy="70" r="6" fill="#bab6b6"></circle><circle cx="110" cy="70" r="6" fill="#bab6b6"></circle></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">アイデア整理</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">5 ノード · ブレスト</div></div>
+</div>
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><rect x="16" y="16" width="52" height="58" fill="none" stroke="#9b9797"></rect><rect x="24" y="26" width="36" height="7" fill="#bab6b6"></rect><rect x="24" y="38" width="36" height="7" fill="#bab6b6"></rect><rect x="82" y="26" width="52" height="10" fill="#0088b0" opacity=".7"></rect><rect x="82" y="44" width="40" height="8" fill="#bab6b6"></rect><rect x="82" y="58" width="46" height="8" fill="#bab6b6"></rect></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">読書メモ</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">6 ノード · 読書</div></div>
+</div>
+
+<div style="border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);background:var(--color-neutral-100);overflow:hidden;cursor:pointer" style-hover="border-color:var(--color-accent)">
+<div style="height:118px;background:var(--color-surface);display:flex;align-items:center;justify-content:center"><svg width="150" height="90" aria-hidden="true"><rect x="14" y="20" width="42" height="50" fill="none" stroke="#9b9797"></rect><rect x="62" y="20" width="42" height="50" fill="none" stroke="#9b9797"></rect><rect x="110" y="20" width="26" height="50" fill="#0088b0" opacity=".18" stroke="#0088b0"></rect></svg></div>
+<div style="padding:14px 16px"><div style="font:600 16px/1.3 var(--ui)">学習ノート</div><div style="margin-top:5px;font:400 12px/1.4 var(--ui);color:var(--color-neutral-700)">8 ノード · 学習</div></div>
+</div>
+
+<div style="border:1px dashed rgba(32,30,29,.28);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--color-neutral-700);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)"><i class="ph-duotone ph-file-dashed" style="font-size:24px"></i><span style="font:400 14px/1 var(--ui)">空のマップ</span></div>
+</div>
+</div>
+
+<div style="padding:24px 32px 26px">
+<div style="height:90px;background-image:repeating-linear-gradient(45deg,rgba(32,30,29,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(32,30,29,.16);display:flex;align-items:center;justify-content:center;font:400 11px/1 var(--mono);color:var(--color-neutral-700)">広告 / AD — 728 × 90 (FREE PLAN)</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>ショートカット一覧（Ctrl + /）/ Shortcut help</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;position:relative;background:var(--color-bg);font-family:var(--ui);overflow:hidden">
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(32,30,29,.11) 1px,transparent 1px);background-size:26px 26px"></div>
+<svg width="1280" height="800" style="position:absolute;inset:0;opacity:.5" aria-hidden="true"><g fill="none" stroke="rgba(32,30,29,.3)" stroke-width="1.25"><path d="M285,350 C345,350 350,200 410,200"></path><path d="M285,350 L410,350"></path><path d="M285,350 C345,350 350,500 410,500"></path></g><rect x="120" y="336" width="150" height="30" fill="#bab6b6"></rect><rect x="410" y="188" width="130" height="24" fill="#d7d3d3"></rect><rect x="410" y="338" width="70" height="24" fill="#d7d3d3"></rect><rect x="410" y="488" width="80" height="24" fill="#d7d3d3"></rect></svg>
+<div style="position:absolute;inset:0;background:rgba(32,30,29,.42)"></div>
+
+<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:760px;background:var(--color-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:36px 40px 32px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px"><h2 style="margin:0;font:600 26px/1.2 var(--display);color:var(--color-text)">キーボードショートカット</h2><i class="ph-duotone ph-x" style="font-size:20px;color:var(--color-neutral-700)"></i></div>
+<p style="margin:0 0 28px;font:400 12px/1 var(--mono);color:var(--color-neutral-700)">KEYBOARD SHORTCUTS · Ctrl + / で開閉</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 48px">
+<div>
+<div style="font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em;padding-bottom:8px;border-bottom:1px solid rgba(32,30,29,.2)">ノード / NODES</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">同階層に追加</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">Enter</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">子ノードを追加</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">Tab</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">1階層上へ移動</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">Shift + Tab</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">削除（子ごと）</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">Delete</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">編集を終了 → 選択解除</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">Esc</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">ノード間を移動</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">↑ ↓ ← →</span></div>
+</div>
+<div>
+<div style="font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em;padding-bottom:8px;border-bottom:1px solid rgba(32,30,29,.2)">編集・表示 / EDIT &amp; VIEW</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">元に戻す</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">⌘ / Ctrl + Z</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">やり直す</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">⌘ + Shift + Z</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">コピー / 貼り付け</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">⌘ + C / V</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">ズーム</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">⌘ + ホイール</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(32,30,29,.08)"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">中央へ戻る</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">⌘ + 0</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0"><span style="font:400 15px/1.3 var(--ui);color:var(--color-text)">PNG 書き出し</span><span style="font:400 12px/1 var(--mono);color:var(--color-neutral-800);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:4px 8px">⌘ + Shift + E</span></div>
+</div>
+</div>
+<p style="margin:26px 0 0;font:400 13px/1.5 var(--ui);color:var(--color-neutral-700)">テキスト編集中は Backspace が文字削除を優先します。<br><span style="color:var(--color-neutral-700)">While editing text, Backspace deletes characters — not the node.</span></p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>初回起動・空状態 / First run &amp; empty state</div>
+<div class="dv-card" style="width:1280px">
+<div style="height:800px;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--ui)">
+<div style="height:60px;flex:none;display:flex;align-items:center;gap:18px;padding:0 32px;border-bottom:1px solid rgba(32,30,29,.12)">
+<div style="display:flex;align-items:center;gap:9px"><span style="width:13px;height:13px;background:var(--color-accent);display:block"></span><span style="font:600 16px/1 var(--ui)">MindMap</span></div>
+<span style="margin-left:auto;display:flex;align-items:center;gap:6px;font:400 12px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-hard-drives" style="font-size:14px"></i>ゲスト利用中 · この端末に保存</span>
+<a href="#1e" style="font:400 13px/1 var(--ui);color:var(--color-accent-700);text-decoration:none;border-bottom:1px solid var(--color-accent);padding-bottom:2px;margin-left:16px">ログイン</a>
+</div>
+
+<div style="flex:1;position:relative;display:flex;align-items:center;background-image:radial-gradient(circle,rgba(32,30,29,.11) 1px,transparent 1px);background-size:26px 26px">
+<div style="padding:0 0 0 110px;max-width:620px">
+<p style="margin:0 0 14px;font:400 12px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">FIRST RUN · まだマップがありません</p>
+<h1 style="margin:0 0 16px;font:600 44px/1.15 var(--display);letter-spacing:-.01em">最初のマップを<br>作りましょう。</h1>
+<p style="margin:0 0 34px;font:400 16px/1.7 var(--ui);color:var(--color-neutral-700)">中心のことばを入力して <span style="font:400 13px/1 var(--mono);border:1px solid rgba(32,30,29,.24);border-radius:var(--radius-md);padding:3px 7px">Tab</span> を押すだけ。<br>保存操作は要りません。ログインも後からで大丈夫です。</p>
+<div style="display:flex;align-items:center;gap:16px">
+<button style="all:unset;display:flex;align-items:center;gap:9px;padding:14px 22px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:400 16px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)"><i class="ph-duotone ph-plus" style="font-size:17px"></i>新しいマップを作る</button>
+<a href="#1g" style="font:400 15px/1 var(--ui);color:var(--color-neutral-700);text-decoration:none;border-bottom:1px solid rgba(32,30,29,.3);padding-bottom:3px">テンプレートから始める</a>
+</div>
+</div>
+
+<div style="position:absolute;right:90px;top:50%;transform:translateY(-50%);width:420px;opacity:.9">
+<svg width="420" height="300" aria-hidden="true"><g fill="none" stroke="#bab6b6" stroke-width="1.25" stroke-dasharray="4 4"><path d="M130,150 C180,150 180,80 230,80"></path><path d="M130,150 L230,150"></path><path d="M130,150 C180,150 180,220 230,220"></path></g><rect x="20" y="134" width="108" height="32" fill="none" stroke="#0088b0" stroke-width="1.5"></rect><text x="36" y="156" font-family="Manrope, Zen Kaku Gothic New, sans-serif" font-size="17" fill="#006786">中心の語</text><rect x="232" y="66" width="120" height="28" fill="none" stroke="#d7d3d3" stroke-dasharray="4 4"></rect><rect x="232" y="136" width="120" height="28" fill="none" stroke="#d7d3d3" stroke-dasharray="4 4"></rect><rect x="232" y="206" width="120" height="28" fill="none" stroke="#d7d3d3" stroke-dasharray="4 4"></rect><text x="246" y="156" font-family="ui-monospace, monospace" font-size="12" fill="#9b9797">Tab で追加</text></svg>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>同期・オフライン・削除の状態表示 / Sync, offline &amp; destructive states</div>
+<div class="dv-card" style="width:760px">
+<div style="min-height:800px;padding:40px;background:var(--color-bg);color:var(--color-text);font-family:var(--ui);display:flex;flex-direction:column;gap:34px">
+
+<div>
+<p style="margin:0 0 12px;font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">HEADER STATUS · ヘッダー保存インジケータ</p>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<span style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-circle-notch" style="font-size:14px;color:var(--color-neutral-700)"></i>保存中 · Saving</span>
+<span style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-check-circle" style="font-size:14px;color:var(--color-accent)"></i>保存済み · Saved</span>
+<span style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-check" style="font-size:14px;color:var(--color-accent)"></i>同期済み · Synced</span>
+<span style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(32,30,29,.16);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-cloud-arrow-up" style="font-size:14px;color:var(--color-neutral-700)"></i>同期待ち · 3件</span>
+<span style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid var(--color-accent-2);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-accent-2-700)"><i class="ph-duotone ph-cloud-warning" style="font-size:14px;color:var(--color-accent-2)"></i>同期失敗 · Sync failed</span>
+</div>
+</div>
+
+<div>
+<p style="margin:0 0 12px;font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">OFFLINE BAR · オフライン表示（編集は継続できる）</p>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--color-surface);border-left:2px solid var(--color-neutral-600);border-radius:var(--radius-md)">
+<i class="ph-duotone ph-wifi-slash" style="font-size:18px;color:var(--color-neutral-700)"></i>
+<span style="font:400 14px/1.5 var(--ui);color:var(--color-neutral-800)">オフラインです。編集はこの端末に保存され、接続が戻ると自動で同期します。<br><span style="font-size:12px;color:var(--color-neutral-700)">Offline — edits are saved locally and will sync automatically.</span></span>
+</div>
+</div>
+
+<div>
+<p style="margin:0 0 12px;font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">SYNC ERROR TOAST · 同期失敗（作業は止めない）</p>
+<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.14);border-left:2px solid var(--color-accent-2);border-radius:var(--radius-md);box-shadow:var(--shadow-md)">
+<i class="ph-duotone ph-cloud-warning" style="font-size:19px;color:var(--color-accent-2);margin-top:1px"></i>
+<div style="flex:1">
+<div style="font:600 14px/1.4 var(--ui)">クラウド同期に失敗しました</div>
+<div style="margin-top:4px;font:400 13px/1.5 var(--ui);color:var(--color-neutral-700)">ローカルのデータは保持されています。編集はそのまま続けられます。</div>
+<div style="margin-top:11px;display:flex;gap:10px">
+<button style="all:unset;padding:6px 13px;background:var(--color-accent);color:#fff;border-radius:var(--radius-md);font:400 13px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-600)">再試行</button>
+<button style="all:unset;padding:6px 13px;border:1px solid rgba(32,30,29,.2);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)">詳細</button>
+</div>
+</div>
+<i class="ph-duotone ph-x" style="font-size:16px;color:var(--color-neutral-700)"></i>
+</div>
+</div>
+
+<div>
+<p style="margin:0 0 12px;font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">GUEST → LOGIN MIGRATION · 引き継ぎ通知</p>
+<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--color-accent-100);border-radius:var(--radius-md)">
+<i class="ph-duotone ph-arrows-clockwise" style="font-size:19px;color:var(--color-accent-700);margin-top:1px"></i>
+<span style="font:400 14px/1.5 var(--ui);color:var(--color-accent-800)">この端末の 2 件のマップをアカウントに引き継ぎました。<br><span style="font-size:12px;color:var(--color-accent-700)">2 guest maps migrated to your account.</span></span>
+</div>
+</div>
+
+<div>
+<p style="margin:0 0 12px;font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">DELETE CONFIRM · 削除確認</p>
+<div style="padding:26px 28px;background:var(--color-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);max-width:440px">
+<h3 style="margin:0 0 10px;font:600 20px/1.3 var(--ui)">「Q3 OKR」を削除しますか？</h3>
+<p style="margin:0 0 22px;font:400 14px/1.6 var(--ui);color:var(--color-neutral-700)">このマップと 14 個のノードが削除されます。この操作は取り消せません。</p>
+<div style="display:flex;gap:10px;justify-content:flex-end">
+<button style="all:unset;padding:9px 16px;border:1px solid rgba(32,30,29,.2);border-radius:var(--radius-md);font:400 14px/1 var(--ui);color:var(--color-neutral-700);cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent-700)">キャンセル</button>
+<button style="all:unset;padding:9px 16px;background:var(--color-accent-2);color:#fff;border-radius:var(--radius-md);font:400 14px/1 var(--ui);cursor:pointer" style-hover="background:var(--color-accent-2-700)">削除する</button>
+</div>
+</div>
+</div>
+
+<div>
+<p style="margin:0 0 12px;font:400 11px/1 var(--mono);color:var(--color-neutral-700);letter-spacing:.06em">PNG EXPORT · 書き出し中／失敗</p>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<span style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--color-neutral-100);border:1px solid rgba(32,30,29,.14);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-neutral-700)"><i class="ph-duotone ph-image" style="font-size:15px;color:var(--color-accent)"></i>PNG を生成中… マップ全体（1,240 × 860）</span>
+<span style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--color-accent-2-100);border-radius:var(--radius-md);font:400 13px/1 var(--ui);color:var(--color-accent-2-700)"><i class="ph-duotone ph-warning" style="font-size:15px;color:var(--color-accent-2)"></i>書き出しに失敗しました — 再試行</span>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+
+<p class="dv-next">次の指示の例：「<a class="dv-oid" href="#1a">1a</a> のツリーで <a class="dv-oid" href="#1b">1b</a> のツールバーにして」・「<a class="dv-oid" href="#1a">1a</a> のダークモード版も見たい」・「<a class="dv-oid" href="#1c">1c</a> の広告枠をもっと目立たない置き方で3案」・「編集画面を実際に操作できるプロトタイプにして」</p>
+</section>
+
+</x-dc>
+</body>
+</html>
