@@ -3,6 +3,12 @@ import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import NeonAdapter from "@auth/neon-adapter";
 import { createPool } from "@/lib/server/db";
+/*
+ * 計測はバレル（`@/features/telemetry`）ではなく `track` を直接読む。
+ * バレルは "use client" の `TelemetryBootstrap` を再輸出しており、
+ * サーバ専用のこのファイルにクライアント境界を持ち込まないため。
+ */
+import { track } from "@/features/telemetry/track";
 
 /**
  * Auth.js v5 の設定（サーバ専用）。
@@ -62,8 +68,11 @@ function buildProviders(): NextAuthConfig["providers"] {
  * NeonAdapter は Pool を要求するが、Cloudflare Workers ではコネクションを
  * リクエストをまたいで共有できない。Pool の生成自体は遅延接続で安価なため、
  * Auth.js 公式の Neon 例と同じくリクエストスコープで作る。
+ *
+ * export しているのは、`events.signIn` の配線をテストから検証するため。
+ * アプリ側はこの関数を呼ばず、下の `NextAuth(...)` の結果だけを使う。
  */
-function buildConfig(): NextAuthConfig {
+export function buildConfig(): NextAuthConfig {
   const useAdapter = Boolean(process.env.DATABASE_URL);
 
   return {
@@ -86,6 +95,16 @@ function buildConfig(): NextAuthConfig {
       session({ session, token }) {
         if (session.user && token.sub) session.user.id = token.sub;
         return session;
+      },
+    },
+    events: {
+      /*
+       * ログイン完了の計測（CLAUDE.md §31）。送るのは方法だけで、
+       * **メールアドレス・ユーザー ID・トークンは送らない**（§30）。
+       * `track` は例外を投げず await も要らないので、ログインの流れを止めない。
+       */
+      signIn({ account }) {
+        track("login_completed", { method: account?.provider === "google" ? "google" : "email" });
       },
     },
   };

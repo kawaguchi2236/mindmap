@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getRepository } from "@/lib/db";
+import { track } from "@/features/telemetry";
 import type { ID, MindMapSummary } from "@/lib/model/types";
 import { describeMapsError, type MapsOperation } from "./format";
 
@@ -87,6 +88,8 @@ export function useMapList(): MapListController {
   const create = useCallback(async (): Promise<ID | null> => {
     try {
       const doc = await getRepository().createMap();
+      // 保存が済んでから数える。失敗したものを「作られた」ことにしない。
+      track("map_created");
       reload();
       return doc.map.id;
     } catch (error) {

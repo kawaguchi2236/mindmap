@@ -20,6 +20,7 @@ import {
   type ReactElement,
 } from "react";
 import { Button, Icon } from "@/components/ui";
+import { track } from "@/features/telemetry";
 import { exportMapToPng, findViewportElement } from "./exportPng";
 import { formatScale } from "./geometry";
 import styles from "./ExportPngButton.module.css";
@@ -54,10 +55,11 @@ export function ExportPngButton({ title }: ExportPngButtonProps): ReactElement {
       const viewport = findViewportElement(event.currentTarget);
       setStatus({ kind: "working" });
 
+      // getNodes() は表示中のノードだけ。折りたたんだ子孫は入らない（ADR-006）。
+      const nodes = getNodes();
       const result = await exportMapToPng({
         viewport,
-        // getNodes() は表示中のノードだけ。折りたたんだ子孫は入らない（ADR-006）。
-        bounds: getNodesBounds(getNodes()),
+        bounds: getNodesBounds(nodes),
         title,
       });
 
@@ -66,6 +68,8 @@ export function ExportPngButton({ title }: ExportPngButtonProps): ReactElement {
         setStatus({ kind: "error", message: result.message });
         return;
       }
+      // 成功したときだけ数える。送るのは件数と縮小したかだけで、マップの中身は送らない。
+      track("png_exported", { nodeCount: nodes.length, scaled: result.scale < 1 });
       setStatus(
         result.scale < 1
           ? {

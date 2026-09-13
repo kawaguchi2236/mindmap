@@ -16,6 +16,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getRepository } from "@/lib/db";
+import { reportError, track, type SyncFailureReason } from "@/features/telemetry";
 import { migrateGuestMaps, syncAll, type SyncSummary } from "./engine";
 import { createLocalStore } from "./local-store-adapter";
 import { createRemoteClient } from "./remote-client";
@@ -104,6 +105,8 @@ export function useSyncRunner(options: UseSyncRunnerOptions): SyncRunnerState {
         online: true,
         conflictCount: summary.conflicts.length,
       });
+      if (failed) track("sync_failed", { reason: failureReason(summary) });
+      else track("sync_completed", { mapCount: changedCount(summary) });
       // 一覧の表示（同期状態バッジ・引き込んだマップ）が古くなった場合だけ知らせる。
       if (touchedLocal(summary)) changedRef.current?.();
     }
@@ -150,6 +153,19 @@ export function useSyncRunner(options: UseSyncRunnerOptions): SyncRunnerState {
          * （CLAUDE.md §29）。ローカル編集は何があっても続けられる。
          */
         console.error("[sync] 同期中に予期しない例外が発生しました", error);
+        /*
+         * 「起きないはず」が起きた経路。ここを黙らせると、約束が破られたことが
+         * どこにも残らない（CLAUDE.md §29）。`reportError` は例外を投げず、
+         * 送るのは種類名・箇所・スタックのフレーム行だけで、
+         * **例外メッセージ本文（マップのタイトルが混ざりうる）は送らない**。
+         */
+        reportError(error, "sync");
+        /*
+         * 例外で落ちた同期も「失敗」として数える。ここで出さないと、
+         * クラッシュした分だけ集計から消えて**失敗率が実際より良く見える**。
+         * 理由は固定語彙の "unknown"（例外の中身は自由文字列なので送らない）。
+         */
+        track("sync_failed", { reason: "unknown" });
         if (aliveRef.current) setState((prev) => ({ ...prev, phase: "failed" }));
       } finally {
         runningRef.current = false;
@@ -179,6 +195,40 @@ export function useSyncRunner(options: UseSyncRunnerOptions): SyncRunnerState {
   }, [userId, intervalMs, local, remote]);
 
   return state;
+}
+
+/**
+ * 失敗を計測用の固定語彙に落とす（CLAUDE.md §31）。
+ *
+ * `abortedReason` と `SyncFailure.message` は自由文字列で、マップのタイトルなど
+ * 利用者が書いたものが混ざりうる。**そのまま送らず、必ずここで種別へ畳む。**
+ */
+function failureReason(summary: SyncSummary): SyncFailureReason {
+  // 一覧取得で中断した場合、種別は `abortedReason` の文中にしか無い。
+  // 文字列を解析してまで拾わない。接続だけは確かめられるので、それだけ見る。
+  if (summary.failed.length === 0) return isOnline() ? "unknown" : "offline";
+
+  switch (summary.failed[0]?.kind) {
+    case "unauthorized":
+      return "unauthorized";
+    case "network":
+      return "offline";
+    case "serverError":
+      return "server";
+    default:
+      return "unknown";
+  }
+}
+
+/** 同期で実際に動いたマップの件数。skipped は数えない。 */
+function changedCount(summary: SyncSummary): number {
+  return (
+    summary.pushed.length +
+    summary.pulled.length +
+    summary.pushedDeletes.length +
+    summary.appliedDeletes.length +
+    summary.restored.length
+  );
 }
 
 /** ローカルの保存内容が動いたか（＝画面の再読み込みが要るか）。 */
