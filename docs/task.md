@@ -123,7 +123,7 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - [x] ESLint設定
 - [x] Prettier設定
 - [x] GitHubリポジトリ作成
-- [ ] Cloudflare 設定（ADR-001 の結論に従う）
+- [x] Cloudflare 設定（`@opennextjs/cloudflare` + `wrangler.jsonc` + `open-next.config.ts`。`npm run cf:build` 成功、**バンドル gzip 1.60 MB / Free 上限 3 MB**）
 - [ ] Neon PostgreSQL作成 → **担当 B**
 - [x] Auth.js設定 → **担当 B**（コード実装完了。実際のログイン疎通は未検証）
 

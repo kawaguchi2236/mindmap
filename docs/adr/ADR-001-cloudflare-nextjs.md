@@ -144,8 +144,13 @@ https://vercel.com/docs/plans/hobby
 
 ### Stage 1（Foundation）で必ず検証すること
 
-- [ ] **Free プランの CPU 10 ms 制約の実測。** Hello World ではなく、Auth.js のセッション検証 + Neon への 1 クエリを含む Route Handler で計測する。超えるなら Workers Paid（$5/月）に移るか、該当処理をクライアント側へ寄せる
-- [ ] **Worker バンドルサイズの実測。** Free プランの上限は圧縮後 3 MB。Next.js 16 + Auth.js + Drizzle で `npx @opennextjs/cloudflare build` を通し、実サイズを確認する
+- [ ] **Free プランの CPU 10 ms 制約の実測（未実施。Neon の接続情報が必要なため Stage 6 で実施）。** Hello World ではなく、Auth.js のセッション検証 + Neon への 1 クエリを含む Route Handler で計測する。超えるなら Workers Paid（$5/月）に移るか、該当処理をクライアント側へ寄せる
+- [x] **Worker バンドルサイズの実測（2026-09-13 実施）。** Free プランの上限は圧縮後 3 MB。
+      `npm run cf:build` → `npx wrangler deploy --dry-run` の結果:
+      **Total Upload 7806.47 KiB / gzip 1641.69 KiB（= 1.60 MB、上限の約 53%）**。
+      この時点で Next.js 16.3.5 + React 19 + Auth.js v5 + `@neondatabase/serverless` + zod を含む。
+      ORM を入れていない（ADR-002 で素の SQL を採用）ぶん余裕がある。
+      **残り約 1.4 MB。大きめの依存を足すときは再測すること。**
 - [ ] Auth.js v5 beta が OpenNext 1.20.x 上で Google OAuth を完走するかを、スタブ実装で先に通す（Stage 5 まで先送りしない。ここが崩れると基盤ごと作り直しになる）
 
 ### 実装ルール

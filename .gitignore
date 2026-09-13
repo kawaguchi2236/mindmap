@@ -38,3 +38,9 @@ coverage/
 
 # Next.js が生成する型定義
 next-env.d.ts
+
+# Cloudflare のローカル用シークレット
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.open-next/
