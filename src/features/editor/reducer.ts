@@ -10,6 +10,7 @@ import type { ID, MindMapNode } from "@/lib/model/types";
 import type { ClipboardPayload } from "./clipboard";
 import { instantiateClipboard } from "./clipboard";
 import {
+  estimateNodeHeight,
   findNeighbor,
   H_GAP,
   layoutTree,
@@ -130,7 +131,13 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
     case "updateText": {
       const target = getNode(state.nodes, action.id);
       if (!target || target.text === action.text) return state;
-      return { ...state, nodes: updateNode(state.nodes, action.id, { text: action.text }) };
+      let nodes = updateNode(state.nodes, action.id, { text: action.text });
+      // 入力で行数が増えるとノードが縦に伸びる。高さが変わったときだけ
+      // 兄弟を積み直して、下のノードに食い込まないようにする。
+      if (estimateNodeHeight(target.text) !== estimateNodeHeight(action.text)) {
+        nodes = restackSiblings(nodes, target.parentId);
+      }
+      return { ...state, nodes };
     }
 
     case "createChild": {

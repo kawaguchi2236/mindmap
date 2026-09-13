@@ -7,7 +7,7 @@
  */
 import { Position, type Edge, type Node, type NodeHandle } from "@xyflow/react";
 import type { ID, MindMapNode } from "@/lib/model/types";
-import { NODE_HEIGHT, NODE_WIDTH } from "./layout";
+import { estimateNodeHeight, NODE_WIDTH } from "./layout";
 
 export interface MindMapNodeData extends Record<string, unknown> {
   text: string;
@@ -36,26 +36,32 @@ export type MindMapFlowNode = Node<MindMapNodeData, "mindmap">;
  * Right なら (x + width, y + height/2) になる。
  */
 const HANDLE_SIZE = 1;
-const HANDLE_CENTER_Y = NODE_HEIGHT / 2 - HANDLE_SIZE / 2;
 
-const NODE_HANDLES: NodeHandle[] = [
-  {
-    type: "target",
-    position: Position.Left,
-    x: 0,
-    y: HANDLE_CENTER_Y,
-    width: HANDLE_SIZE,
-    height: HANDLE_SIZE,
-  },
-  {
-    type: "source",
-    position: Position.Right,
-    x: NODE_WIDTH - HANDLE_SIZE,
-    y: HANDLE_CENTER_Y,
-    width: HANDLE_SIZE,
-    height: HANDLE_SIZE,
-  },
-];
+/**
+ * ノードの高さは文字数で変わるので、ハンドルも高さに合わせて作る。
+ * ここがノード中心からずれると接続線が斜めにずれる。
+ */
+function handlesFor(height: number): NodeHandle[] {
+  const centerY = height / 2 - HANDLE_SIZE / 2;
+  return [
+    {
+      type: "target",
+      position: Position.Left,
+      x: 0,
+      y: centerY,
+      width: HANDLE_SIZE,
+      height: HANDLE_SIZE,
+    },
+    {
+      type: "source",
+      position: Position.Right,
+      x: NODE_WIDTH - HANDLE_SIZE,
+      y: centerY,
+      width: HANDLE_SIZE,
+      height: HANDLE_SIZE,
+    },
+  ];
+}
 
 export interface FlowNodeOptions {
   selectedId: ID | null;
@@ -68,32 +74,35 @@ export function toFlowNodes(
   visibleNodes: MindMapNode[],
   { selectedId, editingId, childCounts }: FlowNodeOptions,
 ): MindMapFlowNode[] {
-  return visibleNodes.map((node) => ({
-    id: node.id,
-    type: "mindmap" as const,
-    position: { x: node.x, y: node.y },
-    /*
-     * 採寸が終わるまで React Flow はノードを visibility: hidden で描く。
-     * 追加直後のノードがこれに当たると、即編集モードで出したはずの textarea が
-     * hidden を継承してフォーカスを受け付けず、文字が打てなくなる。
-     * レイアウトは元々この固定寸法で計算しているので、同じ値を先に渡しておく。
-     * 実測が届けばそちらで上書きされる（nodeHasDimensions は measured を優先）。
-     */
-    initialWidth: NODE_WIDTH,
-    initialHeight: NODE_HEIGHT,
-    handles: NODE_HANDLES,
-    // 編集中はドラッグを止めないとテキスト選択ができない。
-    draggable: node.id !== editingId,
-    selectable: true,
-    data: {
-      text: node.text,
-      editing: node.id === editingId,
-      selected: node.id === selectedId,
-      isRoot: node.parentId === null,
-      collapsed: node.collapsed,
-      childCount: childCounts.get(node.id) ?? 0,
-    },
-  }));
+  return visibleNodes.map((node) => {
+    const height = estimateNodeHeight(node.text);
+    return {
+      id: node.id,
+      type: "mindmap" as const,
+      position: { x: node.x, y: node.y },
+      /*
+       * 採寸が終わるまで React Flow はノードを visibility: hidden で描く。
+       * 追加直後のノードがこれに当たると、即編集モードで出したはずの textarea が
+       * hidden を継承してフォーカスを受け付けず、文字が打てなくなる。
+       * レイアウトは元々この固定寸法で計算しているので、同じ値を先に渡しておく。
+       * 実測が届けばそちらで上書きされる（nodeHasDimensions は measured を優先）。
+       */
+      initialWidth: NODE_WIDTH,
+      initialHeight: height,
+      handles: handlesFor(height),
+      // 編集中はドラッグを止めないとテキスト選択ができない。
+      draggable: node.id !== editingId,
+      selectable: true,
+      data: {
+        text: node.text,
+        editing: node.id === editingId,
+        selected: node.id === selectedId,
+        isRoot: node.parentId === null,
+        collapsed: node.collapsed,
+        childCount: childCounts.get(node.id) ?? 0,
+      },
+    };
+  });
 }
 
 /** 親子エッジ。両端が表示されているものだけ描く。 */

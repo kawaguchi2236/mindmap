@@ -45,7 +45,7 @@ import {
   type MindMapFlowNode,
 } from "./flowNodes";
 import type { HistoryAction } from "./history";
-import { NODE_HEIGHT, NODE_WIDTH } from "./layout";
+import { estimateNodeHeight, NODE_WIDTH } from "./layout";
 import type { EditorState } from "./reducer";
 import { ExportPngButton } from "@/features/export";
 import { track } from "@/features/telemetry";
@@ -121,7 +121,9 @@ function MindMapNodeView({ id, data }: NodeProps<MindMapFlowNode>): ReactElement
       className="mindmap-node"
       data-selected={data.selected || undefined}
       data-root={data.isRoot || undefined}
-      style={{ width: NODE_WIDTH, minHeight: NODE_HEIGHT }}
+      // レイアウトと同じ見積もりを使う。min にしておけば、実際の描画が
+      // これを上回っても V_GAP(16px) の余白で吸収される。
+      style={{ width: NODE_WIDTH, minHeight: estimateNodeHeight(data.text) }}
     >
       <Handle
         type="target"
@@ -224,7 +226,10 @@ export function MindMapCanvas({ state, dispatch, title }: MindMapCanvasProps): R
     (duration = 300) => {
       const root = getRoot(modelNodes);
       if (!root) return;
-      setCenter(root.x + NODE_WIDTH / 2, root.y + NODE_HEIGHT / 2, { zoom: 1, duration });
+      setCenter(root.x + NODE_WIDTH / 2, root.y + estimateNodeHeight(root.text) / 2, {
+        zoom: 1,
+        duration,
+      });
     },
     [modelNodes, setCenter],
   );
