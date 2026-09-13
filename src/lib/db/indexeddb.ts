@@ -149,6 +149,8 @@ function toSummary(stored: StoredMap, syncState: SyncState): MindMapSummary {
     createdAt: stored.createdAt,
     nodeCount: stored.nodeCount,
     syncState,
+    userId: stored.userId,
+    deletedAt: stored.deletedAt,
   };
 }
 
@@ -272,7 +274,8 @@ async function mutateMapMeta(
 // ---------------------------------------------------------------------------
 
 export class IndexedDbMapRepository implements MapRepository {
-  async listMaps(): Promise<MindMapSummary[]> {
+  async listMaps(options?: { includeDeleted?: boolean }): Promise<MindMapSummary[]> {
+    if (options?.includeDeleted) return this.summaries(() => true);
     return this.summaries((stored) => stored.deletedAt === null);
   }
 
@@ -288,12 +291,13 @@ export class IndexedDbMapRepository implements MapRepository {
     return this.summaries((stored) => stored.deletedAt === null && stored.userId === null);
   }
 
-  async getMap(id: ID): Promise<MindMapDocument | null> {
+  async getMap(id: ID, options?: { includeDeleted?: boolean }): Promise<MindMapDocument | null> {
     const db = await openMindMapDb();
     const tx = db.transaction(["maps", "nodes"], "readonly");
     const doc = await readDocumentInTx(tx, id);
     await tx.done;
     if (!doc) return null;
+    if (options?.includeDeleted) return doc;
     // 論理削除済みは「無い」ものとして扱う。データ自体は残っている。
     return doc.map.deletedAt === null ? doc : null;
   }
@@ -329,6 +333,57 @@ export class IndexedDbMapRepository implements MapRepository {
     await putDocumentInTx(tx, saved);
     await tx.done;
     return saved;
+  }
+
+  /**
+   * サーバ確定版をそのまま書き込む。version も updatedAt も進めない。
+   *
+   * `expectedLocalVersion` は順序の比較ではなくスナップショット一致の確認。
+   * 同期エンジンが判断材料を読んでから書き込むまでの間にローカルが
+   * 変わっていないことを確かめる（変わっていたら何も書かずに中断）。
+   * 省略した場合は無条件に書き込むため、呼び出し側が ADR-005 の判断表に
+   * 従って競合を解決済みであることを前提とする。通常は必ず渡すこと。
+   */
+  async saveMapFromServer(
+    doc: MindMapDocument,
+    options?: { expectedLocalVersion?: number | null },
+  ): Promise<MindMapDocument> {
+    assertValidDocument(doc);
+    const db = await openMindMapDb();
+    const tx = db.transaction(["maps", "nodes"], "readwrite");
+
+    const expected = options?.expectedLocalVersion;
+    if (expected !== undefined) {
+      const existing = await tx.objectStore("maps").get(doc.map.id);
+      if (existing) assertReadableSchema(existing);
+
+      if (expected === null && existing) {
+        abortTx(tx);
+        throw new StaleWriteError(
+          doc.map.id,
+          doc.map.version,
+          existing.version,
+          `マップ ${doc.map.id} の書き込みを中断しました: ローカルに無いはずのレコードが ` +
+            `version ${existing.version} で存在します。同期の判断をやり直してください。`,
+        );
+      }
+      if (expected !== null && existing?.version !== expected) {
+        abortTx(tx);
+        throw new StaleWriteError(
+          doc.map.id,
+          doc.map.version,
+          existing?.version ?? 0,
+          `マップ ${doc.map.id} の書き込みを中断しました: 期待したローカル version ${expected} に対し、` +
+            `実際は ${existing ? `version ${existing.version}` : "レコードなし"} でした。` +
+            `同期の判断をやり直してください。`,
+        );
+      }
+    }
+
+    // サーバの確定値をそのまま書く。ここで version / updatedAt を触らない。
+    await putDocumentInTx(tx, doc);
+    await tx.done;
+    return doc;
   }
 
   async createMap(title?: string): Promise<MindMapDocument> {
@@ -382,6 +437,21 @@ export class IndexedDbMapRepository implements MapRepository {
 
     await tx.done;
     return claimed;
+  }
+
+  async claimMap(mapId: ID, userId: ID): Promise<void> {
+    const db = await openMindMapDb();
+    const tx = db.transaction(["maps"], "readwrite");
+    const store = tx.objectStore("maps");
+    const stored = await store.get(mapId);
+    if (!stored) {
+      abortTx(tx);
+      throw new MapNotFoundError(mapId);
+    }
+    assertReadableSchema(stored);
+    // userId を立てるだけ。内容は変わらないので version も updatedAt も進めない。
+    await store.put({ ...stored, userId });
+    await tx.done;
   }
 
   /**

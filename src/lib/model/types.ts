@@ -83,6 +83,10 @@ export interface MindMapSummary {
   createdAt: ISODateString;
   nodeCount: number;
   syncState: SyncState;
+  /** 所有者。null はゲストのマップ。クラウド同期の対象判定に使う。 */
+  userId: ID | null;
+  /** 論理削除の墓標。null 以外なら削除済み。サーバとの突き合わせに使う。 */
+  deletedAt: ISODateString | null;
 }
 
 // ---------------------------------------------------------------------------

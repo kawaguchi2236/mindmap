@@ -32,12 +32,16 @@ export class StaleWriteError extends LocalStoreError {
   constructor(
     readonly mapId: string,
     readonly incomingVersion: number,
+    /** 保存先にある version。レコードが存在しなかった場合は 0（version は 1 始まり）。 */
     readonly storedVersion: number,
+    message?: string,
   ) {
     super(
-      `マップ ${mapId} の保存を拒否しました: 保存しようとした version ${incomingVersion} は ` +
-        `保存済みの version ${storedVersion} より古いためです。`,
+      message ??
+        `マップ ${mapId} の保存を拒否しました: 保存しようとした version ${incomingVersion} は ` +
+          `保存済みの version ${storedVersion} より古いためです。`,
     );
+    // 同期側が error.name === "StaleWriteError" で判定している。変更しないこと。
     this.name = "StaleWriteError";
   }
 }
