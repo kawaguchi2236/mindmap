@@ -17,6 +17,14 @@ export type SessionUser = {
 
 /** ログイン中なら SessionUser、ゲストなら null を返す。 */
 export async function getCurrentUser(): Promise<SessionUser | null> {
+  /*
+   * AUTH_SECRET が無ければセッションは存在しえない。それでも auth() を呼ぶと
+   * Auth.js がリクエストのたびに MissingSecret を吐き、本当のエラーが
+   * ログに埋もれる（実機で確認済み）。ゲスト利用は例外処理ではなく
+   * この早期 return で成立させる。
+   */
+  if (!process.env.AUTH_SECRET) return null;
+
   let session: Session | null = null;
   try {
     session = await auth();
