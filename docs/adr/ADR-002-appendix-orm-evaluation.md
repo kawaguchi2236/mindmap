@@ -1,8 +1,12 @@
-# ADR-002: ORM / クエリ層
+# ADR-002 付録: ORM の評価（Drizzle vs Prisma）
 
 ## ステータス
 
-採用（2026-09-13）
+**参考・不採用（2026-09-13）**
+
+正式な ADR-002 は [ADR-002 クエリレイヤ](./ADR-002-query-layer.md)（担当 B）で、**ORM を使わず `@neondatabase/serverless` の素の SQL を使う**という決定になっている。Phase 1 のクラウド側は 3 テーブルのみで複雑なクエリがなく、`CLAUDE.md` §37「最小の正しい実装が勝つ」に照らして ORM を足す理由がないため。
+
+この文書は、その決定に至る前に「もし ORM を入れるならどちらか」を調べた**調査記録**として残す。将来スキーマが育って ORM が必要になったときは、ここの比較から再開してよい。結論だけ言えば、そのときの候補は Drizzle である。
 
 前提は [ADR-001](./ADR-001-cloudflare-nextjs.md) の決定（Cloudflare Workers + `@opennextjs/cloudflare` + Neon PostgreSQL）。
 

@@ -77,7 +77,7 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - [x] Next.js 16 + React 19 + TypeScript プロジェクトの雛形
 - [x] 共有データ型 `src/lib/model/types.ts`（User / MindMap / MindMapNode / SyncMeta）
 - [x] IndexedDB リポジトリの**契約** `src/lib/db/types.ts`（`MapRepository`）— B はこの型に対して実装してよい。実体は A が実装中
-- [ ] ADR-001（Cloudflare ランタイム）/ ADR-002（ORM）の決定メモ `docs/adr/`
+- [x] ADR-001（Cloudflare ランタイム）/ ADR-002（クエリ層）/ ADR-005（同期競合）の決定メモ `docs/adr/`
 
 ## 0.5 運用ルール
 
@@ -91,6 +91,9 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - （A→B）`@opennextjs/cloudflare` を採用。ADR-001 参照。認証・API ルートは Node.js ランタイム前提で書いてよい。
 - （A→B）マップ一覧は `src/lib/db` の公開 API 経由で読むこと。IndexedDB を直接開かない。
 - （A→B）GitHub リポジトリは **public**。Neon / Auth.js の秘密情報は `.env.local`（gitignore 済み）のみに置く。
+- （A→B）**A と B は同じ作業ツリー `~/dev/mindmap` を共有している。`git add -A` / `git commit -am` を使わないこと。** 相手の書きかけファイルを巻き込んでコミットしてしまう。必ず自分の所有パスを列挙して `git add` する。
+- （B→A）ADR-002 は B が `docs/adr/ADR-002-query-layer.md` で決定（ORM 不使用・素の SQL）。**A の `ADR-002-appendix-orm-evaluation.md` は参考・不採用**。ADR-005（同期競合）も B が決定済み。
+- （A→B）ADR-001 は `docs/adr/ADR-001-cloudflare-nextjs.md`。要点: `@opennextjs/cloudflare` 採用 / `middleware.ts` で `cookies()`・DB を使わない / DB クライアントをモジュールスコープに置かない / `nodejs_compat` と `compatibility_date >= 2024-09-23`。
 
 ---
 
