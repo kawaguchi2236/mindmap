@@ -17,9 +17,11 @@ import {
   Panel,
   Position,
   ReactFlow,
+  useEdgesState,
+  useNodesInitialized,
+  useNodesState,
   useReactFlow,
   type Edge,
-  type Node,
   type NodeProps,
   type NodeTypes,
 } from "@xyflow/react";
@@ -31,25 +33,21 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type Dispatch,
   type ReactElement,
 } from "react";
 import type { ID } from "@/lib/model/types";
+import {
+  mergePreservingMeasured,
+  toFlowEdges,
+  toFlowNodes,
+  type MindMapFlowNode,
+} from "./flowNodes";
 import type { HistoryAction } from "./history";
 import { NODE_HEIGHT, NODE_WIDTH } from "./layout";
 import type { EditorState } from "./reducer";
 import { getRoot, getVisibleNodes } from "./tree";
-
-interface MindMapNodeData extends Record<string, unknown> {
-  text: string;
-  editing: boolean;
-  selected: boolean;
-  isRoot: boolean;
-  collapsed: boolean;
-  childCount: number;
-}
-
-type MindMapFlowNode = Node<MindMapNodeData, "mindmap">;
 
 /**
  * dispatch をノードの data に入れるとノードごとに毎回別参照になるため、
@@ -75,6 +73,16 @@ function MindMapNodeView({ id, data }: NodeProps<MindMapFlowNode>): ReactElement
     if (!textarea) return;
     textarea.focus();
     textarea.select();
+    if (document.activeElement === textarea) return;
+    /*
+     * visibility: hidden の要素はフォーカスを受け付けない。採寸前などで
+     * 弾かれたときのために、次のフレームで一度だけやり直す。
+     */
+    const retry = requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.select();
+    });
+    return () => cancelAnimationFrame(retry);
   }, [data.editing]);
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -164,7 +172,7 @@ export interface MindMapCanvasProps {
 }
 
 export function MindMapCanvas({ state, dispatch }: MindMapCanvasProps): ReactElement {
-  const { setCenter, setNodes, setEdges } = useReactFlow<MindMapFlowNode>();
+  const { setCenter } = useReactFlow<MindMapFlowNode>();
   const { nodes: modelNodes, selectedId, editingId } = state;
 
   const childCounts = useMemo(() => {
@@ -179,71 +187,62 @@ export function MindMapCanvas({ state, dispatch }: MindMapCanvasProps): ReactEle
   const visibleNodes = useMemo(() => getVisibleNodes(modelNodes), [modelNodes]);
 
   const derivedNodes = useMemo<MindMapFlowNode[]>(
-    () =>
-      visibleNodes.map((node) => ({
-        id: node.id,
-        type: "mindmap" as const,
-        position: { x: node.x, y: node.y },
-        // 編集中はドラッグを止めないとテキスト選択ができない。
-        draggable: node.id !== editingId,
-        selectable: true,
-        data: {
-          text: node.text,
-          editing: node.id === editingId,
-          selected: node.id === selectedId,
-          isRoot: node.parentId === null,
-          collapsed: node.collapsed,
-          childCount: childCounts.get(node.id) ?? 0,
-        },
-      })),
+    () => toFlowNodes(visibleNodes, { selectedId, editingId, childCounts }),
     [visibleNodes, selectedId, editingId, childCounts],
   );
+  const derivedEdges = useMemo<Edge[]>(() => toFlowEdges(visibleNodes), [visibleNodes]);
 
   /**
-   * React Flow は非 controlled で使い、reducer の内容を setNodes / setEdges で
-   * 流し込む。ドラッグ中の追従は React Flow の内部 store に任せ、確定した座標
-   * だけを moveNode で reducer へ戻す（同じ状態を二重に持たないため）。
+   * React Flow は controlled で使う。onNodesChange は採寸結果（dimensions）と
+   * ドラッグ中の座標を受け取る唯一の口なので必ず繋ぐこと。
+   * 位置と構造の正は reducer 側にあり、ドラッグで確定した座標だけを
+   * onNodeDragStop から moveNode で戻す。
    */
-  useEffect(() => {
-    setNodes(derivedNodes);
-  }, [derivedNodes, setNodes]);
+  const [rfNodes, setRfNodes, onNodesChange] = useNodesState<MindMapFlowNode>(derivedNodes);
+  const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState<Edge>(derivedEdges);
 
-  const edges = useMemo<Edge[]>(() => {
-    const visibleIds = new Set(visibleNodes.map((node) => node.id));
-    return visibleNodes
-      .filter((node) => node.parentId !== null && visibleIds.has(node.parentId))
-      .map((node) => ({
-        id: `${node.parentId}->${node.id}`,
-        source: node.parentId as string,
-        target: node.id,
-        type: "bezier",
-      }));
-  }, [visibleNodes]);
+  // props 由来の値を state へ同期するのは render 中に行う（React 公式の推奨手順）。
+  // effect でやると同期前の状態が一度描画され、ノードがちらつく。
+  const [syncedNodes, setSyncedNodes] = useState(derivedNodes);
+  if (syncedNodes !== derivedNodes) {
+    setSyncedNodes(derivedNodes);
+    setRfNodes((previous) => mergePreservingMeasured(previous, derivedNodes));
+  }
+  const [syncedEdges, setSyncedEdges] = useState(derivedEdges);
+  if (syncedEdges !== derivedEdges) {
+    setSyncedEdges(derivedEdges);
+    setRfEdges(derivedEdges);
+  }
 
-  useEffect(() => {
-    setEdges(edges);
-  }, [edges, setEdges]);
+  const recenter = useCallback(
+    (duration = 300) => {
+      const root = getRoot(modelNodes);
+      if (!root) return;
+      setCenter(root.x + NODE_WIDTH / 2, root.y + NODE_HEIGHT / 2, { zoom: 1, duration });
+    },
+    [modelNodes, setCenter],
+  );
 
-  const recenter = useCallback(() => {
-    const root = getRoot(modelNodes);
-    if (!root) return;
-    setCenter(root.x + NODE_WIDTH / 2, root.y + NODE_HEIGHT / 2, { zoom: 1, duration: 300 });
-  }, [modelNodes, setCenter]);
-
-  // 初回表示でルートを中央に置く。
+  /*
+   * 初回のセンタリングは採寸が終わってから。採寸前だとキャンバスの大きさが
+   * 確定しておらず、ルートが画面左上に寄ってしまう。
+   */
+  const nodesInitialized = useNodesInitialized();
   const centeredRef = useRef(false);
   useEffect(() => {
-    if (centeredRef.current || modelNodes.length === 0) return;
+    if (centeredRef.current || !nodesInitialized) return;
     centeredRef.current = true;
-    recenter();
-  }, [modelNodes, recenter]);
+    recenter(0);
+  }, [nodesInitialized, recenter]);
 
   return (
     <DispatchContext.Provider value={dispatch}>
       <div className="mindmap-canvas">
         <ReactFlow<MindMapFlowNode>
-          defaultNodes={derivedNodes}
-          defaultEdges={edges}
+          nodes={rfNodes}
+          edges={rfEdges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           onNodeDragStop={(_event, node) =>
             dispatch({ type: "moveNode", id: node.id, x: node.position.x, y: node.position.y })
@@ -270,7 +269,7 @@ export function MindMapCanvas({ state, dispatch }: MindMapCanvasProps): ReactEle
           <Controls showInteractive={false} position="bottom-left" />
           <Panel position="bottom-right">
             <div className="mindmap-canvas__actions">
-              <button type="button" onClick={recenter}>
+              <button type="button" onClick={() => recenter()}>
                 中央へ戻る
               </button>
               <button type="button" onClick={() => dispatch({ type: "relayout" })}>

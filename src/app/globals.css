@@ -348,6 +348,16 @@ canvas {
   max-width: 100%;
 }
 
+/*
+ * React Flow（キャンバス）は接続線用の <svg> を 0×0 のコンテナの中に置く。
+ * 上の max-width: 100% が当たると幅が 0 になり、**SVG は幅か高さが 0 だと
+ * 描画自体を行わない**ため、接続線が1本も出なくなる。
+ * キャンバスの内側だけリセットを解除する。
+ */
+.react-flow svg {
+  max-width: none;
+}
+
 /* フォーカスリング（ハンドオフ: outline 2px accent / offset 2px） */
 :focus-visible {
   outline: 2px solid var(--color-focus);
