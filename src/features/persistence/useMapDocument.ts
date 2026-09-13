@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { track } from "@/features/telemetry";
 import { getRepository } from "@/lib/db";
 import { toError } from "@/lib/db/errors";
 import type { MindMapDocument } from "@/lib/model/types";
@@ -48,7 +49,9 @@ export function useMapDocument(mapId: string | null): UseMapDocumentResult {
     getRepository()
       .getMap(mapId)
       .then((document) => {
-        if (!cancelled) setLoaded({ forMapId: mapId, doc: document, error: null });
+        if (cancelled) return;
+        if (document) track("map_opened", { nodeCount: document.nodes.length });
+        setLoaded({ forMapId: mapId, doc: document, error: null });
       })
       .catch((caught: unknown) => {
         if (cancelled) return;

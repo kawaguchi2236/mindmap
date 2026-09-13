@@ -13,6 +13,7 @@ import type { ClipboardPayload } from "./clipboard";
 import "./editor.css";
 import { createHistoryState, historyReducer } from "./history";
 import { MindMapCanvas } from "./MindMapCanvas";
+import { trackMapEdited } from "@/features/telemetry";
 import { createInitialState } from "./reducer";
 import { useKeyboard } from "./useKeyboard";
 
@@ -60,6 +61,8 @@ export function MindMapEditor({ document: doc, onChange }: MindMapEditorProps): 
   useEffect(() => {
     if (nodes === lastEmittedRef.current) return;
     lastEmittedRef.current = nodes;
+    // 打鍵ごとに呼んでよい。間引きは telemetry 側で行う（CLAUDE.md §31）。
+    trackMapEdited();
     onChangeRef.current({ ...docRef.current, nodes });
   }, [nodes]);
 

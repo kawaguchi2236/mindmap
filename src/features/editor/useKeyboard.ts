@@ -10,6 +10,7 @@
  * - 日本語入力の変換確定 Enter を拾わないよう isComposing を見る。
  */
 import { useEffect, type Dispatch, type RefObject } from "react";
+import { track } from "@/features/telemetry";
 import { copySubtree, type ClipboardPayload } from "./clipboard";
 import type { HistoryAction } from "./history";
 import type { EditorState } from "./reducer";
@@ -91,10 +92,12 @@ export function useKeyboard({
         case "Enter":
           event.preventDefault();
           dispatch({ type: "createSibling" });
+          track("node_created");
           return;
         case "Tab":
           event.preventDefault();
           dispatch(event.shiftKey ? { type: "outdent" } : { type: "createChild" });
+          if (!event.shiftKey) track("node_created");
           return;
         case "Delete":
         case "Backspace":

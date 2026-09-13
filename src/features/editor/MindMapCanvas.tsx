@@ -48,6 +48,7 @@ import type { HistoryAction } from "./history";
 import { NODE_HEIGHT, NODE_WIDTH } from "./layout";
 import type { EditorState } from "./reducer";
 import { ExportPngButton } from "@/features/export";
+import { track } from "@/features/telemetry";
 import { getRoot, getVisibleNodes } from "./tree";
 
 /**
@@ -100,6 +101,7 @@ function MindMapNodeView({ id, data }: NodeProps<MindMapFlowNode>): ReactElement
       event.stopPropagation();
       dispatch({ type: "stopEditing" });
       dispatch({ type: "createSibling", id });
+      track("node_created");
       return;
     }
     if (event.key === "Tab") {
@@ -107,6 +109,7 @@ function MindMapNodeView({ id, data }: NodeProps<MindMapFlowNode>): ReactElement
       event.stopPropagation();
       dispatch({ type: "stopEditing" });
       dispatch(event.shiftKey ? { type: "outdent", id } : { type: "createChild", id });
+      if (!event.shiftKey) track("node_created");
       return;
     }
     // Backspace を含む残りのキーは入力欄のローカルな編集として処理させる。

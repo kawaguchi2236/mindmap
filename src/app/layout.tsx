@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Manrope, Source_Serif_4 } from "next/font/google";
 import { ThemeProvider, ThemeScript } from "@/components/theme";
+import { TelemetryBootstrap } from "@/features/telemetry";
 import "./globals.css";
 
 /* 欧文のみ Web フォントで読み込み、和文は端末のシステムフォントに任せる。
@@ -56,6 +57,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeScript />
       </head>
       <body>
+        {/* 何も描画しない。app_started の送出と、window.onerror /
+            unhandledrejection のグローバル捕捉をここで仕掛ける。
+            これが無いとエラー監視が一切働かない。 */}
+        <TelemetryBootstrap />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
