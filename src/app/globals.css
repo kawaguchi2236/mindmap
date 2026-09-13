@@ -1,49 +1,366 @@
+/* =========================================================================
+   Web MindMap — デザイントークン
+   -------------------------------------------------------------------------
+   design/ハンドオフ.md の Broadsheet トークンを土台にしている。
+   ただし新聞風の装飾（halftone / CMYK 分版 / プレート番号）は持ち込まない。
+   採用するのは色・余白・角丸・影・タイポ・z-index のトークンだけ。
+
+   テーマは3状態:
+     1. :root                                        … ライト（完全な定義）
+     2. @media(dark) :root:not([data-theme="light"]) … OS 設定に追従
+     3. :root[data-theme="dark"]                     … 明示的にダーク
+   2 と 3 は同じ値を持つ（CSS にミックスインが無いため意図的な重複）。
+   片方を編集したらもう片方も必ず合わせること。
+   ========================================================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* --- 面 ------------------------------------------------------------- */
+  --color-bg: #f3f2f2; /* ページ地色（紙） */
+  --color-surface: #eae9e9; /* わずかに沈んだ面 */
+  --color-surface-floating: #f8f4f4; /* 浮かぶ面（ツールバー・ダイアログ） */
+  --color-overlay: rgba(243, 242, 242, 0.86); /* 紙を重ねる暗幕 */
+  --backdrop-floating: none; /* ダークでのみ blur を使う */
+
+  /* --- 文字 ----------------------------------------------------------- */
+  --color-text: #201e1d; /* 本文・見出し */
+  --color-text-secondary: #605d5d; /* 補助テキスト（4.9:1） */
+  --color-text-disabled: #bab6b6; /* 無効状態専用。本文には使わない */
+  --color-icon: #444141; /* アイコン既定色 */
+
+  /* --- 罫線 ----------------------------------------------------------- */
+  --color-border: #d7d3d3; /* 通常の罫線・区切り */
+  --color-border-subtle: #eae9e9; /* ごく薄い区切り */
+  --color-border-strong: #201e1d; /* 見出し下の太罫 */
+
+  /* --- アクセント（シアン） ------------------------------------------- */
+  --color-accent: #0088b0; /* 選択・下線・アイコン（非テキスト用途 3.7:1） */
+  --color-accent-text: #006786; /* 本文サイズで使えるアクセント文字色 6.4:1 */
+  --color-accent-tint: #e9f8ff; /* hover の淡いティント */
+  --color-accent-solid: #007da3; /* 塗りボタン地。白文字で 4.7:1 */
+  --color-accent-solid-hover: #006786;
+  --color-on-accent: #ffffff;
+
+  /* --- 破壊的操作（マゼンタ） ----------------------------------------- */
+  --color-danger: #d6006c;
+  --color-danger-text: #aa0b56; /* 本文サイズで使えるエラー文字色 6.5:1 */
+  --color-danger-tint: #fff1f4;
+  --color-danger-solid: #d6006c; /* 白文字で 5.2:1 */
+  --color-danger-solid-hover: #aa0b56;
+  --color-on-danger: #ffffff;
+
+  /* --- フォーカス ------------------------------------------------------ */
+  --color-focus: #0088b0;
+
+  /* --- キャンバス（エディタ） ------------------------------------------ */
+  --color-canvas-bg: #f3f2f2;
+  --color-canvas-dot: transparent; /* ライトはドットグリッドを敷かない */
+  --color-canvas-mark: rgba(32, 30, 29, 0.24); /* 四隅のトンボ */
+  --color-edge: rgba(32, 30, 29, 0.22); /* 親子の接続線 */
+  --color-node-root: #201e1d;
+  --color-node-branch: #201e1d;
+  --color-node-leaf: #605d5d;
+  --color-node-selected: #004961;
+
+  /* --- 影 -------------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.14);
+  --shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
+  --shadow-lg: 0 12px 32px rgba(45, 43, 43, 0.22);
+
+  /* =======================================================================
+     ここから下はテーマ非依存（ライト／ダークで変わらない）
+     ===================================================================== */
+
+  /* --- フォント --------------------------------------------------------
+     --font-ui-latin / --font-display-latin / --font-mono-latin は
+     next/font が layout.tsx で注入する。日本語は端末のシステムフォントに
+     任せる（フォールバックはグリフ単位で効くため、欧文だけが Web フォント
+     になり、和文はシステムフォントで描かれる）。 */
+  --font-ui:
+    var(--font-ui-latin), "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic",
+    "Noto Sans JP", Meiryo, system-ui, sans-serif;
+  --font-display:
+    var(--font-display-latin), "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+  --font-mono: var(--font-mono-latin), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-size-label: 10px; /* mono のセクションラベル */
+  --font-size-meta: 11px; /* mono のメタ表記 */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px; /* 本文・ナビ・ボタン */
+  --font-size-base: 15px; /* 長文 */
+  --font-size-md: 17px; /* 設定の行ラベル・第3階層ノード */
+  --font-size-lg: 20px;
+  --font-size-xl: 22px; /* 第2階層ノード */
+  --font-size-2xl: 26px; /* 一覧の項目名 */
+  --font-size-3xl: 34px; /* ルートノード */
+  --font-size-4xl: 46px;
+  --font-size-5xl: 52px; /* 画面タイトル */
+
+  --line-height-flat: 1;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.8;
+
+  --tracking-label: 0.14em; /* 全大文字のセクションラベル */
+  --tracking-meta: 0.1em;
+  --tracking-display: -0.02em;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* --- 余白 ------------------------------------------------------------ */
+  --space-1: 5px;
+  --space-2: 10px;
+  --space-3: 15px;
+  --space-4: 20px;
+  --space-5: 26px;
+  --space-6: 30px;
+  --space-7: 34px;
+  --space-8: 40px;
+  --space-9: 44px;
+  --space-10: 52px;
+  --space-12: 64px;
+
+  /* 画面外周。1280px 想定は 44px / 56px、狭い画面では詰める */
+  --space-page-y: clamp(24px, 3.4vw, 44px);
+  --space-page-x: clamp(20px, 4.4vw, 56px);
+
+  /* --- 角丸 ------------------------------------------------------------ */
+  --radius-sm: 1px;
+  --radius-md: 2px; /* 既定。Broadsheet は角丸をほぼ使わない */
+  --radius-lg: 4px;
+  --radius-full: 9999px;
+
+  /* --- レイアウト寸法 --------------------------------------------------- */
+  --header-height: 52px;
+  --sidebar-width: 248px;
+
+  /* --- モーション ------------------------------------------------------- */
+  --duration-fast: 120ms;
+  --duration-base: 140ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --- z-index ---------------------------------------------------------- */
+  --z-canvas: 0;
+  --z-canvas-chrome: 10; /* 四隅に浮かぶエディタのクローム */
+  --z-sidebar: 20;
+  --z-header: 30;
+  --z-dropdown: 40;
+  --z-tooltip: 50;
+  --z-modal: 60; /* <dialog> は top layer なので実質の保険 */
+  --z-toast: 70;
 }
 
+/* ---- ダーク（OS 設定に追従。data-theme="light" なら打ち消される） ---- */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-bg: #1a1918;
+    --color-surface: #232221;
+    --color-surface-floating: rgba(255, 255, 255, 0.07);
+    --color-overlay: rgba(26, 25, 24, 0.86);
+    --backdrop-floating: blur(12px);
+
+    --color-text: #faf8f6;
+    --color-text-secondary: rgba(255, 255, 255, 0.66); /* 7.4:1 */
+    --color-text-disabled: rgba(255, 255, 255, 0.34);
+    --color-icon: rgba(255, 255, 255, 0.78);
+
+    --color-border: rgba(255, 255, 255, 0.24);
+    --color-border-subtle: rgba(255, 255, 255, 0.12);
+    --color-border-strong: #faf8f6;
+
+    --color-accent: #62c5ee;
+    --color-accent-text: #8ad6f2;
+    --color-accent-tint: rgba(98, 197, 238, 0.14);
+    --color-accent-solid: #62c5ee;
+    --color-accent-solid-hover: #8ad6f2;
+    --color-on-accent: #0a2430;
+
+    --color-danger: #ff90b1;
+    --color-danger-text: #ff90b1;
+    --color-danger-tint: rgba(255, 144, 177, 0.14);
+    --color-danger-solid: #d82071;
+    --color-danger-solid-hover: #ff458e;
+    --color-on-danger: #ffffff;
+
+    --color-focus: #62c5ee;
+
+    --color-canvas-bg: #1a1918;
+    --color-canvas-dot: rgba(255, 255, 255, 0.09);
+    --color-canvas-mark: rgba(255, 255, 255, 0.28);
+    --color-edge: rgba(255, 255, 255, 0.24);
+    --color-node-root: #faf8f6;
+    --color-node-branch: rgba(255, 255, 255, 0.88);
+    --color-node-leaf: rgba(255, 255, 255, 0.6);
+    --color-node-selected: #8ad6f2;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
   }
+}
+
+/* ---- ダーク（明示指定）。上のブロックと同じ値を保つこと ---- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #1a1918;
+  --color-surface: #232221;
+  --color-surface-floating: rgba(255, 255, 255, 0.07);
+  --color-overlay: rgba(26, 25, 24, 0.86);
+  --backdrop-floating: blur(12px);
+
+  --color-text: #faf8f6;
+  --color-text-secondary: rgba(255, 255, 255, 0.66);
+  --color-text-disabled: rgba(255, 255, 255, 0.34);
+  --color-icon: rgba(255, 255, 255, 0.78);
+
+  --color-border: rgba(255, 255, 255, 0.24);
+  --color-border-subtle: rgba(255, 255, 255, 0.12);
+  --color-border-strong: #faf8f6;
+
+  --color-accent: #62c5ee;
+  --color-accent-text: #8ad6f2;
+  --color-accent-tint: rgba(98, 197, 238, 0.14);
+  --color-accent-solid: #62c5ee;
+  --color-accent-solid-hover: #8ad6f2;
+  --color-on-accent: #0a2430;
+
+  --color-danger: #ff90b1;
+  --color-danger-text: #ff90b1;
+  --color-danger-tint: rgba(255, 144, 177, 0.14);
+  --color-danger-solid: #d82071;
+  --color-danger-solid-hover: #ff458e;
+  --color-on-danger: #ffffff;
+
+  --color-focus: #62c5ee;
+
+  --color-canvas-bg: #1a1918;
+  --color-canvas-dot: rgba(255, 255, 255, 0.09);
+  --color-canvas-mark: rgba(255, 255, 255, 0.28);
+  --color-edge: rgba(255, 255, 255, 0.24);
+  --color-node-root: #faf8f6;
+  --color-node-branch: rgba(255, 255, 255, 0.88);
+  --color-node-leaf: rgba(255, 255, 255, 0.6);
+  --color-node-selected: #8ad6f2;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- 明示ライト（OS がダークでも打ち消す） ---- */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* =========================================================================
+   最小限のリセット
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html {
   height: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ol,
+ul {
+  margin: 0;
+}
+
+ol,
+ul {
+  padding: 0;
 }
 
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--line-height-tight);
+}
+
+/* フォーム要素はフォントを継承する（ブラウザ既定を打ち消す） */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: none;
   padding: 0;
-  margin: 0;
+  cursor: pointer;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  color: var(--color-accent-text);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* フォーカスリング（ハンドオフ: outline 2px accent / offset 2px） */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

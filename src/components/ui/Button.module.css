@@ -1,0 +1,132 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-flat);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}
+
+/* ---- サイズ ---- */
+
+.md {
+  padding: 10px 18px;
+  font-size: var(--font-size-sm);
+}
+
+.sm {
+  padding: 7px 12px;
+  font-size: var(--font-size-xs);
+}
+
+/* アイコンのみ。正方形を保ち、余白で当たり判定を確保する */
+.iconOnly.md {
+  padding: 0;
+  width: 34px;
+  height: 34px;
+}
+
+.iconOnly.sm {
+  padding: 0;
+  width: 28px;
+  height: 28px;
+}
+
+/* ---- variant ---- */
+
+.primary {
+  background-color: var(--color-accent-solid);
+  color: var(--color-on-accent);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--color-accent-solid-hover);
+}
+
+.secondary {
+  background-color: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--color-accent-tint);
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--color-text-secondary);
+}
+
+.ghost:hover:not(:disabled) {
+  background-color: var(--color-accent-tint);
+  color: var(--color-accent-text);
+}
+
+.danger {
+  background-color: var(--color-danger-solid);
+  color: var(--color-on-danger);
+}
+
+.danger:hover:not(:disabled) {
+  background-color: var(--color-danger-solid-hover);
+}
+
+/* ---- 無効・読み込み中 ---- */
+
+.primary:disabled,
+.danger:disabled {
+  background-color: var(--color-surface);
+  color: var(--color-text-disabled);
+}
+
+.secondary:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-disabled);
+}
+
+.ghost:disabled {
+  color: var(--color-text-disabled);
+}
+
+/* ---- スピナー ---- */
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* reduced-motion では globals.css が回転を止めるので、
+   動かないリングだけでは状態が伝わらない。点滅で代替する。 */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    border-top-color: currentColor;
+    opacity: 0.5;
+  }
+}

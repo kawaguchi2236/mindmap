@@ -1,0 +1,84 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.required {
+  color: var(--color-danger-text);
+  margin-inline-start: 4px;
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* Broadsheet の作法どおり枠は描かず、下罫だけで入力欄を示す */
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 6px;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.inputWrap:focus-within {
+  border-bottom-color: var(--color-accent);
+}
+
+.inputWrap.invalid {
+  border-bottom-color: var(--color-danger);
+}
+
+.icon {
+  flex: none;
+  color: var(--color-icon);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+/* 下罫がフォーカス表示を兼ねるので、既定のリングは枠の外に出さず内側に出す */
+.input:focus {
+  outline: none;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+.input:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.message {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
+  color: var(--color-text-secondary);
+}
+
+.message.error {
+  color: var(--color-danger-text);
+}

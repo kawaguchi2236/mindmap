@@ -1,0 +1,59 @@
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.option {
+  position: relative;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-flat);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.option:hover {
+  color: var(--color-accent-text);
+}
+
+/* 選択中はアクセント色の下線。ハンドオフ #3b のテキストセグメントと同じ作法 */
+.option[data-selected="true"] {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+}
+
+/* ラジオ本体は隠しているので、フォーカスリングはラベル側に出す */
+.option:has(.radio:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* 視覚的には隠すがフォーカスは受けられる。
+   display:none にすると矢印キーでの選択ができなくなる。 */
+.radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.compact .option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+}

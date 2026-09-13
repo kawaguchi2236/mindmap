@@ -1,0 +1,97 @@
+.header {
+  position: relative;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+  padding: 0 var(--space-page-x);
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* エディタではキャンバスを1pxでも広く使う。罫線を消して背景に溶かし、
+   帯の余白部分はクリックを素通しさせてキャンバスの Pan を邪魔しない。 */
+.transparent {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+
+.transparent .left,
+.transparent .right {
+  pointer-events: auto;
+}
+
+.left {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  min-width: 0;
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-inline-start: calc(var(--space-2) * -1);
+  align-self: center;
+  color: var(--color-icon);
+}
+
+.menuButton:hover {
+  color: var(--color-accent-text);
+}
+
+/* 左上のアクセント色スクエア（ハンドオフ #2b） */
+.mark {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-accent);
+  align-self: center;
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-flat);
+  letter-spacing: normal;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitle {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: var(--line-height-flat);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: none;
+}
+
+@media (max-width: 640px) {
+  .subtitle {
+    display: none;
+  }
+
+  .right {
+    gap: var(--space-3);
+  }
+}
