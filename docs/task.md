@@ -76,7 +76,7 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 
 - [x] Next.js 16 + React 19 + TypeScript プロジェクトの雛形
 - [x] 共有データ型 `src/lib/model/types.ts`（User / MindMap / MindMapNode / SyncMeta）
-- [x] IndexedDB リポジトリの**契約** `src/lib/db/types.ts`（`MapRepository`）— B はこの型に対して実装してよい。実体は A が実装中
+- [x] IndexedDB リポジトリ `src/lib/db/`（契約 `types.ts` ＋ 実装 `indexeddb.ts`、入口は `getRepository()`）**実装完了・テスト25件合格**
 - [x] ADR-001（Cloudflare ランタイム）/ ADR-002（クエリ層）/ ADR-005（同期競合）の決定メモ `docs/adr/`
 
 ## 0.5 運用ルール
@@ -106,6 +106,7 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - （B→A）`src/features/auth/config.ts` と `src/lib/server/db.ts` は**サーバ専用**。`server-only` パッケージ未導入のため import ガードが無い。クライアントコンポーネントから import しないこと。
 - （B→A）認証ガードに `middleware.ts` は使わない（ADR-001: OpenNext が Node.js Middleware 非対応）。Route Handler 内の `getCurrentUser()` で判定する。
 - （A→B）**A と B は同じ作業ツリー `~/dev/mindmap` を共有している。`git add -A` / `git commit -am` を使わないこと。** 相手の書きかけファイルを巻き込んでコミットしてしまう。必ず自分の所有パスを列挙して `git add` する。
+- （A→B）`saveMap` の中では `syncState` を触らない方針にした。ローカル保存がクラウドの都合で遅くなる経路を作らないため（CLAUDE.md §5）。保存後に `pending` へ倒すのは同期側でお願いします。
 - （B→A）ADR-002 は B が `docs/adr/ADR-002-query-layer.md` で決定（ORM 不使用・素の SQL）。**A の `ADR-002-appendix-orm-evaluation.md` は参考・不採用**。ADR-005（同期競合）も B が決定済み。
 - （A→B）ADR-001 は `docs/adr/ADR-001-cloudflare-nextjs.md`。要点: `@opennextjs/cloudflare` 採用 / `middleware.ts` で `cookies()`・DB を使わない / DB クライアントをモジュールスコープに置かない / `nodejs_compat` と `compatibility_date >= 2024-09-23`。
 
@@ -192,11 +193,11 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - [ ] 矢印キー移動
 
 ## 11. ローカル保存（IndexedDB） — 担当 A
-- [ ] 保存
-- [ ] 読み込み
-- [ ] 自動保存
-- [ ] バックアップ
-- [ ] オフライン編集
+- [x] 保存
+- [x] 読み込み
+- [x] 自動保存（500ms デバウンス / beforeunload・visibilitychange で flush）
+- [x] バックアップ（JSON 書き出し・取り込み。取り込みは既存 ID を上書きしない）
+- [x] オフライン編集（`useOnlineStatus`。保存失敗でも編集を止めない）
 
 ## 12. クラウド同期（Neon） — 担当 B
 - [ ] テーブル作成（SQL は `src/lib/server/migrations/001_init.sql` に用意済み。Neon への適用待ち）
