@@ -19,8 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   OAuthAccountNotLinked:
     "このメールアドレスは別のログイン方法で登録済みです。前回と同じ方法でログインしてください。",
   EmailSignin: "ログインリンクを送信できませんでした。メールアドレスをご確認ください。",
-  Verification:
-    "このログインリンクは期限切れか、すでに使用済みです。もう一度お試しください。",
+  Verification: "このログインリンクは期限切れか、すでに使用済みです。もう一度お試しください。",
   AccessDenied: "ログインが許可されませんでした。",
   Configuration: "ログイン設定に問題があります。しばらくしてからお試しください。",
 };

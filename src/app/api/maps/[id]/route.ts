@@ -27,10 +27,7 @@ export const runtime = "nodejs";
 type RouteContext = { params: Promise<{ id: string }> };
 
 function conflict(serverMap: ConflictResponse["serverMap"]) {
-  return NextResponse.json<ConflictResponse>(
-    { error: "conflict", serverMap },
-    { status: 409 },
-  );
+  return NextResponse.json<ConflictResponse>({ error: "conflict", serverMap }, { status: 409 });
 }
 
 /** upsert / softDelete の結果を HTTP 応答に落とす（両者は同じ形を返す）。 */
@@ -117,9 +114,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   }
 
   try {
-    return toResponse(
-      await softDeleteMap(user.id, id, parsed.data.baseVersion),
-    );
+    return toResponse(await softDeleteMap(user.id, id, parsed.data.baseVersion));
   } catch (error) {
     logServerError("DELETE /api/maps/[id]", error);
     return serverError();

@@ -2,12 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/features/auth/session";
 import type { MapSummary } from "@/features/sync/protocol";
-import {
-  invalidRequest,
-  logServerError,
-  serverError,
-  unauthorized,
-} from "@/lib/server/api";
+import { invalidRequest, logServerError, serverError, unauthorized } from "@/lib/server/api";
 import { listMapSummaries } from "@/lib/server/maps";
 
 // Neon への接続と Auth.js のセッション参照があるため Node.js ランタイムで動かす。
