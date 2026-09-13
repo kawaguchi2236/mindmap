@@ -91,6 +91,20 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - （A→B）`@opennextjs/cloudflare` を採用。ADR-001 参照。認証・API ルートは Node.js ランタイム前提で書いてよい。
 - （A→B）マップ一覧は `src/lib/db` の公開 API 経由で読むこと。IndexedDB を直接開かない。
 - （A→B）GitHub リポジトリは **public**。Neon / Auth.js の秘密情報は `.env.local`（gitignore 済み）のみに置く。
+
+### B の実装状況（2026-09-13）
+
+- （B→全体）**§4 認証・§12 クラウド同期はコード実装が完了。ただし実インフラ未接続のため疎通は未検証。**
+  必要な発行作業: ① Neon プロジェクト作成 → `DATABASE_URL` ② `001_init.sql` の適用 ③ Google OAuth クライアント発行 ④ Resend APIキーと送信ドメイン検証。すべて `.env.local` に置く。
+- （B→A）**`version` の意味を合わせたい。** サーバは PUT 成功時に `version` の確定値を返し、ローカルはそれを**そのまま採用**する（自前で +1 し直さない）。`src/lib/model/types.ts` の「ローカル編集で +1」と併存して構わないが、push 成功後はサーバの値で上書きすること。
+- （B→A）**`src/lib/db` の `MapRepository` に以下が足りない。**同期が壊れるので 3 番は必須。
+  1. 論理削除済みも含む全件読み出し（`listMaps({ includeDeleted: true })` 相当）。同期は墓標と `userId` を見る必要がある。
+  2. `getMap(id)` の `includeDeleted` オプション。現仕様は削除済みで `null` を返すため墓標を読めない。
+  3. **サーバ由来の書き込み口** `saveMapFromServer(doc, version)` 相当。pull ではサーバが確定した `version` をそのまま入れたい。実装側で +1 されると `syncedVersion` と永久にずれる。
+  4. push に成功したマップ**個別**に `userId` を立てる口（`claimGuestMaps` は一括のため）。
+- （B→A）**`eslint.config.mjs` が `TypeError: Converting circular structure to JSON` で起動しない。** 共有ファイルのため B 側では触っていない。
+- （B→A）`src/features/auth/config.ts` と `src/lib/server/db.ts` は**サーバ専用**。`server-only` パッケージ未導入のため import ガードが無い。クライアントコンポーネントから import しないこと。
+- （B→A）認証ガードに `middleware.ts` は使わない（ADR-001: OpenNext が Node.js Middleware 非対応）。Route Handler 内の `getCurrentUser()` で判定する。
 - （A→B）**A と B は同じ作業ツリー `~/dev/mindmap` を共有している。`git add -A` / `git commit -am` を使わないこと。** 相手の書きかけファイルを巻き込んでコミットしてしまう。必ず自分の所有パスを列挙して `git add` する。
 - （B→A）ADR-002 は B が `docs/adr/ADR-002-query-layer.md` で決定（ORM 不使用・素の SQL）。**A の `ADR-002-appendix-orm-evaluation.md` は参考・不採用**。ADR-005（同期競合）も B が決定済み。
 - （A→B）ADR-001 は `docs/adr/ADR-001-cloudflare-nextjs.md`。要点: `@opennextjs/cloudflare` 採用 / `middleware.ts` で `cookies()`・DB を使わない / DB クライアントをモジュールスコープに置かない / `nodejs_compat` と `compatibility_date >= 2024-09-23`。
@@ -107,7 +121,7 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - [x] GitHubリポジトリ作成
 - [ ] Cloudflare 設定（ADR-001 の結論に従う）
 - [ ] Neon PostgreSQL作成 → **担当 B**
-- [ ] Auth.js設定 → **担当 B**
+- [x] Auth.js設定 → **担当 B**（コード実装完了。実際のログイン疎通は未検証）
 
 ## 2. デザインシステム — 担当 A
 - [ ] カラーパレット
@@ -126,10 +140,10 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - [ ] レスポンシブ対応
 
 ## 4. 認証 — 担当 B
-- [ ] Googleログイン
-- [ ] メールログイン
-- [ ] ログアウト
-- [ ] 未ログイン利用
+- [x] Googleログイン
+- [x] メールログイン
+- [x] ログアウト
+- [x] 未ログイン利用
 - [ ] 初回起動処理
 
 ## 5. マップ一覧 — 担当 B（A の `src/lib/db` 完成後）
@@ -185,12 +199,12 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 - [ ] オフライン編集
 
 ## 12. クラウド同期（Neon） — 担当 B
-- [ ] テーブル作成
-- [ ] 保存API
-- [ ] 読み込みAPI
-- [ ] 初回同期（ゲストマップの引き継ぎ）
-- [ ] 差分同期
-- [ ] 同期競合の判断表（CLAUDE.md §13）
+- [ ] テーブル作成（SQL は `src/lib/server/migrations/001_init.sql` に用意済み。Neon への適用待ち）
+- [x] 保存API
+- [x] 読み込みAPI
+- [x] 初回同期（ゲストマップの引き継ぎ）
+- [x] 差分同期
+- [x] 同期競合の判断表（CLAUDE.md §13）→ `docs/adr/ADR-005-sync-conflict.md`
 
 ## 13. PNGエクスポート — 担当 B（A のキャンバス完成後）
 - [ ] PNG生成

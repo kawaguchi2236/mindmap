@@ -6,6 +6,9 @@
  *
  * 未ログインでもアプリは使える（CLAUDE.md §14）。null は異常ではなくゲスト。
  */
+import type { Session } from "next-auth";
+import { auth } from "@/features/auth/config";
+
 export type SessionUser = {
   id: string;
   email: string;
@@ -14,6 +17,18 @@ export type SessionUser = {
 
 /** ログイン中なら SessionUser、ゲストなら null を返す。 */
 export async function getCurrentUser(): Promise<SessionUser | null> {
-  // 実装は担当 B1（Auth.js 設定）で差し替える。
-  return null;
+  let session: Session | null = null;
+  try {
+    session = await auth();
+  } catch (error) {
+    // AUTH_SECRET 未設定など認証基盤が使えない状態でも、ゲストとして
+    // アプリを使い続けられることを優先する（CLAUDE.md §29）。
+    console.error("[auth] セッションの取得に失敗しました", error);
+    return null;
+  }
+
+  const user = session?.user;
+  if (!user?.id || !user.email) return null;
+
+  return { id: user.id, email: user.email, name: user.name ?? null };
 }

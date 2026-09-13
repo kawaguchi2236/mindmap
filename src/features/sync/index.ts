@@ -1,0 +1,21 @@
+/**
+ * クラウド同期の入口。
+ *
+ * 利用側はこのモジュールだけを import する。
+ * 判断表の根拠は `docs/adr/ADR-005-sync-conflict.md`。
+ */
+export { decideSyncAction, decideGuestMigrationAction } from "./decide";
+export type { SyncAction, SyncReason } from "./decide";
+export { syncAll, migrateGuestMaps } from "./engine";
+export type { SyncConflict, SyncEvent, SyncFailure, SyncOptions, SyncSummary } from "./engine";
+export { createRemoteClient } from "./remote-client";
+export type { CreateRemoteClientOptions } from "./remote-client";
+export { hasUnseenRemoteChanges, hasUnsentLocalChanges, isRetryable } from "./types";
+export type {
+  LocalMapRecord,
+  LocalStore,
+  RemoteClient,
+  RemoteFailureKind,
+  RemoteResult,
+} from "./types";
+export type { MapSummary, SyncMap, SyncNode } from "./protocol";

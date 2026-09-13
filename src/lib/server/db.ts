@@ -1,4 +1,4 @@
-import { neon, neonConfig, Pool } from "@neondatabase/serverless";
+import { neon, Pool } from "@neondatabase/serverless";
 
 /**
  * Neon PostgreSQL 接続（サーバ専用）。
@@ -8,9 +8,12 @@ import { neon, neonConfig, Pool } from "@neondatabase/serverless";
  *
  * このファイルは必ずサーバ側（Route Handler / Server Component / Server Action）
  * からのみ import すること。クライアントに DATABASE_URL を漏らさない。
+ *
+ * ADR-001（Cloudflare Workers / @opennextjs/cloudflare）の制約:
+ * Workers では I/O オブジェクトをリクエストをまたいで共有できない。
+ * `Pool`（WebSocket 接続）は必ずリクエストごとに生成して閉じること。
+ * `sql` は HTTP fetch ベースで接続を保持しないため、使い回して問題ない。
  */
-
-neonConfig.fetchConnectionCache = true;
 
 function connectionString(): string {
   const url = process.env.DATABASE_URL;
