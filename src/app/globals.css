@@ -364,3 +364,28 @@ canvas {
     scroll-behavior: auto !important;
   }
 }
+
+/* エディタ画面の中央パネル（読み込み中・マップ未検出・保存領域エラー）。 */
+.app-centered {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--space-6);
+}
+
+.app-centered__box {
+  max-width: 40ch;
+  text-align: center;
+}
+
+.app-centered__box h1 {
+  margin-block-end: var(--space-2);
+}
+
+.app-centered__box p {
+  margin-block-end: var(--space-4);
+}
+
+.app-centered__muted {
+  color: var(--color-text-secondary);
+}

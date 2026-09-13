@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader, AppShell } from "@/components/layout";
 import { Button } from "@/components/ui";
 import { MindMapEditor } from "@/features/editor";
@@ -8,41 +9,83 @@ import { useMapDocument, useOnlineStatus, type SaveStatus } from "@/features/per
 import { getRepository } from "@/lib/db";
 
 /**
- * ゲストのままエディタに入る画面。
+ * エディタ画面。
  *
  * Phase 1 の入口は「開いたらすぐ書ける」こと（CLAUDE.md §14）。ログインも
- * マップ選択も挟まず、直近のマップを開き、無ければその場で1件作る。
- * マップ一覧（/maps）は担当 B の範囲で、出来たらそちらへ導線を足す。
+ * マップ選択も挟まず、いきなりキャンバスに入る。
+ *
+ * - `/?map=<id>` … そのマップを開く（マップ一覧からの導線）
+ * - `/`          … 直近に更新したマップを開く。1件も無ければその場で作る
+ *
+ * エディタ画面はここ1つだけにする。画面が2つあると、キャンバスの修正が
+ * 片方にしか当たらない状態が生まれるため。
  */
 export default function Home() {
-  const [mapId, setMapId] = useState<string | null>(null);
-  const [openError, setOpenError] = useState<Error | null>(null);
-  const { doc, setDoc, status, loading, error, lastSavedAt } = useMapDocument(mapId);
-  const online = useOnlineStatus();
+  // useSearchParams は Suspense 境界を要求する（/ は静的プリレンダリング）。
+  return (
+    <Suspense fallback={<Centered>読み込み中…</Centered>}>
+      <EditorPage />
+    </Suspense>
+  );
+}
+
+type OpenState =
+  | { phase: "opening" }
+  | { phase: "ready"; mapId: string }
+  | { phase: "missing"; requestedId: string }
+  | { phase: "failed"; error: Error };
+
+function EditorPage() {
+  const router = useRouter();
+  const requestedId = useSearchParams().get("map");
+  const [open, setOpen] = useState<OpenState>({ phase: "opening" });
 
   useEffect(() => {
     let cancelled = false;
+    const repository = getRepository();
 
-    async function openLatestMap() {
-      const repository = getRepository();
-      const maps = await repository.listMaps();
-      const latest = maps[0];
-      const target = latest ?? (await repository.createMap()).map;
-      if (!cancelled) setMapId(target.id);
-    }
+    // 開くべきマップを1つ決める。setState は Promise のコールバックの中だけで行う。
+    const resolve: Promise<OpenState> = requestedId
+      ? repository.getMap(requestedId).then((requested) =>
+          // 見つからないときに別のマップを黙って開くと、一覧で選んだものと
+          // 違うマップを編集してしまう。開かずに知らせる。
+          requested
+            ? ({ phase: "ready", mapId: requested.map.id } as const)
+            : ({ phase: "missing", requestedId } as const),
+        )
+      : repository
+          .listMaps()
+          .then(async (maps) => maps[0] ?? (await repository.createMap()).map)
+          .then((target) => {
+            // リロードや共有で同じマップに戻れるよう URL に残す。
+            router.replace(`/?map=${target.id}`, { scroll: false });
+            return { phase: "ready", mapId: target.id } as const;
+          });
 
-    openLatestMap().catch((caught: unknown) => {
-      const normalized = caught instanceof Error ? caught : new Error(String(caught));
-      console.error("[app] マップを開けませんでした", normalized);
-      if (!cancelled) setOpenError(normalized);
-    });
+    resolve
+      .then((next) => {
+        if (!cancelled) setOpen(next);
+      })
+      .catch((caught: unknown) => {
+        const error = caught instanceof Error ? caught : new Error(String(caught));
+        console.error("[app] マップを開けませんでした", error);
+        if (!cancelled) setOpen({ phase: "failed", error });
+      });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [requestedId, router]);
 
-  const failure = openError ?? error;
+  return <Editor open={open} onOpenLatest={() => router.replace("/", { scroll: false })} />;
+}
+
+function Editor({ open, onOpenLatest }: { open: OpenState; onOpenLatest: () => void }) {
+  const mapId = open.phase === "ready" ? open.mapId : null;
+  const { doc, setDoc, status, loading, error, lastSavedAt } = useMapDocument(mapId);
+  const online = useOnlineStatus();
+
+  const failure = open.phase === "failed" ? open.error : error;
 
   return (
     <AppShell
@@ -57,8 +100,10 @@ export default function Home() {
     >
       {failure ? (
         <ErrorPanel error={failure} />
+      ) : open.phase === "missing" ? (
+        <MissingPanel onOpenLatest={onOpenLatest} />
       ) : loading || !doc ? (
-        <LoadingPanel />
+        <Centered>読み込み中…</Centered>
       ) : (
         <MindMapEditor document={doc} onChange={setDoc} />
       )}
@@ -82,10 +127,24 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
 }
 
-function LoadingPanel() {
+function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
-      <p style={{ color: "var(--color-text-secondary)" }}>読み込み中…</p>
+    <div className="app-centered">
+      <p className="app-centered__muted">{children}</p>
+    </div>
+  );
+}
+
+function MissingPanel({ onOpenLatest }: { onOpenLatest: () => void }) {
+  return (
+    <div className="app-centered">
+      <div className="app-centered__box">
+        <h1>マップが見つかりません</h1>
+        <p className="app-centered__muted">
+          削除されたか、URL が間違っている可能性があります。データは消していません。
+        </p>
+        <Button onClick={onOpenLatest}>最近のマップを開く</Button>
+      </div>
     </div>
   );
 }
@@ -96,10 +155,10 @@ function LoadingPanel() {
  */
 function ErrorPanel({ error }: { error: Error }) {
   return (
-    <div style={{ display: "grid", placeItems: "center", height: "100%", padding: "24px" }}>
-      <div style={{ maxWidth: "40ch", textAlign: "center" }}>
-        <h1 style={{ marginBottom: "8px" }}>マップを開けませんでした</h1>
-        <p style={{ color: "var(--color-text-secondary)", marginBottom: "16px" }}>
+    <div className="app-centered">
+      <div className="app-centered__box">
+        <h1>マップを開けませんでした</h1>
+        <p className="app-centered__muted">
           {error.name === "IndexedDbUnavailableError"
             ? "このブラウザではローカル保存が使えません。プライベートウィンドウを閉じるか、別のブラウザでお試しください。"
             : "ローカルの保存領域にアクセスできませんでした。ページを再読み込みしてください。"}
