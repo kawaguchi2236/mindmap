@@ -1,0 +1,199 @@
+/*
+ * マップ一覧のレイアウト。design/ハンドオフ.md `#2c` に沿う。
+ *
+ * 色・余白・影・重なりはすべてトークン変数で指定する。
+ * ダークモードのメディアクエリはここに書かない — globals.css が
+ * 「OS 追従 / 明示ライト / 明示ダーク」の3状態ぶんのトークンを定義済みで、
+ * var() を使っている限り自動で追従する（自前で書くと明示ライトが壊れる）。
+ *
+ * ページ外周の余白は AppShell の main 側が持っているので、ここでは足さない。
+ */
+
+/* --- サイドバー ---------------------------------------------------------- */
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.navLink {
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  background-color: var(--color-accent-tint);
+  color: var(--color-accent-text);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+/* --- 見出し行 ------------------------------------------------------------ */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-text);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-text-secondary);
+}
+
+/* Input はラッパー div にこのクラスが付く。 */
+.search {
+  flex: 0 1 200px;
+}
+
+/* --- 一覧 ---------------------------------------------------------------- */
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.row:hover {
+  background-color: var(--color-accent-tint);
+}
+
+.rowIndex {
+  flex: 0 0 auto;
+  width: 26px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-meta);
+  color: var(--color-text-secondary);
+}
+
+.open {
+  flex: 1 1 220px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.open:hover {
+  color: var(--color-accent-text);
+}
+
+.meta {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-text-secondary);
+}
+
+.metaDanger {
+  color: var(--color-danger-text);
+}
+
+.actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* --- 名前変更のインライン編集 -------------------------------------------- */
+
+.renameForm {
+  flex: 1 1 220px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.renameField {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* --- 状態表示 ------------------------------------------------------------ */
+
+.notice {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3);
+  border-inline-start: 3px solid var(--color-danger);
+  background-color: var(--color-danger-tint);
+  color: var(--color-danger-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.empty {
+  margin: var(--space-8) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}
+
+.confirmText {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+/*
+ * 削除の取り消し。確認ダイアログを通していても、
+ * 消したあとに戻せる道は残す（CLAUDE.md §6）。
+ */
+.undo {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-floating);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-sm);
+}
+
+.undoText {
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+}
