@@ -1,0 +1,6 @@
+.next/
+node_modules/
+out/
+coverage/
+design/Web MindMap UI.dc.html
+design/styles.css

@@ -74,9 +74,9 @@ src/app/page.tsx
 
 B は以下が `main` に入ってから着手する。A は最優先でこれを出す。
 
-- [ ] Next.js + TypeScript プロジェクトの雛形
-- [ ] 共有データ型 `src/lib/model/types.ts`（User / MindMap / MindMapNode）
-- [ ] IndexedDB リポジトリの公開 API `src/lib/db/`（`listMaps` / `getMap` / `saveMap` / `deleteMap` など）
+- [x] Next.js 16 + React 19 + TypeScript プロジェクトの雛形
+- [x] 共有データ型 `src/lib/model/types.ts`（User / MindMap / MindMapNode / SyncMeta）
+- [x] IndexedDB リポジトリの**契約** `src/lib/db/types.ts`（`MapRepository`）— B はこの型に対して実装してよい。実体は A が実装中
 - [ ] ADR-001（Cloudflare ランタイム）/ ADR-002（ORM）の決定メモ `docs/adr/`
 
 ## 0.5 運用ルール
@@ -97,10 +97,10 @@ B は以下が `main` に入ってから着手する。A は最優先でこれ�
 # タスク
 
 ## 1. プロジェクト準備 — 担当 A
-- [ ] Next.jsプロジェクト作成
-- [ ] TypeScript設定
-- [ ] ESLint設定
-- [ ] Prettier設定
+- [x] Next.jsプロジェクト作成
+- [x] TypeScript設定
+- [x] ESLint設定
+- [x] Prettier設定
 - [x] GitHubリポジトリ作成
 - [ ] Cloudflare 設定（ADR-001 の結論に従う）
 - [ ] Neon PostgreSQL作成 → **担当 B**
