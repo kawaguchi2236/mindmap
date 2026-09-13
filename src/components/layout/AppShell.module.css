@@ -37,6 +37,10 @@
 .editor .main {
   padding: 0;
   overflow: hidden;
+  /* キャンバスは flex: 1 で高さを取りにいくので、
+     main 自身も flex コンテナにしないと高さ 0 になる（React Flow が描画できない）。 */
+  display: flex;
+  flex-direction: column;
 }
 
 .overlayHeader {
