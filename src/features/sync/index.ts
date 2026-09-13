@@ -10,7 +10,12 @@ export { syncAll, migrateGuestMaps } from "./engine";
 export type { SyncConflict, SyncEvent, SyncFailure, SyncOptions, SyncSummary } from "./engine";
 export { createRemoteClient } from "./remote-client";
 export type { CreateRemoteClientOptions } from "./remote-client";
-export { hasUnseenRemoteChanges, hasUnsentLocalChanges, isRetryable } from "./types";
+export {
+  hasUnseenRemoteChanges,
+  hasUnsentLocalChanges,
+  isRetryable,
+  isStaleWriteError,
+} from "./types";
 export type {
   LocalMapRecord,
   LocalStore,

@@ -63,7 +63,16 @@ export interface LocalStore {
   /** 論理削除済みも含めた全レコード。突き合わせに墓標が必要なため除外しない。 */
   listLocal(): Promise<LocalMapRecord[]>;
   getLocal(id: string): Promise<LocalMapRecord | undefined>;
-  /** 上書き保存（原子的であること）。 */
+  /**
+   * 上書き保存（原子的であること）。
+   *
+   * `record.userId` の変更は**所有者の付け替え**として実装すること
+   * （担当 A の `claimGuestMaps` 相当）。ゲストマップを削除して作り直す実装は
+   * 禁止（CLAUDE.md §6）。同期エンジンは `deleteLocalHard` を一切呼ばない。
+   *
+   * ローカル側が先に進んでいる場合、実装は `StaleWriteError` で拒否してよい。
+   * 同期エンジンはそれを異常ではなく競合として扱う（ADR-005 #18）。
+   */
   putLocal(record: LocalMapRecord): Promise<void>;
   /**
    * 物理削除。同期エンジンは**通常これを呼ばない**（論理削除で止める）。
@@ -94,6 +103,17 @@ export type RemoteResult<T> =
   /** 409。サーバの最新版を添えて返し、判断はクライアントに委ねる。 */
   | { ok: false; kind: "conflict"; serverMap: SyncMap }
   | { ok: false; kind: RemoteFailureKind; message?: string };
+
+/**
+ * ローカル保存が「新しいものを古いもので潰すな」と拒否したか。
+ *
+ * 担当 A の `src/lib/db/errors.ts` の `StaleWriteError` を、
+ * import せずに名前で判定する。同期エンジンを A の実装に結合させないため
+ * （テストも Node 上で完結する）。
+ */
+export function isStaleWriteError(error: unknown): boolean {
+  return error instanceof Error && error.name === "StaleWriteError";
+}
 
 /** 一時的な障害か（＝次回の同期で再試行する価値があるか）。 */
 export function isRetryable(kind: RemoteFailureKind | "conflict"): boolean {

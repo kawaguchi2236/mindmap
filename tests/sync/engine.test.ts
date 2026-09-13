@@ -372,6 +372,114 @@ describe("初回ログイン時のゲストマップ移行", () => {
   });
 });
 
+describe("ADR-005 #17 push に対する 404（サーバ側に行が無い）", () => {
+  it("baseVersion 0 で作り直して復活させる", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ syncedVersion: 3, dirty: true, map: makeMap({ version: 4 }) }),
+    ]);
+    // 一覧にはあるが、PUT の時点で行が消える（別デバイスが物理削除した）。
+    const remote = new FakeRemoteClient([makeMap({ version: 3 })]);
+    remote.vanishOnPut.add("m1");
+
+    const summary = await syncAll(deps(local, remote));
+
+    expect(summary.pushed).toEqual(["m1"]);
+    expect(summary.failed).toEqual([]);
+    expect(remote.maps.get("m1")?.version).toBe(1);
+    expect(local.peek("m1")?.syncedVersion).toBe(1);
+    expect(local.peek("m1")?.dirty).toBe(false);
+  });
+
+  it("再試行は 1 回だけ。2 度目の 404 は失敗として記録しループしない", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ syncedVersion: 3, dirty: true, map: makeMap({ version: 4 }) }),
+    ]);
+    const remote = new FakeRemoteClient([makeMap({ version: 3 })]);
+    // 何度呼ばれても 404 を返す（別ユーザーが同じ ID を持っている場合など）。
+    remote.alwaysFail.set("m1", { ok: false, kind: "notFound" });
+
+    const summary = await syncAll(deps(local, remote));
+
+    expect(summary.failed).toEqual([{ mapId: "m1", kind: "notFound", message: "notFound" }]);
+    expect(remote.calls.filter((c) => c === "put:m1")).toHaveLength(2);
+    // ローカルは無傷のまま、次回また再試行できる。
+    expect(local.peek("m1")?.dirty).toBe(true);
+    expect(local.peek("m1")?.map.version).toBe(4);
+  });
+});
+
+describe("ADR-005 #18 ローカル保存がサーバ版の書き戻しを拒否する", () => {
+  it("ローカルを優先し、サーバ版は別 ID の複製として保持する", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({
+        syncedVersion: 1,
+        dirty: false,
+        map: makeMap({ version: 1, title: "ローカルが実は新しい" }),
+      }),
+    ]);
+    const remote = new FakeRemoteClient([makeMap({ version: 5, title: "サーバ版" })]);
+    // decide は remote-newer と判断するが、A の saveMap が拒否する。
+    local.staleOnPut.add("m1");
+
+    const summary = await syncAll(deps(local, remote));
+
+    // 元 ID はローカル版のまま。ここが最重要。
+    expect(local.peek("m1")?.map.title).toBe("ローカルが実は新しい");
+    expect(summary.pulled).toEqual([]);
+
+    // サーバ版は複製として残り、サーバへも送られる。
+    expect(summary.conflicts).toHaveLength(1);
+    const { copyId, reason } = summary.conflicts[0];
+    expect(reason).toBe("local-store-stale-write");
+    expect(local.peek(copyId)?.map.title).toContain("サーバ版");
+    expect(remote.maps.has(copyId)).toBe(true);
+
+    // 競合として記録するが、例外は投げない。
+    expect(summary.failed).toHaveLength(1);
+    expect(summary.failed[0].kind).toBe("localStore");
+  });
+
+  it("StaleWriteError 以外のローカル保存エラーは複製を作らずに失敗として記録する", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ syncedVersion: 1, dirty: false, map: makeMap({ version: 1 }) }),
+    ]);
+    const remote = new FakeRemoteClient([makeMap({ version: 5 })]);
+    local.failOnPut.add("m1");
+
+    const summary = await syncAll(deps(local, remote));
+
+    expect(summary.conflicts).toEqual([]);
+    expect(summary.failed).toHaveLength(1);
+    expect(summary.failed[0].kind).toBe("localStore");
+  });
+});
+
+describe("物理削除を決して呼ばない", () => {
+  it("通常同期でも初回ログイン移行でも deleteLocalHard を呼ばない", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ userId: null, syncedVersion: 0, dirty: true, map: makeMap({ id: "g1" }) }),
+      makeRecord({
+        syncedVersion: 1,
+        dirty: true,
+        map: makeMap({ id: "m1", version: 2, deletedAt: NOW }),
+      }),
+      makeRecord({ syncedVersion: 1, dirty: false, map: makeMap({ id: "m2", version: 1 }) }),
+    ]);
+    const remote = new FakeRemoteClient([
+      makeMap({ id: "m1", version: 1 }),
+      makeMap({ id: "m2", version: 3, deletedAt: DELETED_AT }),
+    ]);
+
+    await migrateGuestMaps({ local, remote, userId: "u9", now: () => NOW, newId: sequentialIds() });
+    await syncAll(deps(local, remote, "u9"));
+
+    expect(local.hardDeleted).toEqual([]);
+    // ゲストマップも削除済みマップもローカルに残っている。
+    expect([...local.records.keys()].sort()).toContain("g1");
+    expect(local.peek("m2")?.map.nodes).toHaveLength(1);
+  });
+});
+
 describe("イベント通知", () => {
   it("判定・成功・完了を順に通知する", async () => {
     const local = new FakeLocalStore([

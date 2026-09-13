@@ -5,12 +5,13 @@ import {
   type SyncReason,
 } from "./decide";
 import type { MapSummary, SyncMap, SyncNode } from "./protocol";
-import type {
-  LocalMapRecord,
-  LocalStore,
-  RemoteClient,
-  RemoteFailureKind,
-  RemoteResult,
+import {
+  isStaleWriteError,
+  type LocalMapRecord,
+  type LocalStore,
+  type RemoteClient,
+  type RemoteFailureKind,
+  type RemoteResult,
 } from "./types";
 
 /**
@@ -35,11 +36,16 @@ export interface SyncFailure {
   message: string;
 }
 
-/** `forkLocalCopy` が起きたときの記録。UI はこれを見てユーザーに知らせる。 */
+/** 複製による競合解決が起きたときの記録。UI はこれを見てユーザーに知らせる。 */
 export interface SyncConflict {
-  /** 元のマップ ID（サーバ版が入っている）。 */
+  /** 元のマップ ID。 */
   mapId: string;
-  /** ローカル版を退避した先の新しいマップ ID。 */
+  /**
+   * 退避先の新しいマップ ID。
+   * 通常は**ローカル版**の複製（元 ID にはサーバ版が入る）。
+   * `reason === "local-store-stale-write"` のときだけ逆で、
+   * 元 ID にローカル版が残り、この ID に**サーバ版**が入る。
+   */
   copyId: string;
   reason: SyncReason;
 }
@@ -80,11 +86,14 @@ export interface SyncOptions {
   /** テスト用の差し替え口。 */
   now?: () => string;
   newId?: () => string;
-  /** 競合コピーのタイトルに付ける接尾辞。 */
+  /** ローカル版を退避した競合コピーのタイトルに付ける接尾辞。 */
   conflictTitleSuffix?: string;
+  /** サーバ版を退避した複製のタイトルに付ける接尾辞（ADR-005 #18）。 */
+  serverCopyTitleSuffix?: string;
 }
 
 const DEFAULT_CONFLICT_SUFFIX = "（競合コピー）";
+const DEFAULT_SERVER_COPY_SUFFIX = "（サーバ版コピー）";
 /** SyncMap.title の上限（protocol.ts）。接尾辞を足しても超えないように切り詰める。 */
 const MAX_TITLE_LENGTH = 200;
 
@@ -191,6 +200,7 @@ function createContext(options: SyncOptions): Context {
     now: options.now ?? (() => new Date().toISOString()),
     newId: options.newId ?? defaultNewId,
     conflictTitleSuffix: options.conflictTitleSuffix ?? DEFAULT_CONFLICT_SUFFIX,
+    serverCopyTitleSuffix: options.serverCopyTitleSuffix ?? DEFAULT_SERVER_COPY_SUFFIX,
   };
 }
 
@@ -245,6 +255,15 @@ async function executeAction(
         await forkLocalCopy(ctx, summary, record, action.reason, res.serverMap, undefined);
         return;
       }
+      if (res.kind === "notFound" && action.baseVersion > 0) {
+        // サーバ仕様: 行が無いのに baseVersion > 0 だと 404。
+        // 物理削除された（あるいは同期メタがずれた）ので、新規として作り直す。
+        // 再試行は baseVersion 0 の 1 回だけ。2 度目の 404 はここに入らず失敗になる。
+        const revive: SyncAction = { type: "push", reason: "push-404-revive", baseVersion: 0 };
+        emit(ctx, { type: "map-decided", mapId: id, action: revive });
+        await executeAction(ctx, summary, id, revive, record, remote);
+        return;
+      }
       fail(ctx, summary, { mapId: id, kind: res.kind, message: res.message ?? res.kind });
       return;
     }
@@ -256,12 +275,13 @@ async function executeAction(
         fail(ctx, summary, { mapId: id, ...toFailure(res) });
         return;
       }
-      await ctx.local.putLocal({
+      const written = await putServerVersion(ctx, summary, id, {
         map: res.data,
         userId: ctx.userId ?? record?.userId ?? null,
         syncedVersion: res.data.version,
         dirty: false,
       });
+      if (!written) return; // ローカルが新しかった。サーバ版は複製として退避済み。
       if (action.type === "pull") summary.pulled.push(id);
       else summary.restored.push(id);
       emit(ctx, { type: "map-succeeded", mapId: id, action });
@@ -348,7 +368,7 @@ async function forkLocalCopy(
   remote: MapSummary | undefined,
 ): Promise<void> {
   const id = record.map.id;
-  const copy = buildCopy(ctx, record);
+  const copy = buildCopy(ctx, record, ctx.conflictTitleSuffix);
 
   // 1. 複製を先に保存する。
   await ctx.local.putLocal(copy);
@@ -419,12 +439,76 @@ async function forkLocalCopy(
 }
 
 /**
+ * サーバ由来の内容をローカルへ書き戻す。
+ *
+ * ローカルが先に進んでいると `LocalStore` が `StaleWriteError` で拒否する
+ * （担当 A の `saveMap` の仕様）。それは異常ではなく競合なので、
+ * **ローカルを優先し、サーバ版を別 ID の複製として保持する**（ADR-005 #18）。
+ *
+ * @returns 書き戻せたら true。拒否されて退避に回したら false。
+ */
+async function putServerVersion(
+  ctx: Context,
+  summary: SyncSummary,
+  id: string,
+  incoming: LocalMapRecord,
+): Promise<boolean> {
+  try {
+    await ctx.local.putLocal(incoming);
+    return true;
+  } catch (error) {
+    if (!isStaleWriteError(error)) throw error;
+    await forkRemoteCopy(ctx, summary, id, incoming);
+    return false;
+  }
+}
+
+/**
+ * `forkLocalCopy` の鏡像。ローカル版が新しくて書き戻しを拒否されたときに、
+ * 元 ID はローカル版のまま残し、**サーバ版**を新 ID の複製として保持する。
+ */
+async function forkRemoteCopy(
+  ctx: Context,
+  summary: SyncSummary,
+  id: string,
+  serverRecord: LocalMapRecord,
+): Promise<void> {
+  const copy = buildCopy(ctx, serverRecord, ctx.serverCopyTitleSuffix);
+  await ctx.local.putLocal(copy);
+
+  const conflict: SyncConflict = {
+    mapId: id,
+    copyId: copy.map.id,
+    reason: "local-store-stale-write",
+  };
+  summary.conflicts.push(conflict);
+  emit(ctx, { type: "map-conflicted", conflict });
+  fail(ctx, summary, {
+    mapId: id,
+    kind: "localStore",
+    message: `ローカル版の方が新しいため書き戻しを中止し、サーバ版を ${copy.map.id} として保持しました`,
+  });
+
+  // サーバ版の内容が次回の push で上書きされて消えないよう、別マップとして残す。
+  const pushed = await safeRemote(() => ctx.remote.putMap(copy.map, 0));
+  if (pushed.ok) {
+    await ctx.local.putLocal({
+      map: pushed.data,
+      userId: copy.userId,
+      syncedVersion: pushed.data.version,
+      dirty: false,
+    });
+    summary.pushed.push(copy.map.id);
+  }
+}
+
+/**
  * 競合コピーを組み立てる。
  *
  * ノード ID も振り直して完全に独立したマップにする。ローカル DB が
  * ノード ID をどうキーにしていても衝突しないようにするため。
  */
-function buildCopy(ctx: Context, record: LocalMapRecord): LocalMapRecord {
+function buildCopy(ctx: Context, record: LocalMapRecord, suffix: string): LocalMapRecord {
   const nodeIdMap = new Map<string, string>();
   for (const node of record.map.nodes) {
     nodeIdMap.set(node.id, ctx.newId());
@@ -440,7 +524,7 @@ function buildCopy(ctx: Context, record: LocalMapRecord): LocalMapRecord {
     map: {
       ...record.map,
       id: ctx.newId(),
-      title: withSuffix(record.map.title, ctx.conflictTitleSuffix),
+      title: withSuffix(record.map.title, suffix),
       // 未送信の新規マップとして扱う。version > syncedVersion(0) を満たす。
       version: 1,
       deletedAt: null,

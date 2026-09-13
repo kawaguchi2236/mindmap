@@ -32,7 +32,10 @@ export type SyncReason =
   | "remote-deleted-local-modified"
   | "both-deleted"
   // 3.4 初回ログイン
-  | "guest-first-login";
+  | "guest-first-login"
+  // 3.5 実行中にしか分からない競合（decide の戻り値ではなく engine が使う）
+  | "push-404-revive"
+  | "local-store-stale-write";
 
 export type SyncAction =
   /** 何もしない。 */

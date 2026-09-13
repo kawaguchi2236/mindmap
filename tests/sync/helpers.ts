@@ -63,7 +63,11 @@ export class FakeLocalStore implements LocalStore {
   readonly records = new Map<string, LocalMapRecord>();
   /** putLocal が投げるべきマップ ID（ローカル保存の失敗を再現する）。 */
   failOnPut = new Set<string>();
+  /** putLocal が StaleWriteError を投げるべきマップ ID（担当 A の saveMap の拒否）。 */
+  staleOnPut = new Set<string>();
   putCount = 0;
+  /** 物理削除が呼ばれた記録。同期エンジンは決して呼ばないはず。 */
+  readonly hardDeleted: string[] = [];
 
   constructor(initial: LocalMapRecord[] = []) {
     for (const record of initial) this.records.set(record.map.id, clone(record));
@@ -83,10 +87,15 @@ export class FakeLocalStore implements LocalStore {
     if (this.failOnPut.has(record.map.id)) {
       throw new Error(`IndexedDB 書き込み失敗: ${record.map.id}`);
     }
+    if (this.staleOnPut.has(record.map.id)) {
+      const stored = this.records.get(record.map.id);
+      throw new StaleWriteError(record.map.id, record.map.version, stored?.map.version ?? 0);
+    }
     this.records.set(record.map.id, clone(record));
   }
 
   async deleteLocalHard(id: string): Promise<void> {
+    this.hardDeleted.push(id);
     this.records.delete(id);
   }
 
@@ -109,8 +118,15 @@ export class FakeRemoteClient implements RemoteClient {
   offline = false;
   /** マップ ID ごとに次の 1 回だけ返す失敗を仕込む。 */
   readonly nextFailure = new Map<string, Failure>();
+  /** マップ ID ごとに毎回返す失敗を仕込む（再試行がループしないことの検証用）。 */
+  readonly alwaysFail = new Map<string, Failure>();
   /** 例外を投げる実装の再現（RemoteClient の約束破り）。 */
   throwOn = new Set<string>();
+  /**
+   * 一覧取得のあと PUT の直前に行が物理削除される、というレースの再現。
+   * 1 度だけ行を消して 404 を返す。
+   */
+  readonly vanishOnPut = new Set<string>();
   readonly calls: string[] = [];
 
   constructor(initial: SyncMap[] = []) {
@@ -120,6 +136,8 @@ export class FakeRemoteClient implements RemoteClient {
   private intercept(id: string): Failure | undefined {
     if (this.throwOn.has(id)) throw new Error(`通信例外: ${id}`);
     if (this.offline) return { ok: false, kind: "network", message: "offline" };
+    const persistent = this.alwaysFail.get(id);
+    if (persistent) return persistent;
     const staged = this.nextFailure.get(id);
     if (staged) {
       this.nextFailure.delete(id);
@@ -148,6 +166,11 @@ export class FakeRemoteClient implements RemoteClient {
     this.calls.push(`put:${map.id}`);
     const failure = this.intercept(map.id);
     if (failure) return failure;
+    if (this.vanishOnPut.has(map.id)) {
+      this.vanishOnPut.delete(map.id);
+      this.maps.delete(map.id);
+      return { ok: false, kind: "notFound" };
+    }
     const current = this.maps.get(map.id);
     const currentVersion = current?.version ?? 0;
     if (currentVersion !== baseVersion) {
@@ -175,6 +198,21 @@ export class FakeRemoteClient implements RemoteClient {
     };
     this.maps.set(id, tombstone);
     return { ok: true, data: clone(tombstone) };
+  }
+}
+
+/**
+ * 担当 A の `src/lib/db/errors.ts` の `StaleWriteError` と同じ `name` を持つ偽物。
+ * A のモジュールを import せずに、同期エンジンの判定（name での識別）を検証する。
+ */
+export class StaleWriteError extends Error {
+  constructor(
+    readonly mapId: string,
+    readonly incomingVersion: number,
+    readonly storedVersion: number,
+  ) {
+    super(`マップ ${mapId} の保存を拒否しました`);
+    this.name = "StaleWriteError";
   }
 }
 
