@@ -316,6 +316,11 @@ describe("初回ログイン時のゲストマップ移行", () => {
     expect([...local.records.keys()].sort()).toEqual(["g1", "g2", "m1"]);
     expect(local.peek("g1")?.userId).toBe("u9");
     expect(local.peek("g1")?.dirty).toBe(false);
+    // 所有者の付け替えは claimLocal（＝担当 A の claimMap）で行う。
+    expect(local.claimed).toEqual([
+      { mapId: "g1", userId: "u9" },
+      { mapId: "g2", userId: "u9" },
+    ]);
     expect(remote.maps.has("g2")).toBe(true);
     // 既にユーザーへ紐づいているマップには触らない。
     expect(remote.maps.has("m1")).toBe(false);
@@ -408,49 +413,78 @@ describe("ADR-005 #17 push に対する 404（サーバ側に行が無い）", (
   });
 });
 
-describe("ADR-005 #18 ローカル保存がサーバ版の書き戻しを拒否する", () => {
-  it("ローカルを優先し、サーバ版は別 ID の複製として保持する", async () => {
+describe("ADR-005 #18 書き込み直前にローカルが変わっていた（StaleWriteError）", () => {
+  it("判断からやり直して、2 回目で書き戻せる", async () => {
     const local = new FakeLocalStore([
-      makeRecord({
-        syncedVersion: 1,
-        dirty: false,
-        map: makeMap({ version: 1, title: "ローカルが実は新しい" }),
-      }),
+      makeRecord({ syncedVersion: 1, dirty: false, map: makeMap({ version: 1 }) }),
     ]);
     const remote = new FakeRemoteClient([makeMap({ version: 5, title: "サーバ版" })]);
-    // decide は remote-newer と判断するが、A の saveMap が拒否する。
-    local.staleOnPut.add("m1");
+    local.staleOnPut.add("m1"); // 1 度だけ拒否される
 
     const summary = await syncAll(deps(local, remote));
 
-    // 元 ID はローカル版のまま。ここが最重要。
-    expect(local.peek("m1")?.map.title).toBe("ローカルが実は新しい");
-    expect(summary.pulled).toEqual([]);
-
-    // サーバ版は複製として残り、サーバへも送られる。
-    expect(summary.conflicts).toHaveLength(1);
-    const { copyId, reason } = summary.conflicts[0];
-    expect(reason).toBe("local-store-stale-write");
-    expect(local.peek(copyId)?.map.title).toContain("サーバ版");
-    expect(remote.maps.has(copyId)).toBe(true);
-
-    // 競合として記録するが、例外は投げない。
-    expect(summary.failed).toHaveLength(1);
-    expect(summary.failed[0].kind).toBe("localStore");
+    expect(summary.pulled).toEqual(["m1"]);
+    expect(summary.failed).toEqual([]);
+    expect(local.peek("m1")?.map.title).toBe("サーバ版");
+    expect(local.putCount).toBe(2);
   });
 
-  it("StaleWriteError 以外のローカル保存エラーは複製を作らずに失敗として記録する", async () => {
+  it("読み直した結果に応じて別の動作に切り替わる", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ syncedVersion: 1, dirty: false, map: makeMap({ version: 1 }) }),
+    ]);
+    const remote = new FakeRemoteClient([makeMap({ version: 5, title: "サーバ版" })]);
+
+    // pull を決めたあと、書き込む直前にユーザーがローカルを編集した。
+    local.beforePut = () => {
+      local.beforePut = undefined;
+      local.records.set("m1", {
+        ...local.peek("m1")!,
+        dirty: true,
+        map: { ...local.peek("m1")!.map, version: 9, title: "書き込み直前の編集" },
+      });
+    };
+
+    const summary = await syncAll(deps(local, remote));
+
+    // 読み直すと both-modified。ローカル版は複製として必ず残る。
+    expect(summary.conflicts).toHaveLength(1);
+    expect(summary.conflicts[0].reason).toBe("both-modified");
+    const copy = local.peek(summary.conflicts[0].copyId);
+    expect(copy?.map.title).toContain("書き込み直前の編集");
+    expect(local.peek("m1")?.map.title).toBe("サーバ版");
+  });
+
+  it("リトライは 1 回まで。2 度目の拒否は failed に記録してループしない", async () => {
     const local = new FakeLocalStore([
       makeRecord({ syncedVersion: 1, dirty: false, map: makeMap({ version: 1 }) }),
     ]);
     const remote = new FakeRemoteClient([makeMap({ version: 5 })]);
-    local.failOnPut.add("m1");
+    local.alwaysStaleOnPut.add("m1");
 
     const summary = await syncAll(deps(local, remote));
 
-    expect(summary.conflicts).toEqual([]);
     expect(summary.failed).toHaveLength(1);
     expect(summary.failed[0].kind).toBe("localStore");
+    expect(local.putCount).toBe(2); // 初回 + 出直し 1 回だけ
+    // ローカルは無傷。
+    expect(local.peek("m1")?.map.version).toBe(1);
+  });
+
+  it("expectedLocalVersion に「判断材料として読んだ version」を渡す", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ syncedVersion: 1, dirty: false, map: makeMap({ id: "m1", version: 1 }) }),
+    ]);
+    const remote = new FakeRemoteClient([
+      makeMap({ id: "m1", version: 5 }),
+      makeMap({ id: "m2", version: 2 }), // ローカルに無いマップ
+    ]);
+
+    await syncAll(deps(local, remote));
+
+    expect(local.putCalls).toContainEqual({ id: "m1", expected: 1 });
+    // ローカルにまだ無いマップは「存在しないこと」を期待する。
+    expect(local.putCalls).toContainEqual({ id: "m2", expected: null });
   });
 });
 

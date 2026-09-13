@@ -36,16 +36,11 @@ export interface SyncFailure {
   message: string;
 }
 
-/** 複製による競合解決が起きたときの記録。UI はこれを見てユーザーに知らせる。 */
+/** `forkLocalCopy` が起きたときの記録。UI はこれを見てユーザーに知らせる。 */
 export interface SyncConflict {
   /** 元のマップ ID。 */
   mapId: string;
-  /**
-   * 退避先の新しいマップ ID。
-   * 通常は**ローカル版**の複製（元 ID にはサーバ版が入る）。
-   * `reason === "local-store-stale-write"` のときだけ逆で、
-   * 元 ID にローカル版が残り、この ID に**サーバ版**が入る。
-   */
+  /** ローカル版を退避した先の新しいマップ ID（元 ID にはサーバ版が入る）。 */
   copyId: string;
   reason: SyncReason;
 }
@@ -88,12 +83,9 @@ export interface SyncOptions {
   newId?: () => string;
   /** ローカル版を退避した競合コピーのタイトルに付ける接尾辞。 */
   conflictTitleSuffix?: string;
-  /** サーバ版を退避した複製のタイトルに付ける接尾辞（ADR-005 #18）。 */
-  serverCopyTitleSuffix?: string;
 }
 
 const DEFAULT_CONFLICT_SUFFIX = "（競合コピー）";
-const DEFAULT_SERVER_COPY_SUFFIX = "（サーバ版コピー）";
 /** SyncMap.title の上限（protocol.ts）。接尾辞を足しても超えないように切り詰める。 */
 const MAX_TITLE_LENGTH = 200;
 
@@ -142,7 +134,9 @@ export async function syncAll(options: SyncOptions): Promise<SyncSummary> {
     const remote = remoteById.get(id);
     const action = decideSyncAction(record, remote);
     emit(ctx, { type: "map-decided", mapId: id, action });
-    await runAction(ctx, summary, id, action, record, remote);
+    await runAction(ctx, summary, id, action, record, remote, (fresh) =>
+      decideSyncAction(fresh, remote),
+    );
   }
 
   emit(ctx, { type: "sync-finished", summary });
@@ -175,7 +169,11 @@ export async function migrateGuestMaps(
     if (record.userId !== null) continue;
     const action = decideGuestMigrationAction(record);
     emit(ctx, { type: "map-decided", mapId: record.map.id, action });
-    await runAction(ctx, summary, record.map.id, action, record, undefined);
+    await runAction(ctx, summary, record.map.id, action, record, undefined, (fresh) =>
+      fresh
+        ? decideGuestMigrationAction(fresh)
+        : ({ type: "noop", reason: "both-absent" } as SyncAction),
+    );
   }
 
   emit(ctx, { type: "sync-finished", summary });
@@ -200,11 +198,19 @@ function createContext(options: SyncOptions): Context {
     now: options.now ?? (() => new Date().toISOString()),
     newId: options.newId ?? defaultNewId,
     conflictTitleSuffix: options.conflictTitleSuffix ?? DEFAULT_CONFLICT_SUFFIX,
-    serverCopyTitleSuffix: options.serverCopyTitleSuffix ?? DEFAULT_SERVER_COPY_SUFFIX,
   };
 }
 
-/** 1 マップ分の実行。ここで必ず失敗を握りつぶし、次のマップへ進めるようにする。 */
+/** 判断材料を読み直したうえで、取るべき動作をもう一度決める関数。 */
+type Redecide = (record: LocalMapRecord | undefined) => SyncAction;
+
+/**
+ * 1 マップ分の実行。ここで必ず失敗を握りつぶし、次のマップへ進めるようにする。
+ *
+ * `StaleWriteError`（判断材料を読んでから書き込むまでの間にローカルが変わった）は
+ * 異常ではなく「出直し」の合図。ローカルを読み直して**1 回だけ**判断からやり直す。
+ * 2 回目は再試行せず `failed` に記録する（無限ループを作らない）。
+ */
 async function runAction(
   ctx: Context,
   summary: SyncSummary,
@@ -212,13 +218,31 @@ async function runAction(
   action: SyncAction,
   record: LocalMapRecord | undefined,
   remote: MapSummary | undefined,
+  redecide: Redecide,
+  attempt = 0,
 ): Promise<void> {
   try {
     await executeAction(ctx, summary, id, action, record, remote);
+    return;
   } catch (error) {
-    // LocalStore が投げた場合などの最後の砦。ここで止まらない。
-    fail(ctx, summary, { mapId: id, kind: "localStore", message: describe(error) });
+    if (!isStaleWriteError(error) || attempt > 0) {
+      // LocalStore が投げた場合などの最後の砦。ここで止まらない。
+      fail(ctx, summary, { mapId: id, kind: "localStore", message: describe(error) });
+      return;
+    }
   }
+
+  // ここから出直し。読み直し自体が失敗したら、それ以上は追わない。
+  let fresh: LocalMapRecord | undefined;
+  try {
+    fresh = await ctx.local.getLocal(id);
+  } catch (error) {
+    fail(ctx, summary, { mapId: id, kind: "localStore", message: describe(error) });
+    return;
+  }
+  const retried = redecide(fresh);
+  emit(ctx, { type: "map-decided", mapId: id, action: retried });
+  await runAction(ctx, summary, id, retried, fresh, remote, redecide, attempt + 1);
 }
 
 async function executeAction(
@@ -240,12 +264,21 @@ async function executeAction(
       if (!record) return;
       const res = await safeRemote(() => ctx.remote.putMap(record.map, action.baseVersion));
       if (res.ok) {
-        await ctx.local.putLocal({
-          map: res.data,
-          userId: ctx.userId ?? record.userId,
-          syncedVersion: res.data.version,
-          dirty: false,
-        });
+        if (action.reason === "guest-first-login" && ctx.userId) {
+          // 所有者の付け替えを先に済ませる。version も updatedAt も動かないので、
+          // 続く putLocal の expectedLocalVersion は変わらない。
+          // ゲストマップを削除して作り直すことは決してしない（CLAUDE.md §6）。
+          await ctx.local.claimLocal(id, ctx.userId);
+        }
+        await ctx.local.putLocal(
+          {
+            map: res.data,
+            userId: ctx.userId ?? record.userId,
+            syncedVersion: res.data.version,
+            dirty: false,
+          },
+          { expectedLocalVersion: record.map.version },
+        );
         summary.pushed.push(id);
         emit(ctx, { type: "map-succeeded", mapId: id, action });
         return;
@@ -275,13 +308,16 @@ async function executeAction(
         fail(ctx, summary, { mapId: id, ...toFailure(res) });
         return;
       }
-      const written = await putServerVersion(ctx, summary, id, {
-        map: res.data,
-        userId: ctx.userId ?? record?.userId ?? null,
-        syncedVersion: res.data.version,
-        dirty: false,
-      });
-      if (!written) return; // ローカルが新しかった。サーバ版は複製として退避済み。
+      // ローカルに無いマップなら null（その間に他経路で作られていたら弾かれる）。
+      await ctx.local.putLocal(
+        {
+          map: res.data,
+          userId: ctx.userId ?? record?.userId ?? null,
+          syncedVersion: res.data.version,
+          dirty: false,
+        },
+        { expectedLocalVersion: record?.map.version ?? null },
+      );
       if (action.type === "pull") summary.pulled.push(id);
       else summary.restored.push(id);
       emit(ctx, { type: "map-succeeded", mapId: id, action });
@@ -293,17 +329,20 @@ async function executeAction(
       const res = await safeRemote(() => ctx.remote.deleteMap(id, action.baseVersion));
       if (res.ok) {
         // 墓標にするだけ。ノードはローカルに残しておく（物理削除は別工程）。
-        await ctx.local.putLocal({
-          map: {
-            ...record.map,
-            deletedAt: res.data.deletedAt ?? ctx.now(),
-            version: res.data.version,
-            updatedAt: res.data.updatedAt,
+        await ctx.local.putLocal(
+          {
+            map: {
+              ...record.map,
+              deletedAt: res.data.deletedAt ?? ctx.now(),
+              version: res.data.version,
+              updatedAt: res.data.updatedAt,
+            },
+            userId: ctx.userId ?? record.userId,
+            syncedVersion: res.data.version,
+            dirty: false,
           },
-          userId: ctx.userId ?? record.userId,
-          syncedVersion: res.data.version,
-          dirty: false,
-        });
+          { expectedLocalVersion: record.map.version },
+        );
         summary.pushedDeletes.push(id);
         emit(ctx, { type: "map-succeeded", mapId: id, action });
         return;
@@ -326,17 +365,20 @@ async function executeAction(
 
     case "applyRemoteDelete": {
       if (!record || !remote) return;
-      await ctx.local.putLocal({
-        map: {
-          ...record.map,
-          deletedAt: remote.deletedAt,
-          version: remote.version,
-          updatedAt: remote.updatedAt,
+      await ctx.local.putLocal(
+        {
+          map: {
+            ...record.map,
+            deletedAt: remote.deletedAt,
+            version: remote.version,
+            updatedAt: remote.updatedAt,
+          },
+          userId: ctx.userId ?? record.userId,
+          syncedVersion: remote.version,
+          dirty: false,
         },
-        userId: ctx.userId ?? record.userId,
-        syncedVersion: remote.version,
-        dirty: false,
-      });
+        { expectedLocalVersion: record.map.version },
+      );
       summary.appliedDeletes.push(id);
       emit(ctx, { type: "map-succeeded", mapId: id, action });
       return;
@@ -370,8 +412,8 @@ async function forkLocalCopy(
   const id = record.map.id;
   const copy = buildCopy(ctx, record, ctx.conflictTitleSuffix);
 
-  // 1. 複製を先に保存する。
-  await ctx.local.putLocal(copy);
+  // 1. 複製を先に保存する。新 ID なので「まだ存在しないこと」を期待する。
+  await ctx.local.putLocal(copy, { expectedLocalVersion: null });
 
   // 2. 元 ID に入れるサーバ版を用意する。
   let adopted: LocalMapRecord | undefined;
@@ -416,9 +458,9 @@ async function forkLocalCopy(
     }
   }
 
-  // 3. 元 ID を上書きする。
+  // 3. 元 ID を上書きする。読んだ時点から変わっていないことを確かめる。
   if (adopted) {
-    await ctx.local.putLocal(adopted);
+    await ctx.local.putLocal(adopted, { expectedLocalVersion: record.map.version });
   }
 
   const conflict: SyncConflict = { mapId: id, copyId: copy.map.id, reason };
@@ -428,76 +470,15 @@ async function forkLocalCopy(
   // 4. 複製の送信は best effort。失敗してもローカルに dirty で残る。
   const pushed = await safeRemote(() => ctx.remote.putMap(copy.map, 0));
   if (pushed.ok) {
-    await ctx.local.putLocal({
-      map: pushed.data,
-      userId: copy.userId,
-      syncedVersion: pushed.data.version,
-      dirty: false,
-    });
-    summary.pushed.push(copy.map.id);
-  }
-}
-
-/**
- * サーバ由来の内容をローカルへ書き戻す。
- *
- * ローカルが先に進んでいると `LocalStore` が `StaleWriteError` で拒否する
- * （担当 A の `saveMap` の仕様）。それは異常ではなく競合なので、
- * **ローカルを優先し、サーバ版を別 ID の複製として保持する**（ADR-005 #18）。
- *
- * @returns 書き戻せたら true。拒否されて退避に回したら false。
- */
-async function putServerVersion(
-  ctx: Context,
-  summary: SyncSummary,
-  id: string,
-  incoming: LocalMapRecord,
-): Promise<boolean> {
-  try {
-    await ctx.local.putLocal(incoming);
-    return true;
-  } catch (error) {
-    if (!isStaleWriteError(error)) throw error;
-    await forkRemoteCopy(ctx, summary, id, incoming);
-    return false;
-  }
-}
-
-/**
- * `forkLocalCopy` の鏡像。ローカル版が新しくて書き戻しを拒否されたときに、
- * 元 ID はローカル版のまま残し、**サーバ版**を新 ID の複製として保持する。
- */
-async function forkRemoteCopy(
-  ctx: Context,
-  summary: SyncSummary,
-  id: string,
-  serverRecord: LocalMapRecord,
-): Promise<void> {
-  const copy = buildCopy(ctx, serverRecord, ctx.serverCopyTitleSuffix);
-  await ctx.local.putLocal(copy);
-
-  const conflict: SyncConflict = {
-    mapId: id,
-    copyId: copy.map.id,
-    reason: "local-store-stale-write",
-  };
-  summary.conflicts.push(conflict);
-  emit(ctx, { type: "map-conflicted", conflict });
-  fail(ctx, summary, {
-    mapId: id,
-    kind: "localStore",
-    message: `ローカル版の方が新しいため書き戻しを中止し、サーバ版を ${copy.map.id} として保持しました`,
-  });
-
-  // サーバ版の内容が次回の push で上書きされて消えないよう、別マップとして残す。
-  const pushed = await safeRemote(() => ctx.remote.putMap(copy.map, 0));
-  if (pushed.ok) {
-    await ctx.local.putLocal({
-      map: pushed.data,
-      userId: copy.userId,
-      syncedVersion: pushed.data.version,
-      dirty: false,
-    });
+    await ctx.local.putLocal(
+      {
+        map: pushed.data,
+        userId: copy.userId,
+        syncedVersion: pushed.data.version,
+        dirty: false,
+      },
+      { expectedLocalVersion: copy.map.version },
+    );
     summary.pushed.push(copy.map.id);
   }
 }

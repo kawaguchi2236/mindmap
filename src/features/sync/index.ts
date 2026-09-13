@@ -8,6 +8,8 @@ export { decideSyncAction, decideGuestMigrationAction } from "./decide";
 export type { SyncAction, SyncReason } from "./decide";
 export { syncAll, migrateGuestMaps } from "./engine";
 export type { SyncConflict, SyncEvent, SyncFailure, SyncOptions, SyncSummary } from "./engine";
+export { createLocalStore } from "./local-store-adapter";
+export type { CreateLocalStoreOptions } from "./local-store-adapter";
 export { createRemoteClient } from "./remote-client";
 export type { CreateRemoteClientOptions } from "./remote-client";
 export {

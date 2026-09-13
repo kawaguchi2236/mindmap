@@ -63,9 +63,17 @@ export class FakeLocalStore implements LocalStore {
   readonly records = new Map<string, LocalMapRecord>();
   /** putLocal が投げるべきマップ ID（ローカル保存の失敗を再現する）。 */
   failOnPut = new Set<string>();
-  /** putLocal が StaleWriteError を投げるべきマップ ID（担当 A の saveMap の拒否）。 */
+  /** putLocal が 1 度だけ StaleWriteError を投げるマップ ID。 */
   staleOnPut = new Set<string>();
+  /** putLocal が毎回 StaleWriteError を投げるマップ ID（リトライ上限の検証用）。 */
+  alwaysStaleOnPut = new Set<string>();
+  /** putLocal の直前に走るフック。書き込み中の横入りを再現する。 */
+  beforePut?: () => void;
   putCount = 0;
+  /** putLocal の呼び出し記録（expectedLocalVersion の検証用）。 */
+  readonly putCalls: { id: string; expected: number | null | undefined }[] = [];
+  /** claimLocal の呼び出し記録。 */
+  readonly claimed: { mapId: string; userId: string }[] = [];
   /** 物理削除が呼ばれた記録。同期エンジンは決して呼ばないはず。 */
   readonly hardDeleted: string[] = [];
 
@@ -82,16 +90,43 @@ export class FakeLocalStore implements LocalStore {
     return found ? clone(found) : undefined;
   }
 
-  async putLocal(record: LocalMapRecord): Promise<void> {
+  async putLocal(
+    record: LocalMapRecord,
+    options?: { expectedLocalVersion?: number | null },
+  ): Promise<void> {
     this.putCount += 1;
+    this.putCalls.push({ id: record.map.id, expected: options?.expectedLocalVersion });
+    this.beforePut?.();
+    if (this.alwaysStaleOnPut.has(record.map.id)) {
+      throw new StaleWriteError(record.map.id, 0, record.map.version);
+    }
     if (this.failOnPut.has(record.map.id)) {
       throw new Error(`IndexedDB 書き込み失敗: ${record.map.id}`);
     }
     if (this.staleOnPut.has(record.map.id)) {
+      this.staleOnPut.delete(record.map.id);
+      throw new StaleWriteError(record.map.id, 0, record.map.version);
+    }
+    // 担当 A の saveMapFromServer と同じ「スナップショット一致の確認」。
+    if (options && "expectedLocalVersion" in options) {
       const stored = this.records.get(record.map.id);
-      throw new StaleWriteError(record.map.id, record.map.version, stored?.map.version ?? 0);
+      const expected = options.expectedLocalVersion;
+      if (expected === null && stored) {
+        throw new StaleWriteError(record.map.id, record.map.version, stored.map.version);
+      }
+      if (typeof expected === "number" && stored?.map.version !== expected) {
+        throw new StaleWriteError(record.map.id, expected, stored?.map.version ?? -1);
+      }
     }
     this.records.set(record.map.id, clone(record));
+  }
+
+  async claimLocal(mapId: string, userId: string): Promise<void> {
+    this.claimed.push({ mapId, userId });
+    const stored = this.records.get(mapId);
+    if (!stored) throw new Error(`マップ ${mapId} が見つかりません。`);
+    // version も updatedAt も動かさない（担当 A の claimMap と同じ）。
+    this.records.set(mapId, { ...clone(stored), userId });
   }
 
   async deleteLocalHard(id: string): Promise<void> {

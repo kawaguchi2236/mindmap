@@ -66,16 +66,29 @@ export interface LocalStore {
   /**
    * 上書き保存（原子的であること）。
    *
-   * `record.userId` の変更は**所有者の付け替え**として実装すること
-   * （担当 A の `claimGuestMaps` 相当）。ゲストマップを削除して作り直す実装は
-   * 禁止（CLAUDE.md §6）。同期エンジンは `deleteLocalHard` を一切呼ばない。
+   * ゲストマップを削除して作り直す実装は禁止（CLAUDE.md §6）。
+   * 同期エンジンは `deleteLocalHard` を一切呼ばない。
    *
-   * ローカル側が先に進んでいる場合、実装は `StaleWriteError` で拒否してよい。
-   * 同期エンジンはそれを異常ではなく競合として扱う（ADR-005 #18）。
+   * `expectedLocalVersion` は**スナップショット一致の確認**であり、順序の比較ではない
+   * （担当 A の `saveMapFromServer` と同じ意味）。同期エンジンが判断材料を読んでから
+   * 書き込むまでの間にローカルが変化していないことを確かめる。
+   * - 数値 … 書き込み前の既存レコードの version がその値であること
+   * - `null` … ローカルにレコードが存在しないこと
+   * 食い違えば **何も書かずに** `StaleWriteError` を投げること。
    */
-  putLocal(record: LocalMapRecord): Promise<void>;
+  putLocal(
+    record: LocalMapRecord,
+    options?: { expectedLocalVersion?: number | null },
+  ): Promise<void>;
+
   /**
-   * 物理削除。同期エンジンは**通常これを呼ばない**（論理削除で止める）。
+   * マップ 1 件の所有者を付け替える（担当 A の `claimMap` 相当）。
+   * 内容は変わらないので `version` も `updatedAt` も進めないこと。
+   * 初回ログインのゲストマップ移行で使う。**削除しての作り直しは禁止。**
+   */
+  claimLocal(mapId: string, userId: string): Promise<void>;
+  /**
+   * 物理削除。**同期エンジンはどの経路でも呼ばない**（論理削除で止める）。
    * 同期完了後のクリーンアップ用に口だけ開けてある。
    */
   deleteLocalHard(id: string): Promise<void>;
@@ -105,7 +118,7 @@ export type RemoteResult<T> =
   | { ok: false; kind: RemoteFailureKind; message?: string };
 
 /**
- * ローカル保存が「新しいものを古いもので潰すな」と拒否したか。
+ * ローカル保存が「読んだ時点から中身が変わっている」と拒否したか。
  *
  * 担当 A の `src/lib/db/errors.ts` の `StaleWriteError` を、
  * import せずに名前で判定する。同期エンジンを A の実装に結合させないため
