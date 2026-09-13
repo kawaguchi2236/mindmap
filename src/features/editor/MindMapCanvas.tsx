@@ -18,9 +18,9 @@ import {
   Position,
   ReactFlow,
   useEdgesState,
-  useNodesInitialized,
   useNodesState,
   useReactFlow,
+  useStore,
   type Edge,
   type NodeProps,
   type NodeTypes,
@@ -227,16 +227,26 @@ export function MindMapCanvas({ state, dispatch, title }: MindMapCanvasProps): R
   );
 
   /*
-   * 初回のセンタリングは採寸が終わってから。採寸前だとキャンバスの大きさが
-   * 確定しておらず、ルートが画面左上に寄ってしまう。
+   * 初回のセンタリングはキャンバスの寸法が確定してから行う。
+   *
+   * 以前は useNodesInitialized() を条件にしていたが、これはノードが実測
+   * （measured）されるまで true にならない。このエディタは固定寸法を
+   * initialWidth / initialHeight と handles で与えて実測を待たない作りにして
+   * あるため measured が入らず、条件が永久に false のままで初回センタリングが
+   * 一度も走らなかった（ルートが画面左上に出る）。
+   *
+   * setCenter が必要とするのはストアが持つキャンバスの幅と高さだけなので、
+   * それが確定したかどうかだけを見る。
+   * duration 0 で動かすのは、非表示タブでは requestAnimationFrame が止まり
+   * アニメーション付きの遷移が完了しないため。
    */
-  const nodesInitialized = useNodesInitialized();
+  const canvasReady = useStore((s) => s.width > 0 && s.height > 0);
   const centeredRef = useRef(false);
   useEffect(() => {
-    if (centeredRef.current || !nodesInitialized) return;
+    if (centeredRef.current || !canvasReady || modelNodes.length === 0) return;
     centeredRef.current = true;
     recenter(0);
-  }, [nodesInitialized, recenter]);
+  }, [canvasReady, modelNodes, recenter]);
 
   return (
     <DispatchContext.Provider value={dispatch}>
