@@ -1,275 +1,46 @@
-# Handoff: Web MindMap — Phase 1 UI
+# Web MindMap
 
-## Overview
+考えを止めずに書き出せる、シンプルで速い Web マインドマップアプリ。
 
-Web MindMap Phase 1（MVP）の全画面 UI デザイン。ローカルファースト／オフラインファーストのマインドマップ Web アプリ。キーボード中心の高速操作（Enter で同階層・Tab で子ノード）、自動保存、PNG 書き出し、無料ユーザー向け広告（編集画面には出さない）が要件。
+キーボード中心の高速操作（Enter で兄弟ノード・Tab で子ノード）、自動保存、オフライン編集、ログイン後のクラウド同期を柱にした **ローカルファースト**の設計。
 
-対象デバイスは PC Web。表記は日英併記。
+> 現在は **Phase 1（MVP）の設計フェーズ**。実装コードはまだありません。このリポジトリには要件・タスク・UI デザインのドキュメントが入っています。
 
-## About the Design Files
+## ドキュメント
 
-このバンドルに含まれる HTML は **デザインリファレンス** です。見た目と意図した振る舞いを示すプロトタイプであり、そのまま本番コードとして貼り付けるものではありません。
-
-タスクは、これらのデザインを対象コードベースの既存環境（Next.js + React + TypeScript を想定）で、その環境の確立されたパターン・ライブラリを使って **再現する** ことです。
-
-デザインは1枚の「デザインドキュメント」HTML に、ターンごとの案として積み上がっています。**実装対象は最新のターン3・ターン2（`#3a`〜`#3f`, `#2a`〜`#2c`）です。ターン1（`#1a`〜`#1j`）は初期案で、採用されていません。**
-
-## Fidelity
-
-**High-fidelity (hifi)。** 色・タイポグラフィ・余白・状態はすべて確定値です。既存ライブラリを使いながら、ピクセル単位で再現してください。
-
-ただしマインドマップのノード座標は手置きのサンプルです。実装では自動レイアウト（後述）で算出します。
-
-## Design Tokens
-
-デザインシステムは **Broadsheet**（新聞的なセリフ主体の light テーマ）。トークンは同梱の `styles.css`（`_ds/broadsheet-*/styles.css` のコピー）の `:root` が正です。CSS 変数のまま移植することを推奨します。
-
-### Color
-
-| Token | Value | 用途 |
-|---|---|---|
-| `--color-bg` | `#f3f2f2` | ページ地色（紙） |
-| `--color-surface` | `#eae9e9` | わずかに沈んだ面 |
-| `--color-text` | `#201e1d` | 本文・見出し |
-| `--color-accent` | `#0088b0` | 主アクション・選択状態（シアン） |
-| `--color-accent-2` | `#d6006c` | 破壊的操作・エラー（マゼンタ、使用は稀に） |
-| `--color-neutral-300` | `#d7d3d3` | 罫線・アバター地 |
-| `--color-neutral-400` | `#bab6b6` | 無効状態・破線 |
-| `--color-neutral-700` | `#605d5d` | 補助テキスト（本文サイズで使える最も薄い階調、4.9:1） |
-| `--color-neutral-800` | `#444141` | アイコン・やや強い補助 |
-| `--color-accent-100` | `#e9f8ff` | hover の淡いティント |
-| `--color-accent-600` | `#1186ac` | primary ボタンの hover/pressed |
-| `--color-accent-700` | `#006786` | アクセント色のテキスト（本文サイズ可） |
-| `--color-accent-800` | `#004961` | 濃いティント上のテキスト |
-| `--color-accent-2-700` | `#aa0b56` | エラーテキスト |
-
-ダーク案（`#2a`）のみ独自値：地 `#1a1918` / 文字 `#faf8f6` / アクセント `#62c5ee`・`#8ad6f2` / 罫線 `rgba(255,255,255,.24)` / 浮かぶ面 `rgba(255,255,255,.07)` + `backdrop-filter: blur(12px)`。
-
-**コントラスト規約：** 12〜15px のテキストに `--color-neutral-500`(#9b9797) 以下を使わないこと（2.5:1）。補助テキストは必ず `--color-neutral-700` 以上。`--color-neutral-400` は無効状態・破線プレースホルダー専用。
-
-### Typography
-
-3ロール構成。CSS 変数で定義：
-
-```css
---ui:      "Manrope", "Zen Kaku Gothic New", system-ui, sans-serif;  /* UIクローム全般 */
---display: "Source Serif 4", "Shippori Mincho", Georgia, serif;      /* 見出し・ノード本文 */
---mono:    "IBM Plex Mono", ui-monospace, monospace;                 /* ラベル・キー表記・数値 */
-```
-
-Google Fonts:
-`Manrope:wght@400;500;600;700` / `Zen Kaku Gothic New:wght@400;500;700` / `Source Serif 4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400` / `Shippori Mincho:wght@400;600` / `IBM Plex Mono:wght@400;500`
-
-スケール（実測値）:
-
-| 用途 | font |
+| ファイル | 内容 |
 |---|---|
-| 画面タイトル | `400 52px/1.05 var(--display)`, `letter-spacing:-.02em` |
-| ヒーロー見出し | `400 54px/1.08 var(--display)`, `letter-spacing:-.02em` |
-| オーバーレイ見出し | `400 46px/1.05 var(--display)` |
-| ルートノード | `400 34px/42px var(--display)`, `letter-spacing:-.01em` |
-| 一覧の項目名 | `400 26px/1.2 var(--display)` |
-| 第2階層ノード | `400 22px/30px var(--display)` |
-| テンプレート名 | `400 20px/1.25 var(--display)` |
-| 設定の行ラベル / 状態文 | `400 17px/1.3 var(--display)` |
-| 第3階層ノード | `400 17px/26px var(--display)` |
-| ブランド名 | `600 15px/1 var(--ui)` |
-| 本文・ナビ | `400 13px/1 var(--ui)` ／ 長文は `400 15px/1.8 var(--ui)` |
-| ボタン | `500 13–16px/1 var(--ui)` |
-| セクションラベル（全大文字） | `500 10px/1 var(--mono)`, `letter-spacing:.14em` |
-| キー表記・メタ | `500 10–11px/1 var(--mono)`, `letter-spacing:.08–.12em` |
+| [docs/要件定義.md](docs/要件定義.md) | 要件定義書 v1.0（機能要件・非機能要件・データ要件）— **最上位の正** |
+| [docs/task.md](docs/task.md) | Phase 1 タスク一覧と推奨開発順序 |
+| [docs/ワイヤーフレーム.md](docs/ワイヤーフレーム.md) | 画面ワイヤーフレーム v0.1 |
+| [design/ハンドオフ.md](design/ハンドオフ.md) | UI デザインのハンドオフ資料（配色・タイポ・コンポーネント仕様） |
+| [design/Web MindMap UI.dc.html](design/Web%20MindMap%20UI.dc.html) | UI デザインリファレンス（ブラウザで直接開ける） |
+| [design/styles.css](design/styles.css) | デザイントークン（Broadsheet）+ コンポーネントクラス |
+| [CLAUDE.md](CLAUDE.md) | Claude Code 向け開発ルール（データ安全・同期方針・テスト戦略） |
 
-### Spacing / Radius / Shadow
+## Phase 1 のスコープ
 
-- 画面外周パディング：`44px 56px`（1280幅の画面）、狭い画面（760幅）は `44px 48px`
-- 見出しと本文のブロック間：`34–52px`
-- リスト行のパディング：`22px 0`（一覧）、`15px 0`（設定）、`13px 0`（ショートカット）
-- `--radius-md: 2px`（角丸はこれのみ。円形要素は `50%`）
-- `--shadow-sm/md/lg`（`styles.css` 参照）。浮かぶ要素＝コンテキストツールバー、ダイアログのみ。
+**入る**：ゲスト利用 / Google・メール認証 / マップの作成・一覧・リネーム・削除・検索 / 無限キャンバス（パン・ズーム） / ノードの作成・編集・削除・ドラッグ・折りたたみ / キーボード操作 / Undo・Redo / コピー＆ペースト / IndexedDB 保存と自動保存 / オフライン編集 / Neon へのクラウド同期 / ゲストマップの引き継ぎ / PNG 書き出し / ダークモード / 編集画面**外**の広告
 
-### 罫線の作法（この案の核）
+**入らない**：AI 機能全般 / リアルタイム共同編集 / チーム・権限 / PDF・SVG・Markdown 書き出し / ファイル添付 / 課金
 
-- 枠・カードは使わない。構造は余白と罫線だけで出す。
-- 画面見出しの下に **太細ペア**：`border-bottom:2px solid var(--color-text)` の直下に `height:3px; background:var(--color-text)` を 1px 空けて置く（新聞のヘッドルール）。
-- リストの行区切りは `1px solid var(--color-neutral-300)`。
-- キャンバス四隅にトンボ（14px のL字、`stroke-width:1`、`rgba(...,.22–.28)`）。
+詳細は [CLAUDE.md](CLAUDE.md) の §3 を参照。
 
-## Icons
+## 想定スタック
 
-Phosphor Icons の **duotone** ウェイトのみ。`@phosphor-icons/web` を利用（デザインでは `https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css`）。使用アイコン：`plus, magnifying-glass, pencil-simple, check, check-circle, cloud-check, cloud-arrow-up, cloud-warning, hard-drives, wifi-slash, arrows-clockwise, arrow-right, arrow-up-right, arrow-counter-clockwise, arrow-clockwise, image, trash, crosshair, x, warning, google-logo, envelope-simple, text-aa, caret-double-left, gear, layout, squares-four, clock-counter-clockwise, keyboard, circle-notch, file-dashed, hand, cursor, plus-circle, tree-structure, question, dots-three`。
+Next.js + React + TypeScript / IndexedDB（ローカル）/ Neon PostgreSQL（クラウド）/ Auth.js / Cloudflare ホスティング
 
-サイズは 14–19px、色は `--color-neutral-800`（通常）／`--color-accent`（意味を持つ肯定状態）／`--color-accent-2`（エラー）。
+いずれも実装開始前に Cloudflare ランタイム互換性を検証する（CLAUDE.md §32 の ADR-001〜005）。
 
----
+## キーボードショートカット
 
-## Screens / Views
-
-### `#2b` マップ編集画面（Press / ライト）— **主画面**
-
-**Purpose**: マインドマップの作成・編集。Phase 1 の中心。
-
-**Layout**: 1280×800 のフルブリード。ヘッダーバーは持たない。キャンバスが全面で、クロームは四隅に絶対配置で浮かべる。
-
-- 左上（`left:40px; top:34px`）：10×10px のアクセント色スクエア → マップ名 `600 14px/1 var(--ui)` → 状態 `500 10px/1 var(--mono)` `letter-spacing:.14em`（例 `SAVED · SYNCED 2M AGO`）。gap 14px、`align-items:baseline`。
-- 右上（`right:40px; top:30px`）：`元に戻す` / `やり直す`（無効時 `--color-neutral-400`） / `PNG` / 26px 円形アバター。`400 12px/1 var(--ui)`、gap 20px。hover で `--color-accent-700`。
-- 左下：ショートカットヒント `Tab 子ノード` `Enter 同階層` `⌘0 中央へ`（`400 12px/1 var(--ui)`, `--color-neutral-700`, gap 26px）。
-- 右下：`100% · CTRL + /`（`500 10px/1 var(--mono)`, `letter-spacing:.12em`）。
-- 四隅にトンボ。
-
-**ノード**（すべて `var(--display)`）:
-
-| 階層 | font | color |
-|---|---|---|
-| root | `400 34px/42px`, `-.01em` | `--color-text`。直下に `500 10px/1 var(--mono)` で `ROOT · 14 NODES` |
-| 第2 | `400 22px/30px` | `--color-text` |
-| 第2（選択中） | `400 22px/30px` | `--color-accent-800` + `border-bottom:1px solid var(--color-accent)`, `padding-bottom:4px` |
-| 第3 | `400 17px/26px` | `--color-neutral-700` |
-| 第3（編集中） | 同上 | `--color-text` + 右に 2×20px のアクセント色キャレット |
-| 折りたたみ中の親 | 同上 | 右に 18px の円（`1px solid --color-neutral-400`）に子数を `500 9px/1 var(--mono)` |
-
-**接続線**: SVG `path`、`fill:none; stroke:rgba(32,30,29,.22); stroke-width:1`。親の右端から子の左端へ三次ベジェ。制御点は水平方向に (dx * 0.55) 程度取り、垂直成分は持たせない（`M x1,y1 C x1+dx*.55,y1 x2-dx*.55,y2 x2,y2`）。同じ y のときは直線。
-
-**コンテキストツールバー**: 選択ノードの左上に浮かぶ。`padding:9px 14px`, `background:var(--color-bg)`, `box-shadow:var(--shadow-md)`, `radius:2px`。中身は `SELECTED`（mono 10px）+ 1px の縦罫 + アイコン4つ（`plus` はアクセント色、`text-aa` `caret-double-left` `trash` は `--color-neutral-800`）、gap 16px。**常設ツールバーは持たない。**
-
-**広告は絶対に置かない。**
-
-### `#2a` マップ編集画面（Studio / ダーク）
-
-`#2b` と同一構造のダーク版。差分のみ：
-
-- 地 `#1a1918`、`radial-gradient(circle, rgba(255,255,255,.09) 1px, transparent 1px)` を `background-size:30px 30px` でドットグリッド。
-- ノード色：root `#faf8f6` / 第2 `rgba(255,255,255,.88)` / 第3 `rgba(255,255,255,.6)` / 選択 `#8ad6f2` + `border-bottom:1px solid #62c5ee`。
-- 接続線 `rgba(255,255,255,.24)`。
-- コンテキストツールバーではなく **下部中央の常設コマンドバー**：`padding:13px 22px`, `background:rgba(255,255,255,.07)`, `border:1px solid rgba(255,255,255,.12)`, `backdrop-filter:blur(12px)`, `radius:2px`。中身は `子ノード [TAB]` `同階層 [ENTER]` | `中央へ [⌘0]`。キーキャップは `500 10px/1 var(--mono)` + `1px solid rgba(255,255,255,.22)`, `padding:4px 6px`。
-- ダークモード設定（`#3b`）はこの配色を指す。
-
-### `#2c` マップ一覧（Index）
-
-**Purpose**: マップを開く・作る・探す・消す。
-
-**Layout**: `padding:44px 56px 0`、縦 flex。
-
-1. ヘッダー行：左にブランド、右にナビ（`テンプレート` `設定`）+ 28px アバター。
-2. `margin-top:52px` でタイトル行：左 `マップ`（52px display）、右に `6 MAPS · FREE PLAN`（mono）+ 検索フィールド（幅170px、下罫 1px、アイコン+プレースホルダ）+ primary ボタン `新しいマップ`（`padding:10px 18px`, `background:var(--color-accent)`, 白文字, `500 13px/1 var(--ui)`）。太細ヘッドルールで閉じる。
-3. 一覧行：`grid-template-columns:34px 1fr 190px 150px 24px`, `gap:0 22px`, `align-items:baseline`, `padding:22px 0`, 下罫 1px。
-   - 通し番号 `01`（mono 11px）
-   - マップ名（display 26px）
-   - 第2階層の抜粋（`400 13px/1 var(--ui)`, neutral-700）
-   - 更新時刻＋同期状態 `5分前 · SYNCED`（mono 10px, `.1em`）。失敗時のみ `--color-accent-2-700` で `FAILED`
-   - `arrow-up-right` アイコン（行 hover 時にアクセント色）
-   - 行 hover：`background:var(--color-accent-100)`
-4. 最下部の広告帯：`ADVERTISEMENT`（mono 10px）+ 970×90 のプレースホルダ + `広告を消す`（マゼンタの下線リンク）。
-
-### `#3a` ログイン
-
-760×800。上部にブランド、コンテンツは `margin-top:auto` で下寄せ。
-`SIGN IN · はじめる`（mono）→ `思考を止めずに、／書き出す。`（54px display）→ 説明文（`400 15px/1.8 var(--ui)`, `max-width:40ch`）→ 太罫で始まるログイン手段リスト（各行 `padding:20px 2px`、下罫 1px、左にアイコン+ラベル `400 17px/1 var(--display)`、右に `arrow-right`、hover で `--color-accent-100`）→ フル幅 primary ボタン `ログインせずに始める`（`padding:17px 0`）→ 補足（ゲストマップは引き継がれる旨）。
-
-### `#3b` 設定
-
-タイトル行は `#2c` と同形（右端に `KENJI S. · FREE PLAN`）。
-本文は `grid-template-columns:190px 1fr`, `gap:0 40px` の2カラム。左は mono のセクションラベル（`ACCOUNT / アカウント` のように英日2行）、右が行リスト。
-
-- アカウント：名前（編集アイコン）／メール／プラン（`FREE` + `Pro にする` のマゼンタリンク）
-- 表示と保存：ダークモード（`ライト / ダーク / システム` のテキストセグメント、選択中のみアクセント色の下線）／自動保存（42×22 のトグル、ON は `--color-accent`、ノブ 16px 白）／クラウド同期（同トグル、サブに最終同期時刻）
-- 下部に `ログアウト`（下線テキストボタン）と `ショートカット一覧`
-- 最下部に広告帯（`#2c` と同じ）
-
-### `#3c` テンプレート
-
-タイトル行の右にカテゴリのテキストタブ（選択中のみアクセント下線）。
-グリッド `repeat(4,1fr)`, `gap:38px 34px`。各項目は枠なし：高さ120pxのプレビュー領域（線画 SVG、下罫 1px のみ）→ 名前（20px display）→ `4 NODES`（mono 10px）。最後の枠は破線 + プラス記号で `空のマップ`。最下部に広告帯。
-
-### `#3d` ショートカット一覧（`Ctrl + /` オーバーレイ）
-
-背後の編集画面を `opacity:.35` のゴーストで見せ、`rgba(243,242,242,.86)` を全面に重ねる（暗幕ではなく紙を重ねる）。
-`padding:64px 80px`。太細ヘッドルール付きの見出し `ショートカット`、右に `CTRL + / TO CLOSE` と `x`。
-2カラム（`gap:0 72px`）。各行は `padding:13px 0` + 上罫 1px、左に説明（17px display）、右にキー（`500 11px/1 var(--mono)`, `.08em`, 全大文字、`⌘ ⇧` 記号使用）。キーキャップの枠は描かない。
-末尾に注記：編集中の Backspace は文字削除を優先。
-
-### `#3e` 初回起動・空状態
-
-左にコピー（`FIRST RUN · まだマップがありません` → `最初のマップを／作りましょう。` 54px → 説明 → primary ボタン `新しいマップを作る` + `テンプレートから始める`）、右に破線のゴーストツリー SVG（中心の語だけがアクセント色の 2px 下線付きで実線、子は破線の空箱 + `TAB TO ADD`）。右上に `GUEST · SAVED ON THIS DEVICE` と `ログイン` リンク。
-
-### `#3f` 状態表示（部品集）
-
-760幅。各ブロックが `mono 10px + 2px 太罫` の見出しを持つ：
-
-- **STATUS**：保存中（`circle-notch`）／保存済み（`check`）／同期済み（`cloud-check`）／同期待ち 3件（`cloud-arrow-up`）／同期失敗（`cloud-warning`, マゼンタ）
-- **OFFLINE**：`wifi-slash` + 「オフラインです。編集はこの端末に保存され、接続が戻ると自動で同期します。」+ mono の英語サブ。**操作をブロックしない帯**
-- **SYNC FAILED**：`shadow-md` で浮かせたトースト。左端に 2px のマゼンタ縦罫。見出し18px display、本文、`再試行`（アクセント下線）/`詳細`、右端に `x`
-- **MIGRATION**：`arrows-clockwise` + 「この端末の 2 件のマップをアカウントに引き継ぎました。」
-- **DELETE**：`shadow-lg` のダイアログ。22px display の見出し、本文、`キャンセル`（テキスト）/`削除する`（マゼンタ塗り）
-- **PNG EXPORT**：生成中（サイズを mono で表示）／失敗（マゼンタ）
-
----
-
-## Interactions & Behavior
-
-### キーボード（Phase 1 の最重要要件）
-
-| Key | Behavior |
+| 入力 | 動作 |
 |---|---|
-| `Enter` | 選択ノードと同階層に新規ノード。作成直後に編集モードへ |
-| `Tab` | 選択ノードの子ノードを追加。作成直後に編集モードへ |
-| `Shift + Tab` | 選択ノードを1階層上へ |
-| `Delete` / `Backspace` | 選択ノードを子ごと削除（テキスト編集中は文字削除を優先） |
-| `Esc` | 1回目：編集終了／2回目：選択解除 |
-| `⌘/Ctrl + Z` / `⌘ + Shift + Z` | Undo / Redo |
-| `⌘/Ctrl + C` / `V` | 選択サブツリーのコピー／選択ノードの子として貼り付け（子階層も保持） |
-| `↑ ↓ ← →` | 見た目上もっとも近い方向のノードへ移動 |
-| `⌘ + 0` | Root へ戻る |
-| `⌘ + Shift + E` | PNG 書き出し |
-| `Ctrl + /` | ショートカット一覧の開閉 |
-
-macOS / Windows で同一挙動。ブラウザ既定を壊すショートカットは追加しない。
-
-### キャンバス
-
-- 空白ドラッグで Pan、ホイール（+ modifier）/ トラックパッドで Zoom、右下の `+ / −` と `crosshair` でも操作。
-- ノードドラッグで座標変更。Phase 1 では論理階層の変更と座標変更を分離してよい。
-- 折りたたみは親ノード単位。折りたたみ中は子数バッジを出す。
-- 選択中ノードは必ず視覚的に識別できること（アクセント下線）。フォーカスリングは `outline:2px solid var(--color-accent); outline-offset:2px`。
-
-### 状態とフィードバック
-
-- 保存は debounce 300–1000ms で IndexedDB へ。`保存中 → 保存済み` の遷移はヘッダー右上の mono テキストのみで表現し、モーダルやトーストは出さない。
-- 同期失敗はトーストで通知するが、編集は止めない。`再試行` を必ず用意。
-- オフラインは帯で通知。操作はブロックしない。
-- 破壊的操作（マップ削除）のみ確認ダイアログ。
-
-### トランジション
-
-控えめに。hover の色変化は `120ms ease`、コンテキストツールバーの出現は `opacity + translateY(4px)` で `140ms ease-out`。キャンバスの Pan/Zoom はトランジションを付けない（入力に直結させる）。`prefers-reduced-motion` を尊重。
-
-### 自動レイアウト（未確定事項 — 要決定）
-
-デザインのノード座標は手置き。実装では横方向ツリー（左→右）の自動レイアウトを入れる：
-
-- 階層ごとに x を固定間隔（デザインの実測：root→第2 が約 320px、第2→第3 が約 300px）
-- 兄弟は y 方向に等間隔（第3階層で約 64px、第2階層で約 150px）で積み、親は子群の中央に置く
-- 折りたたみ中のサブツリーは高さ 0 として扱う
-
-## State Management
-
-必要な状態：選択マップ / ノード木（`parent_id` ベース） / 選択ノード / 編集中ノード / キャンバス viewport（x, y, zoom） / Undo・Redo スタック / クリップボード / ローカル保存状態（idle・saving・saved・error） / 同期状態（synced・pending・failed・offline） / 認証状態 / テーマ。
-
-React のプリミティブで足りるなら状態ライブラリを入れない。Undo/Redo を reducer で組むと自然。
-
-データモデル・同期方針・データ安全規約は同梱の `requirements.md` と `CLAUDE_src.md`（プロジェクトの CLAUDE.md）が正。**特に `CLAUDE_src.md` の「Data Safety Rules」と「Sync Conflict Strategy」は実装前に必読。**
-
-## Assets
-
-画像アセットなし。アイコンは Phosphor（duotone）、フォントは Google Fonts。広告枠は `repeating-linear-gradient(45deg, rgba(32,30,29,.05) 0 6px, transparent 6px 12px)` のプレースホルダなので、実際の広告タグに差し替える。
-
-## Files
-
-| File | 内容 |
-|---|---|
-| `Web MindMap UI.dc.html` | 全デザイン。**ターン3（`#3a`–`#3f`）とターン2（`#2a`–`#2c`）が採用案**。ターン1（`#1a`–`#1j`）は不採用の初期案 |
-| `styles.css` | Broadsheet のトークン + コンポーネントクラス（`:root` の変数が色・余白・角丸・影の正） |
-| `requirements.md` | 要件定義書 v1.0（機能要件・非機能要件・データ要件） |
-| `task.md` | Phase 1 タスク一覧と推奨開発順序 |
-| `CLAUDE_src.md` | 開発ルール（データ安全・同期方針・テスト戦略・実装順序） |
-
-`Web MindMap UI.dc.html` は単体でブラウザで開けます。実装時は各案の該当セクションを開き、DevTools で実測値を確認してください。
+| `Enter` | 兄弟ノードを作成 |
+| `Tab` | 子ノードを作成 |
+| `Shift + Tab` | 階層を1つ上へ移動 |
+| `Delete` / `Backspace` | 選択ノードを削除（テキスト編集中を除く） |
+| `Esc` | テキスト編集を抜ける → 選択を解除 |
+| `Cmd/Ctrl + Z` / `Cmd/Ctrl + Shift + Z` | Undo / Redo |
+| `Cmd/Ctrl + C` / `Cmd/Ctrl + V` | コピー / ペースト |
+| 矢印キー | 方向に応じて最も近いノードへ移動 |

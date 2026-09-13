@@ -16,22 +16,28 @@ The project requirements are authoritative. When there is a conflict between thi
 
 Read these documents only when relevant to the current task. Do not repeatedly reread the entire files.
 
-Primary references:
+Primary references (actual paths in this repository):
 
-- `Web_MindMap_Requirements_v1.0_MECE.md`
-- `Web_MindMap_Phase1_TaskBreakdown.md`
-- `Web_MindMap_Wireframes_v0.1.md`
+| Document | Path |
+|---|---|
+| Requirements v1.0 (MECE) | `docs/要件定義.md` |
+| Phase 1 task breakdown | `docs/task.md` |
+| Wireframes v0.1 | `docs/ワイヤーフレーム.md` |
+| UI design handoff | `design/ハンドオフ.md` |
+| UI design reference (HTML) | `design/Web MindMap UI.dc.html` |
+| Design tokens (CSS) | `design/styles.css` |
 
-If these documents are stored elsewhere in the repository, locate them once and reuse their paths.
+These are the canonical copies. Do not create duplicates of them elsewhere in the repository.
 
 Priority order:
 
 1. Explicit instruction from the user in the current Claude Code session
-2. `Web_MindMap_Requirements_v1.0_MECE.md`
+2. `docs/要件定義.md`
 3. This `CLAUDE.md`
-4. `Web_MindMap_Phase1_TaskBreakdown.md`
-5. `Web_MindMap_Wireframes_v0.1.md`
-6. Existing implementation conventions
+4. `docs/task.md`
+5. `docs/ワイヤーフレーム.md`
+6. `design/ハンドオフ.md` and the design reference files
+7. Existing implementation conventions
 
 Do not invent new product requirements merely because they seem useful.
 
