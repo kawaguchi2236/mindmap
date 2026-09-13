@@ -1,10 +1,15 @@
 "use client";
 
 import { useId } from "react";
-import type { InputHTMLAttributes, ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, Ref } from "react";
 import styles from "./Input.module.css";
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "id"> {
+  /**
+   * 入力要素そのものへの ref。React 19 では props として受け渡せる。
+   * 名前変更ダイアログのように、開いた直後にフォーカスしたい場面で使う。
+   */
+  ref?: Ref<HTMLInputElement>;
   /** 可視ラベル。省略する場合は `aria-label` を必ず渡すこと。 */
   label?: ReactNode;
   /** 入力欄の左に置く小さなアイコン（装飾）。 */
@@ -20,6 +25,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 }
 
 export function Input({
+  ref,
   label,
   icon,
   hint,
@@ -60,6 +66,7 @@ export function Input({
       <div className={inputWrapClassNames}>
         {icon && <span className={styles.icon}>{icon}</span>}
         <input
+          ref={ref}
           id={id}
           className={styles.input}
           required={required}

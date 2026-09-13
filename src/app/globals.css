@@ -57,7 +57,7 @@
   --color-canvas-bg: #f3f2f2;
   --color-canvas-dot: transparent; /* ライトはドットグリッドを敷かない */
   --color-canvas-mark: rgba(32, 30, 29, 0.24); /* 四隅のトンボ */
-  --color-edge: rgba(32, 30, 29, 0.22); /* 親子の接続線 */
+  --color-edge: rgba(32, 30, 29, 0.42); /* 親子の接続線。実機で 0.22 はほぼ見えなかった */
   --color-node-root: #201e1d;
   --color-node-branch: #201e1d;
   --color-node-leaf: #605d5d;
@@ -193,7 +193,7 @@
     --color-canvas-bg: #1a1918;
     --color-canvas-dot: rgba(255, 255, 255, 0.09);
     --color-canvas-mark: rgba(255, 255, 255, 0.28);
-    --color-edge: rgba(255, 255, 255, 0.24);
+    --color-edge: rgba(255, 255, 255, 0.42);
     --color-node-root: #faf8f6;
     --color-node-branch: rgba(255, 255, 255, 0.88);
     --color-node-leaf: rgba(255, 255, 255, 0.6);
@@ -243,7 +243,7 @@
   --color-canvas-bg: #1a1918;
   --color-canvas-dot: rgba(255, 255, 255, 0.09);
   --color-canvas-mark: rgba(255, 255, 255, 0.28);
-  --color-edge: rgba(255, 255, 255, 0.24);
+  --color-edge: rgba(255, 255, 255, 0.42);
   --color-node-root: #faf8f6;
   --color-node-branch: rgba(255, 255, 255, 0.88);
   --color-node-leaf: rgba(255, 255, 255, 0.6);
