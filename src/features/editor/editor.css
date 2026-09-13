@@ -1,0 +1,110 @@
+/*
+ * エディタの最小限のスタイル。色はデザイントークン（CSS 変数）を参照し、
+ * 直書きしない。トークン未定義の環境でも読めるようフォールバックを添える。
+ */
+
+.mindmap-editor {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.mindmap-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg, #f3f2f2);
+}
+
+.mindmap-canvas .react-flow__edge-path {
+  stroke: var(--color-neutral-400, #bab6b6);
+  stroke-width: 2;
+}
+
+.mindmap-canvas__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mindmap-canvas__actions button {
+  padding: 6px 12px;
+  border: 1px solid var(--color-divider, rgba(32, 30, 29, 0.16));
+  border-radius: 6px;
+  background: var(--color-surface, #eae9e9);
+  color: var(--color-text, #201e1d);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mindmap-canvas__actions button:hover {
+  background: var(--color-neutral-300, #d7d3d3);
+}
+
+.mindmap-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 10px 28px 10px 12px;
+  border: 1px solid var(--color-divider, rgba(32, 30, 29, 0.16));
+  border-radius: 8px;
+  background: var(--color-surface, #eae9e9);
+  color: var(--color-text, #201e1d);
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(45, 43, 43, 0.14));
+}
+
+.mindmap-node[data-root] {
+  font-weight: 600;
+  border-color: var(--color-accent, #0088b0);
+}
+
+.mindmap-node[data-selected] {
+  outline: 2px solid var(--color-accent, #0088b0);
+  outline-offset: 1px;
+}
+
+.mindmap-node__text {
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.mindmap-node__text:empty::after {
+  content: "";
+}
+
+.mindmap-node__input {
+  flex: 1 1 auto;
+  width: 100%;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  overflow: hidden;
+}
+
+.mindmap-node__toggle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-divider, rgba(32, 30, 29, 0.16));
+  border-radius: 50%;
+  background: var(--color-bg, #f3f2f2);
+  color: var(--color-text, #201e1d);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
