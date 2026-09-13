@@ -9,12 +9,15 @@
 import { cookies } from "next/headers";
 import type { Session } from "next-auth";
 import { auth } from "@/features/auth/config";
+import type { SessionUser } from "@/features/auth/types";
 
-export type SessionUser = {
-  id: string;
-  email: string;
-  name: string | null;
-};
+/*
+ * 型の定義は `types.ts` に置いてある。クライアント側の `useCurrentUser()` が
+ * 同じ形を返すためで、そちらからこのファイル（`next/headers` と Neon を
+ * 引き込むサーバ専用モジュール）を import させないための分離。
+ * 既存の import 元を変えずに済むよう、ここからも再輸出しておく。
+ */
+export type { SessionUser };
 
 /** ログイン中なら SessionUser、ゲストなら null を返す。 */
 export async function getCurrentUser(): Promise<SessionUser | null> {

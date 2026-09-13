@@ -1,5 +1,6 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AuthSessionProvider } from "@/features/auth/SessionProvider";
 import { SyncRunner } from "@/features/sync";
 import { MIN_SYNC_INTERVAL_MS } from "@/features/sync/useSyncRunner";
 import type { MapSummary, SyncMap } from "@/features/sync/protocol";
@@ -47,6 +48,9 @@ async function tick(ms = MIN_SYNC_INTERVAL_MS): Promise<void> {
   });
 }
 
+/** セッション取得口を差し替えるテストがあるので、本物を退避しておく。 */
+const realFetch = globalThis.fetch;
+
 beforeEach(() => {
   vi.useFakeTimers();
   setNavigatorOnline(true);
@@ -55,6 +59,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  globalThis.fetch = realFetch;
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
@@ -336,9 +341,137 @@ describe("ローカルが変わったときだけ知らせる", () => {
   });
 });
 
+describe("状態表示を出さずに同期だけ回す", () => {
+  it("showStatus={false} なら DOM には何も足さないが、同期は走る", async () => {
+    const remote = new FakeRemoteClient();
+    const { container } = render(
+      <SyncRunner userId="u1" showStatus={false} local={new FakeLocalStore()} remote={remote} />,
+    );
+    await settle();
+
+    // エディタのキャンバス上に常駐する文字列を増やさない（CLAUDE.md §9 / §17）。
+    expect(screen.queryByRole("status")).toBeNull();
+    expect(container).toBeEmptyDOMElement();
+    // それでも同期は回っている。表示を消すだけで、仕事は止めない。
+    expect(remote.calls).toEqual(["list"]);
+
+    await tick();
+    expect(remote.calls).toEqual(["list", "list"]);
+  });
+
+  it("既定では従来どおり状態を出す（/maps・/settings の見た目を変えない）", async () => {
+    render(<SyncRunner userId="u1" local={new FakeLocalStore()} remote={new FakeRemoteClient()} />);
+    await settle();
+
+    expect(screen.getByRole("status")).toHaveTextContent("同期済み");
+  });
+});
+
+describe("userId を省略したときはセッションから引く", () => {
+  it("ログイン中なら、その ID で同期が走る", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ map: { id: "guest-1" }, userId: null, syncedVersion: 0, dirty: true }),
+    ]);
+    const remote = new FakeRemoteClient();
+    stubSessionFetch({
+      user: { id: "u7", email: "a@example.com", name: null },
+      expires: "2999-01-01T00:00:00.000Z",
+    });
+
+    render(
+      <AuthSessionProvider>
+        <SyncRunner showStatus={false} local={local} remote={remote} />
+      </AuthSessionProvider>,
+    );
+    await settle();
+
+    expect(remote.calls).toContain("list");
+    // セッションから引いた ID がそのまま使われている（別の値に化けていない）。
+    expect(local.claimed).toEqual([{ mapId: "guest-1", userId: "u7" }]);
+  });
+
+  it("ゲスト（Provider も無い）なら 1 回も通信しない", async () => {
+    const local = new FakeLocalStore([makeRecord({ userId: null, syncedVersion: 0, dirty: true })]);
+    const remote = new FakeRemoteClient();
+
+    render(<SyncRunner showStatus={false} local={local} remote={remote} />);
+    await settle();
+    await tick();
+
+    expect(remote.calls).toEqual([]);
+    expect(local.putCount).toBe(0);
+  });
+
+  it("セッションの取得に失敗してもゲストのまま、通信しない", async () => {
+    const remote = new FakeRemoteClient();
+    stubSessionFetch(null, { ok: false });
+
+    render(
+      <AuthSessionProvider>
+        <SyncRunner local={new FakeLocalStore()} remote={remote} />
+      </AuthSessionProvider>,
+    );
+    await settle();
+
+    expect(remote.calls).toEqual([]);
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("明示的に渡した userId が優先される（セッションを待たない）", async () => {
+    const local = new FakeLocalStore([
+      makeRecord({ map: { id: "guest-1" }, userId: null, syncedVersion: 0, dirty: true }),
+    ]);
+    const remote = new FakeRemoteClient();
+    // セッションは返ってこない。それでも渡された ID で同期は始まる。
+    stubSessionFetch(new Promise<never>(() => {}));
+
+    render(
+      <AuthSessionProvider>
+        <SyncRunner userId="u1" showStatus={false} local={local} remote={remote} />
+      </AuthSessionProvider>,
+    );
+    await settle();
+
+    expect(local.claimed).toEqual([{ mapId: "guest-1", userId: "u1" }]);
+  });
+
+  it("userId={null} は「ゲストだと分かっている」の意味で、セッションを見ない", async () => {
+    const remote = new FakeRemoteClient();
+    stubSessionFetch({
+      user: { id: "u7", email: "a@example.com", name: null },
+      expires: "2999-01-01T00:00:00.000Z",
+    });
+
+    render(
+      <AuthSessionProvider>
+        <SyncRunner userId={null} local={new FakeLocalStore()} remote={remote} />
+      </AuthSessionProvider>,
+    );
+    await settle();
+
+    expect(remote.calls).toEqual([]);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // テスト用の道具
 // ---------------------------------------------------------------------------
+
+/**
+ * `/api/auth/session` の応答を差し替える。
+ *
+ * `body` に Promise を渡すと、解決するまで「取得中」のままにできる。
+ * afterEach で本物の fetch に戻している。
+ */
+function stubSessionFetch(body: unknown, options?: { ok?: boolean }): void {
+  globalThis.fetch = vi.fn(() => {
+    if (body instanceof Promise) return body;
+    return Promise.resolve({
+      ok: options?.ok ?? true,
+      json: () => Promise.resolve(body),
+    } as Response);
+  }) as unknown as typeof fetch;
+}
 
 /** 一覧の読み込み回数を数える `LocalStore`。移行が 1 回だけかを見るのに使う。 */
 class CountingLocalStore extends FakeLocalStore {
