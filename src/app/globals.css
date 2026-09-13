@@ -352,9 +352,16 @@ canvas {
  * React Flow（キャンバス）は接続線用の <svg> を 0×0 のコンテナの中に置く。
  * 上の max-width: 100% が当たると幅が 0 になり、**SVG は幅か高さが 0 だと
  * 描画自体を行わない**ため、接続線が1本も出なくなる。
- * キャンバスの内側だけリセットを解除する。
+ *
+ * セレクタの起点を `.react-flow` ではなく `.react-flow__edges` にしているのは、
+ * PNG 書き出し（html-to-image）が `.react-flow__viewport` を根としてクローンを
+ * 作るため。`.react-flow` はクローンの外側にあり、祖先に依存したセレクタは
+ * クローンには一致しない＝書き出した画像だけ接続線が消える。
+ * `.react-flow__edges` はビューポートの内側なのでクローンにも残る。
  */
-.react-flow svg {
+.react-flow__edges,
+.react-flow__edges svg,
+.react-flow__viewport svg {
   max-width: none;
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Manrope, Source_Serif_4 } from "next/font/google";
 import { ThemeProvider, ThemeScript } from "@/components/theme";
+import { AuthSessionProvider } from "@/features/auth/SessionProvider";
 import { TelemetryBootstrap } from "@/features/telemetry";
 import "./globals.css";
 
@@ -61,7 +62,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             unhandledrejection のグローバル捕捉をここで仕掛ける。
             これが無いとエラー監視が一切働かない。 */}
         <TelemetryBootstrap />
-        <ThemeProvider>{children}</ThemeProvider>
+        {/* セッションはクライアント側で取る。ここでサーバーのセッションを
+            読むとアプリ全体が動的レンダリングに落ち、エディタを開くたびに
+            Worker で認証が走る（ADR-001 の CPU 予算）。 */}
+        <AuthSessionProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

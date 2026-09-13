@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader, AppShell } from "@/components/layout";
 import { Button } from "@/components/ui";
 import { MindMapEditor } from "@/features/editor";
+import { SyncRunner } from "@/features/sync";
 import { useMapDocument, useOnlineStatus, type SaveStatus } from "@/features/persistence";
 import { getRepository } from "@/lib/db";
 import { withRootDerivedTitle } from "@/lib/model/title";
@@ -113,7 +114,12 @@ function Editor({ open, onOpenLatest }: { open: OpenState; onOpenLatest: () => v
       ) : loading || !doc ? (
         <Centered>読み込み中…</Centered>
       ) : (
-        <MindMapEditor document={doc} onChange={handleChange} />
+        <>
+          {/* ログイン中だけ同期する。showStatus={false} でキャンバス上には
+              何も描かない（CLAUDE.md §9 キャンバスの面積を削らない）。 */}
+          <SyncRunner showStatus={false} />
+          <MindMapEditor document={doc} onChange={handleChange} />
+        </>
       )}
     </AppShell>
   );
