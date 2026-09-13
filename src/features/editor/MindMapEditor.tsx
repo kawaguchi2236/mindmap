@@ -66,7 +66,7 @@ export function MindMapEditor({ document: doc, onChange }: MindMapEditorProps): 
   return (
     <div className="mindmap-editor">
       <ReactFlowProvider>
-        <MindMapCanvas state={state.present} dispatch={dispatch} />
+        <MindMapCanvas state={state.present} dispatch={dispatch} title={doc.map.title} />
       </ReactFlowProvider>
     </div>
   );

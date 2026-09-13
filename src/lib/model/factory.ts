@@ -7,6 +7,13 @@ import {
   type MindMapNode,
 } from "./types";
 
+/**
+ * 新規マップの既定タイトル。
+ * 「まだ明示的に名前を付けていない」ことの目印として使うので、
+ * 表示用に書き換えるときは `src/lib/model/title.ts` も合わせて見ること。
+ */
+export const DEFAULT_MAP_TITLE = "無題のマップ";
+
 export function newId(): ID {
   return crypto.randomUUID();
 }
@@ -39,7 +46,7 @@ export function createMap(params: Partial<MindMap> = {}): MindMap {
   return {
     id: params.id ?? newId(),
     userId: params.userId ?? null,
-    title: params.title ?? "無題のマップ",
+    title: params.title ?? DEFAULT_MAP_TITLE,
     createdAt: params.createdAt ?? timestamp,
     updatedAt: timestamp,
     deletedAt: params.deletedAt ?? null,

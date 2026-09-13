@@ -7,6 +7,8 @@ import { Button } from "@/components/ui";
 import { MindMapEditor } from "@/features/editor";
 import { useMapDocument, useOnlineStatus, type SaveStatus } from "@/features/persistence";
 import { getRepository } from "@/lib/db";
+import { withRootDerivedTitle } from "@/lib/model/title";
+import type { MindMapDocument } from "@/lib/model/types";
 
 /**
  * エディタ画面。
@@ -85,6 +87,12 @@ function Editor({ open, onOpenLatest }: { open: OpenState; onOpenLatest: () => v
   const { doc, setDoc, status, loading, error, lastSavedAt } = useMapDocument(mapId);
   const online = useOnlineStatus();
 
+  /**
+   * ルートノードのテキストをマップタイトルの既定値にする。
+   * 一覧で明示的に付けた名前は上書きしない（判定は withRootDerivedTitle）。
+   */
+  const handleChange = (next: MindMapDocument) => setDoc(withRootDerivedTitle(doc, next));
+
   const failure = open.phase === "failed" ? open.error : error;
 
   return (
@@ -105,7 +113,7 @@ function Editor({ open, onOpenLatest }: { open: OpenState; onOpenLatest: () => v
       ) : loading || !doc ? (
         <Centered>読み込み中…</Centered>
       ) : (
-        <MindMapEditor document={doc} onChange={setDoc} />
+        <MindMapEditor document={doc} onChange={handleChange} />
       )}
     </AppShell>
   );

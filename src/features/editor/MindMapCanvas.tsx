@@ -47,6 +47,7 @@ import {
 import type { HistoryAction } from "./history";
 import { NODE_HEIGHT, NODE_WIDTH } from "./layout";
 import type { EditorState } from "./reducer";
+import { ExportPngButton } from "@/features/export";
 import { getRoot, getVisibleNodes } from "./tree";
 
 /**
@@ -169,9 +170,11 @@ const nodeTypes: NodeTypes = { mindmap: MindMapNodeView };
 export interface MindMapCanvasProps {
   state: EditorState;
   dispatch: Dispatch<HistoryAction>;
+  /** PNG の保存ファイル名に使う。省略すると mindmap.png になる。 */
+  title?: string;
 }
 
-export function MindMapCanvas({ state, dispatch }: MindMapCanvasProps): ReactElement {
+export function MindMapCanvas({ state, dispatch, title }: MindMapCanvasProps): ReactElement {
   const { setCenter } = useReactFlow<MindMapFlowNode>();
   const { nodes: modelNodes, selectedId, editingId } = state;
 
@@ -275,6 +278,8 @@ export function MindMapCanvas({ state, dispatch }: MindMapCanvasProps): ReactEle
               <button type="button" onClick={() => dispatch({ type: "relayout" })}>
                 自動整列
               </button>
+              {/* 書き出しは担当 B の実装。ReactFlowProvider の内側でだけ動く。 */}
+              <ExportPngButton title={title} />
             </div>
           </Panel>
         </ReactFlow>
