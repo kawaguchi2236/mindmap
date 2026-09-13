@@ -21,6 +21,7 @@ import { ThemeToggle, useTheme } from "@/components/theme";
 import { AdSlot } from "@/features/ads";
 import { SignOutButton } from "@/features/auth/SignOutButton";
 import type { SessionUser } from "@/features/auth/session";
+import { SyncRunner } from "@/features/sync";
 import styles from "./SettingsScreen.module.css";
 
 export interface SettingsScreenProps {
@@ -155,6 +156,9 @@ function AccountSection({ user }: { user: SessionUser | null }) {
             <p className={styles.rowHint}>
               マップはこの端末に保存したうえで、クラウドにも同期されます。
             </p>
+            {/* この画面を開いているあいだ、背景でクラウド同期を回す。
+                オフラインでも設定操作は妨げない（CLAUDE.md §12）。 */}
+            <SyncRunner userId={user.id} />
           </div>
           {/* ログアウトは認証側の実装をそのまま使う（Server Action）。 */}
           <SignOutButton className={styles.signOut} />

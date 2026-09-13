@@ -1,0 +1,28 @@
+/*
+ * 同期状態の 1 行表示。
+ *
+ * 色・余白はすべてトークン変数で指定する。ダークモードのメディアクエリは
+ * ここに書かない — globals.css が「OS 追従 / 明示ライト / 明示ダーク」の3状態ぶんの
+ * トークンを定義済みで、var() を使っている限り自動で追従する。
+ *
+ * 本文より目立たせないこと。背景で進む仕事の報告であって、警告ではない。
+ */
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* 失敗のときだけ色を変える。それでも塗りや枠は付けない（操作を求めていないため）。 */
+.danger {
+  color: var(--color-danger-text);
+}
+
+/* 競合コピーの案内。状態ラベルより一段弱く。 */
+.conflict {
+  color: var(--color-text-secondary);
+}

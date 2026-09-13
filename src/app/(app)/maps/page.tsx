@@ -15,5 +15,9 @@ export const metadata = { title: "マップ — Web MindMap" };
  */
 export default async function MapsPage() {
   const user = await getCurrentUser();
-  return <MapListScreen signedIn={user !== null} />;
+  /*
+   * userId は同期エンジンに渡す。真偽値では代用できない。
+   * ゲストマップの所有者を付け替えるのに実 ID が要るため（ADR-005）。
+   */
+  return <MapListScreen signedIn={user !== null} userId={user?.id ?? null} />;
 }

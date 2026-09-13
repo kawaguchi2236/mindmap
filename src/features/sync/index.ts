@@ -12,6 +12,11 @@ export { createLocalStore } from "./local-store-adapter";
 export type { CreateLocalStoreOptions } from "./local-store-adapter";
 export { createRemoteClient } from "./remote-client";
 export type { CreateRemoteClientOptions } from "./remote-client";
+export { SyncRunner, type SyncRunnerProps } from "./SyncRunner";
+export { useSyncRunner, MIN_SYNC_INTERVAL_MS } from "./useSyncRunner";
+export type { SyncRunnerState, UseSyncRunnerOptions } from "./useSyncRunner";
+export { describeConflicts, describeSyncPhase } from "./status";
+export type { SyncPhase, SyncStatusLabel } from "./status";
 export {
   hasUnseenRemoteChanges,
   hasUnsentLocalChanges,

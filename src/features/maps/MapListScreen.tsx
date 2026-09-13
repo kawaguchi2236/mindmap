@@ -19,6 +19,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader, AppShell, Sidebar } from "@/components/layout";
 import { Button, Icon, Input, Modal } from "@/components/ui";
 import { AdSlot } from "@/features/ads";
+import { SyncRunner } from "@/features/sync";
 import type { ID, MindMapSummary } from "@/lib/model/types";
 import { describeSyncState, formatIndex, formatRelativeTime } from "./format";
 import { visibleMaps } from "./select";
@@ -32,6 +33,14 @@ export interface MapListScreenProps {
    * ここは「同期状態を出すか」だけを決める表示上のフラグ。
    */
   signedIn: boolean;
+  /**
+   * ログイン中のユーザー ID。ゲストは null（既定）。
+   *
+   * これが渡されている間だけ、この画面にいるあいだのクラウド同期が動く。
+   * `signedIn` と重なって見えるが、同期エンジンは所有者の付け替えに
+   * 実際の ID を要るので、真偽値では代用できない。
+   */
+  userId?: string | null;
 }
 
 /** 削除確認ダイアログの対象。 */
@@ -40,9 +49,9 @@ interface DeleteTarget {
   title: string;
 }
 
-export function MapListScreen({ signedIn }: MapListScreenProps) {
+export function MapListScreen({ signedIn, userId = null }: MapListScreenProps) {
   const router = useRouter();
-  const { maps, errorMessage, deleted, create, rename, remove, undoRemove, dismissRemove } =
+  const { maps, errorMessage, deleted, reload, create, rename, remove, undoRemove, dismissRemove } =
     useMapList();
 
   const [query, setQuery] = useState("");
@@ -141,6 +150,10 @@ export function MapListScreen({ signedIn }: MapListScreenProps) {
           {errorMessage}
         </p>
       )}
+
+      {/* クラウド同期。ゲスト（userId === null）では通信も描画も起きない。
+          同期でローカルが動いたときだけ一覧を読み直す。 */}
+      <SyncRunner userId={userId} onLocalChanged={reload} />
 
       {rows === null ? (
         errorMessage === null && <p className={styles.empty}>読み込み中…</p>
