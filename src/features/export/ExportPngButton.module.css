@@ -1,0 +1,18 @@
+/*
+ * ボタン本体には何もスタイルを当てない。
+ * キャンバスのツールバー（.mindmap-canvas__actions）の中に置かれると
+ * 既存の「中央へ戻る」「自動整列」と同じ見た目になるため。
+ * ここにあるのは結果メッセージの体裁だけ。
+ */
+
+.status {
+  align-self: center;
+  max-width: 24ch;
+  color: var(--color-text-secondary, #605d5d);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.error {
+  color: var(--color-danger-text, #aa0b56);
+}
