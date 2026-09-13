@@ -1,0 +1,173 @@
+/*
+ * 設定画面のレイアウト。design/ハンドオフ.md の一覧画面と同じ作法に揃える。
+ *
+ * 色・余白・影・重なりはすべてトークン変数で指定する。
+ * ダークモードのメディアクエリはここに書かない — globals.css が
+ * 「OS 追従 / 明示ライト / 明示ダーク」の3状態ぶんのトークンを定義済みで、
+ * var() を使っている限り自動で追従する（自前で書くと明示ライトが壊れる）。
+ *
+ * ページ外周の余白は AppShell の main 側が持っているので、ここでは足さない。
+ */
+
+/* --- サイドバー ---------------------------------------------------------- */
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.navLink {
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  background-color: var(--color-accent-tint);
+  color: var(--color-accent-text);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+/* --- 見出し行 ------------------------------------------------------------ */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-text);
+}
+
+/* --- 区分 ---------------------------------------------------------------- */
+
+.section {
+  margin-top: var(--space-8);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* --- 1項目 --------------------------------------------------------------- */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rowText {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.rowLabel {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+.rowMeta {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-text-secondary);
+}
+
+.rowHint {
+  margin: var(--space-2) 0 0;
+  max-width: 52ch;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+/* テーマの3択。行の右端に置く。 */
+.rowControl {
+  flex: 0 0 auto;
+}
+
+/* --- 右端のアクション ----------------------------------------------------- */
+
+/*
+ * ログイン導線。強い塗りボタンにはしない — ゲストのままでも全機能が使えるので、
+ * 「ログインしないと先に進めない」ように見せないこと（CLAUDE.md §14）。
+ */
+.linkAction {
+  flex: 0 0 auto;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--color-accent);
+  font-size: var(--font-size-sm);
+  color: var(--color-accent-text);
+  text-decoration: none;
+}
+
+.linkAction:hover {
+  border-bottom-color: var(--color-accent-text);
+}
+
+.linkAction:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * ログアウトボタン。SignOutButton は <form><button> を返すだけなので、
+ * 見た目はここで当てる（Button と同じ secondary の見え方に揃えている）。
+ */
+.signOut {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-flat);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.signOut:hover {
+  background-color: var(--color-accent-tint);
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.signOut:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

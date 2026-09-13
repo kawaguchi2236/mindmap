@@ -6,6 +6,7 @@
  *
  * 未ログインでもアプリは使える（CLAUDE.md §14）。null は異常ではなくゲスト。
  */
+import { cookies } from "next/headers";
 import type { Session } from "next-auth";
 import { auth } from "@/features/auth/config";
 
@@ -23,7 +24,17 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
    * ログに埋もれる（実機で確認済み）。ゲスト利用は例外処理ではなく
    * この早期 return で成立させる。
    */
-  if (!process.env.AUTH_SECRET) return null;
+  if (!process.env.AUTH_SECRET) {
+    /*
+     * ただし cookies() には触れておく。これを省くと、この関数を呼ぶページが
+     * 「リクエストに依存しない」と判定されて静的プリレンダリングされる。
+     * ビルド環境にだけ AUTH_SECRET が無いと、ログイン中のユーザーにも
+     * 「ゲスト」が焼き込まれたページが配信されてしまう。
+     * セッションを見て出し分ける画面は、secret の有無にかかわらず動的であるべき。
+     */
+    await cookies();
+    return null;
+  }
 
   let session: Session | null = null;
   try {

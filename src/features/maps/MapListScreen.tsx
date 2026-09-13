@@ -105,6 +105,9 @@ export function MapListScreen({ signedIn }: MapListScreenProps) {
             <Link className={styles.navLink} href="/">
               エディタを開く
             </Link>
+            <Link className={styles.navLink} href="/settings">
+              設定
+            </Link>
           </nav>
         </Sidebar>
       }
