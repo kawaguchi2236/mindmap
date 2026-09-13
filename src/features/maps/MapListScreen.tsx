@@ -15,7 +15,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader, AppShell, Sidebar } from "@/components/layout";
 import { Button, Icon, Input, Modal } from "@/components/ui";
 import type { ID, MindMapSummary } from "@/lib/model/types";
@@ -294,15 +294,12 @@ function RenameForm({
   onCancel: () => void;
 }) {
   const [value, setValue] = useState(initialTitle);
-  // Input は ref を転送しないため、自分で id を決めて DOM から引く。
-  // （担当 A が forwardRef 相当に対応したら ref に置き換える）
-  const inputId = `rename-${useId()}`;
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // 編集に入ったら即打ち始められるようにする（CLAUDE.md §8 の精神）。
   useEffect(() => {
-    const input = document.getElementById(inputId);
-    if (input instanceof HTMLInputElement) input.select();
-  }, [inputId]);
+    inputRef.current?.select();
+  }, []);
 
   function submit() {
     const title = value.trim();
@@ -324,7 +321,7 @@ function RenameForm({
       }}
     >
       <Input
-        inputId={inputId}
+        ref={inputRef}
         className={styles.renameField}
         value={value}
         onChange={(event) => setValue(event.target.value)}
@@ -351,11 +348,11 @@ function RenameForm({
 // ---------------------------------------------------------------------------
 
 /**
- * エディタへの遷移先。
+ * エディタへの遷移先。エディタ画面は `src/app/page.tsx` の1つだけで、
+ * `map` クエリで対象を指定する。
  *
- * 現状 `src/app/page.tsx`（担当 A 所有）は最後に更新されたマップを開くため、
- * `map` クエリの解釈は担当 A 側の対応待ち。ここを唯一の生成箇所にしておき、
- * 対応が入っても1か所の変更で済むようにしておく。
+ * リンクの生成をここ1か所に閉じておくと、遷移先の形が変わっても
+ * 呼び出し側に散らばらない。
  */
 function editorHref(id: ID): string {
   return `/?map=${encodeURIComponent(id)}`;

@@ -12,8 +12,16 @@ import { getRepository, resetRepositoryForTests } from "@/lib/db";
 /**
  * 一覧画面の操作テスト（jsdom）。
  *
- * jsdom は実ブラウザではないため、レイアウト・CSS Module の見え方・
- * フォーカスリングの実描画はここでは検証できていない。
+ * jsdom は実ブラウザではないので、ここで緑でも実機で動く保証はない。
+ * 特に **以下はこのファイルでは一切検証していない**:
+ *
+ * - レイアウト、CSS Module の見え方、フォーカスリングの実描画
+ * - Modal のトップレイヤー表示・フォーカストラップ・Esc で閉じる・
+ *   閉じたあとの呼び出し元へのフォーカス復帰
+ *   （tests/setup.ts の <dialog> スタブは open 属性の付け外しだけを再現する）
+ * - ThemeProvider の OS テーマ追従（matchMedia のスタブは常にライトを返す）
+ *
+ * これらは実ブラウザで確認すること。
  */
 
 const push = vi.fn();
@@ -22,47 +30,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, replace: vi.fn(), refresh: vi.fn(), prefetch: vi.fn() }),
 }));
 
-/**
- * jsdom は matchMedia を持たない。ThemeProvider が OS のダークモード設定を
- * 購読するのに使うので、ライト固定のスタブを置く。
- * （共有の tests/setup.ts は担当 A の所有なので、ここで閉じて用意する）
- */
-function stubMatchMedia() {
-  window.matchMedia = ((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-    dispatchEvent: () => false,
-  })) as unknown as typeof window.matchMedia;
-}
-
-/**
- * jsdom 29 は <dialog> の showModal/close を実装していない。Modal は
- * ネイティブ dialog の上に組まれているので、最低限の挙動を足す。
- * フォーカストラップ・top layer・Esc はここでは再現されない（実ブラウザ側の責務）。
- */
-function stubDialog() {
-  const proto = window.HTMLDialogElement.prototype as unknown as Record<string, unknown>;
-  if (typeof proto.showModal === "function") return;
-  proto.showModal = function (this: HTMLDialogElement) {
-    this.open = true;
-  };
-  proto.close = function (this: HTMLDialogElement) {
-    this.open = false;
-    this.dispatchEvent(new Event("close"));
-  };
-}
-
 beforeEach(async () => {
   await resetRepositoryForTests();
   globalThis.indexedDB = new IDBFactory();
   push.mockClear();
-  stubMatchMedia();
-  stubDialog();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
