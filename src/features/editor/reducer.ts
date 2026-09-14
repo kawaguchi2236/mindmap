@@ -16,7 +16,7 @@ import {
   layoutTree,
   NODE_WIDTH,
   placeNewChild,
-  restackAncestors,
+  reflow,
   shiftSubtree,
   type NavigateDirection,
 } from "./layout";
@@ -103,7 +103,7 @@ function insertNode(
   const parent = getNode(next, params.parentId);
   if (parent?.collapsed) next = updateNode(next, parent.id, { collapsed: false });
   next = normalizeOrders(next, params.parentId);
-  next = restackAncestors(next, params.parentId);
+  next = reflow(next, params.parentId);
   return { nodes: next, node };
 }
 
@@ -135,7 +135,7 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       // 入力で行数が増えるとノードが縦に伸びる。高さが変わったときだけ
       // 兄弟を積み直して、下のノードに食い込まないようにする。
       if (estimateNodeHeight(target.text) !== estimateNodeHeight(action.text)) {
-        nodes = restackAncestors(nodes, target.parentId);
+        nodes = reflow(nodes, target.parentId);
       }
       return { ...state, nodes };
     }
@@ -180,7 +180,7 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       nodes = normalizeOrders(nodes, grandParent.id);
       nodes = normalizeOrders(nodes, parent.id);
       // parent → grandParent → … と根まで伝えるので 1 回で足りる。
-      nodes = restackAncestors(nodes, parent.id);
+      nodes = reflow(nodes, parent.id);
       return { ...state, nodes, selectedId: target.id };
     }
 
@@ -191,7 +191,7 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       const parentId = target.parentId;
       let nodes = removeSubtree(state.nodes, target.id);
       nodes = normalizeOrders(nodes, parentId);
-      nodes = restackAncestors(nodes, parentId);
+      nodes = reflow(nodes, parentId);
       return { nodes, selectedId: nextSelected, editingId: null };
     }
 
@@ -205,7 +205,7 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       const target = targetOf(state, action.id);
       if (!target || !hasChildren(state.nodes, target.id)) return state;
       let nodes = updateNode(state.nodes, target.id, { collapsed: !target.collapsed });
-      nodes = restackAncestors(nodes, target.parentId);
+      nodes = reflow(nodes, target.parentId);
       // 折りたたんだ内側に選択・編集が残らないようにする。
       const selectedId =
         state.selectedId && isVisible(nodes, state.selectedId) ? state.selectedId : target.id;
@@ -230,7 +230,7 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       let nodes = [...state.nodes, ...clones.map((n) => ({ ...n, x: n.x + dx, y: n.y + dy }))];
       if (parent.collapsed) nodes = updateNode(nodes, parent.id, { collapsed: false });
       nodes = normalizeOrders(nodes, parent.id);
-      nodes = restackAncestors(nodes, parent.id);
+      nodes = reflow(nodes, parent.id);
       return { nodes, selectedId: cloneRoot.id, editingId: null };
     }
 

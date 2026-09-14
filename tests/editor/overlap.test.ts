@@ -247,6 +247,126 @@ describe("ノードが重ならないこと", () => {
   });
 });
 
+describe("手で動かして重なった状態からでも、Enter / Tab で解消される", () => {
+  /** ノードをドラッグで重ねた状態を作る。 */
+  function dragOnto(state: EditorState, movedText: string, targetText: string): EditorState {
+    const moved = findByText(state.nodes, movedText);
+    const target = findByText(state.nodes, targetText);
+    return editorReducer(state, {
+      type: "moveNode",
+      id: moved.id,
+      x: target.x,
+      y: target.y + 4,
+    });
+  }
+
+  const SPEC = {
+    text: "root",
+    children: [{ text: "A", children: [{ text: "A1" }] }, { text: "B" }, { text: "C" }],
+  };
+
+  it("重なった状態を作れていることをまず確認する", () => {
+    const state = dragOnto(start(SPEC), "C", "B");
+    expect(findOverlaps(state.nodes)).not.toEqual([]);
+  });
+
+  it("Enter（兄弟追加）を押すと重なりが解消する", () => {
+    let state = dragOnto(start(SPEC), "C", "B");
+    const b = findByText(state.nodes, "B");
+    state = editorReducer(state, { type: "createSibling", id: b.id });
+    expectNoOverlap(state);
+  });
+
+  it("Tab（子追加）を押すと重なりが解消する", () => {
+    let state = dragOnto(start(SPEC), "C", "B");
+    const b = findByText(state.nodes, "B");
+    state = editorReducer(state, { type: "createChild", id: b.id });
+    expectNoOverlap(state);
+  });
+
+  it("文字を打っても重なりが解消する", () => {
+    let state = dragOnto(start(SPEC), "C", "B");
+    const b = findByText(state.nodes, "B");
+    state = editorReducer(state, { type: "updateText", id: b.id, text: MANY_LINES });
+    expectNoOverlap(state);
+  });
+
+  it("新しいノードは空いているところに出る（既存のノードに被らない）", () => {
+    // ドラッグで散らかした状態でも、追加したノードが既存に重ならないこと。
+    let state = start(SPEC);
+    const a = findByText(state.nodes, "A");
+    state = editorReducer(state, { type: "moveNode", id: a.id, x: 400, y: 120 });
+    const c = findByText(state.nodes, "C");
+    state = editorReducer(state, { type: "moveNode", id: c.id, x: 400, y: 150 });
+
+    state = editorReducer(state, { type: "createChild", id: findByText(state.nodes, "B").id });
+    state = type(state, MANY_LINES);
+    expectNoOverlap(state);
+  });
+
+  it("先に置いたノードは動かさず、後から来たほうを下げる", () => {
+    let state = dragOnto(start(SPEC), "C", "B");
+    const beforeB = findByText(state.nodes, "B");
+    state = editorReducer(state, { type: "createChild", id: beforeB.id });
+    const afterB = findByText(state.nodes, "B");
+    // B は order が先なので動かない。後ろの C 側が下がる。
+    expect({ x: afterB.x, y: afterB.y }).toEqual({ x: beforeB.x, y: beforeB.y });
+    expectNoOverlap(state);
+  });
+
+  it("操作した枝とは別の枝に残った重なりも解消される", () => {
+    /*
+     * 積み直し（restackAncestors）は「操作したノードから根まで」の各階層しか
+     * 触らない。別の枝の中で重なっているものはそのまま残る。
+     * ユーザーから見れば同じ「被っている」なので、ここも解消する必要がある。
+     */
+    let state = start({
+      text: "root",
+      children: [
+        { text: "A", children: [{ text: "A1" }, { text: "A2" }] },
+        { text: "B", children: [{ text: "B1" }] },
+      ],
+    });
+    // A の枝の中で重ねる（A は以降の操作の経路に入らない）。
+    const a1 = findByText(state.nodes, "A1");
+    const a2 = findByText(state.nodes, "A2");
+    state = editorReducer(state, { type: "moveNode", id: a2.id, x: a1.x, y: a1.y + 6 });
+    expect(findOverlaps(state.nodes)).not.toEqual([]);
+
+    // B の枝で Enter を押す。経路は B → root で、A の子には触れない。
+    state = editorReducer(state, { type: "createSibling", id: findByText(state.nodes, "B1").id });
+    expectNoOverlap(state);
+  });
+
+  it("別の列へドラッグして重ねた場合も解消される", () => {
+    // 縦の積み直しは y しか見ないので、x をまたいで重ねたものは残ってしまう。
+    let state = start({
+      text: "root",
+      children: [
+        { text: "A", children: [{ text: "A1" }] },
+        { text: "B", children: [{ text: "B1" }] },
+      ],
+    });
+    // B1 を親の列（A や B が並ぶ列）へ動かして A に重ねる。
+    const b1 = findByText(state.nodes, "B1");
+    const a = findByText(state.nodes, "A");
+    state = editorReducer(state, { type: "moveNode", id: b1.id, x: a.x, y: a.y + 6 });
+    expect(findOverlaps(state.nodes)).not.toEqual([]);
+
+    // B1 に子を足す。B の子の積み直しは y しか直さないので、x のずれは残る。
+    state = editorReducer(state, { type: "createChild", id: findByText(state.nodes, "B1").id });
+    expectNoOverlap(state);
+  });
+
+  it("ドラッグそのものでは勝手に整列しない（ユーザーの操作を尊重する）", () => {
+    // 重なり解消は構造が変わったときだけ。ドラッグ中に勝手に動くと操作できない。
+    const state = dragOnto(start(SPEC), "C", "B");
+    const c = findByText(state.nodes, "C");
+    const b = findByText(state.nodes, "B");
+    expect(c.y).toBe(b.y + 4);
+  });
+});
+
 describe("重なり検出そのものの健全性", () => {
   it("実際に重ねた座標は重なりとして検出される", () => {
     // findOverlaps が常に空配列を返すだけの無意味な検査になっていないことを固定する。

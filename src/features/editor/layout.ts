@@ -218,6 +218,99 @@ export function restackAncestors(nodes: MindMapNode[], parentId: ID | null): Min
 }
 
 /**
+ * 見えているノードが1組も重ならないところまで、下へずらして解消する。
+ *
+ * 積み直し（restackAncestors）だけでは、ドラッグで動かした位置や、
+ * 修正前に保存された座標が残っているマップで重なりが残る。ユーザーから見ると
+ * 「Enter を押したのに被ったまま」になり、自動整列を押すまで直らない。
+ * それでは考えながら書けないので、構造が変わるたびにここで必ず解消する。
+ *
+ * 方針:
+ * - 木の順（親 → 子、兄弟は order 順）に確定していき、**先に置いたものは動かさない**。
+ *   後から来たものだけを下げるので、既存の配置が大きく動かない。
+ * - 下げるときは部分木ごと動かす。子孫だけ取り残されない。
+ * - 横に重なっていない（別の列にいる）ものは触らない。
+ */
+export function resolveOverlaps(nodes: MindMapNode[]): MindMapNode[] {
+  const index = buildChildIndex(nodes);
+  const pos = new Map<ID, { x: number; y: number }>();
+  const height = new Map<ID, number>();
+  for (const node of nodes) {
+    pos.set(node.id, { x: node.x, y: node.y });
+    height.set(node.id, heightOf(node));
+  }
+
+  type Rect = { left: number; right: number; top: number; bottom: number };
+  const placed: Rect[] = [];
+
+  const rectOf = (id: ID): Rect => {
+    const p = pos.get(id) ?? { x: 0, y: 0 };
+    return {
+      left: p.x,
+      right: p.x + NODE_WIDTH,
+      top: p.y,
+      bottom: p.y + (height.get(id) ?? NODE_HEIGHT),
+    };
+  };
+
+  /** 部分木ごと下へずらす。折りたたまれた子孫も一緒に動かす。 */
+  const shiftDown = (id: ID, dy: number): void => {
+    const stack: ID[] = [id];
+    while (stack.length > 0) {
+      const current = stack.pop() as ID;
+      const p = pos.get(current);
+      if (p) pos.set(current, { x: p.x, y: p.y + dy });
+      for (const child of index.get(current) ?? []) stack.push(child.id);
+    }
+  };
+
+  const overlapBottom = (rect: Rect): number | null => {
+    let bottom: number | null = null;
+    for (const other of placed) {
+      const hit =
+        rect.left < other.right &&
+        other.left < rect.right &&
+        rect.top < other.bottom &&
+        other.top < rect.bottom;
+      if (hit) bottom = bottom === null ? other.bottom : Math.max(bottom, other.bottom);
+    }
+    return bottom;
+  };
+
+  const place = (node: MindMapNode): void => {
+    let rect = rectOf(node.id);
+    // ずらすと別のものに当たることがあるので、当たらなくなるまで繰り返す。
+    // 下方向にしか動かさないので、確定済みの個数で必ず止まる。
+    for (let guard = 0; guard <= placed.length; guard += 1) {
+      const bottom = overlapBottom(rect);
+      if (bottom === null) break;
+      shiftDown(node.id, bottom + V_GAP - rect.top);
+      rect = rectOf(node.id);
+    }
+    placed.push(rect);
+    if (node.collapsed) return;
+    for (const child of index.get(node.id) ?? []) place(child);
+  };
+
+  for (const root of index.get(null) ?? []) place(root);
+
+  const patches = new Map<ID, Partial<MindMapNode>>();
+  for (const node of nodes) {
+    const p = pos.get(node.id);
+    if (p && (p.x !== node.x || p.y !== node.y)) patches.set(node.id, { x: p.x, y: p.y });
+  }
+  return patchNodes(nodes, patches);
+}
+
+/**
+ * 構造が変わったあとの再配置。積み直して、それでも残る重なりを解消する。
+ * ノードを増やす・消す・文字を変える・階層を動かす、のすべてがこれを通る。
+ */
+export function reflow(nodes: MindMapNode[], parentId: ID | null): MindMapNode[] {
+  return resolveOverlaps(restackAncestors(nodes, parentId));
+}
+
+/**
  * これから parentId の子として作るノードの初期座標。
  * 直後に restackSiblings が order どおりに縦位置を直すので、ここでは
  * 「既存の兄弟の下」に置いておけばよい。
