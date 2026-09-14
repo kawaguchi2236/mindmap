@@ -44,3 +44,29 @@ CLAUDE.md §16 は PNG に「マップ全体・ノード・接続線・現在の
 - 出力サイズの上限は 1 辺 8192px / 総計 16,000,000px。超えるときは**縦横比を保ったまま全体を縮小**し、縮小率をボタン横に表示する（切り詰めない・黙らない）。
 - 背景は透明にせず、`.react-flow__viewport` の祖先の実描画色を拾ってテーマに追従させる。拾えないときは `data-theme` と OS 設定から保険の色を決める。
 - 書き出しの失敗は例外にせず結果オブジェクトで返す。エディタの編集は止めず、同じボタンで再試行できる（CLAUDE.md §29）。
+
+---
+
+## 追記（2026-09-13）: エッジが PNG に写らなかった件
+
+### 症状
+
+出力した PNG にノードは 9 件すべて正しく写るのに、接続線が 1 本も写らない。画面上では正常に描画されている。
+
+### 原因（`node_modules` の実装を読んで確認。推測ではない）
+
+1. React Flow のエッジは `<path class="react-flow__edge-path" fill="none" d="…">` で、**線の色と太さは CSS からしか来ない**（`@xyflow/react/dist/style.css` の `.react-flow__edge-path { stroke: var(--xy-edge-stroke, …) }` と `editor.css` の上書き）。path 自身が持つ属性は `d` と `fill="none"` だけ。
+2. html-to-image は複製した要素に**計算済みスタイルを1要素ずつ書き写す**ことで見た目を再現するが、`clone-node.js` の `cloneChildren` は複製先が `<svg>` だと即 return する。`<svg>` は `cloneNode(true)` で丸ごと複製される代わりに、**その子孫は一切 decorate されない**。
+3. 複製ツリーは `<svg><foreignObject>` に入れて data URL 化され `<img>` として読み込まれる。**この文書にページの CSS は無い。**
+
+結果、`stroke` が失われて SVG の初期値 `none` に戻り、`fill` は属性の `none` が残る。**塗りも線も無い＝完全に不可視。** ノードは HTML の div なので 1 要素ずつ decorate され、完璧に写る。観測と一致する。
+
+### 対策
+
+`src/features/export/svgStyles.ts` の `inlineSvgPaintStyles` で、画像化の直前に `svg *`（SVG の子孫）へ計算済みの塗り・線（`stroke` 系・`fill` 系・`opacity`・`marker-*` など）を style 属性として書き込み、**`finally` で必ず元に戻す**。書き込む値は計算済みの値そのものなので画面の見た目は変わらず、復元により痕跡も残らない。
+
+### 却下した案
+
+- **`globals.css` を直す。** 今回は CSS の打ち消しではなく「複製先に CSS が存在しない」ことが原因なので、ページ側の CSS をどう直しても解決しない（担当 A の `.react-flow svg { max-width: none }` は画面表示の別問題の修正であり、そちらは有効なまま）。
+- **エッジを複製前に手で SVG として組み直す。** React Flow のパス生成を再実装することになり、§37 に反する。
+- **live DOM を触らず、自前で複製してからインライン化する。** 複製を DOM に挿入しないと `getComputedStyle` が解決せず、挿入すると画面がちらつく。得られるものが無い。
