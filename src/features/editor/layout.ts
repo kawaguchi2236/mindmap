@@ -196,6 +196,28 @@ export function restackSiblings(nodes: MindMapNode[], parentId: ID | null): Mind
 }
 
 /**
+ * parentId の階層から根まで、順に積み直す。
+ *
+ * restackSiblings は 1 階層しか直さない。ノードを増やしたり文字を打って
+ * 行数が増えたりすると、その部分木の高さが変わる。1 階層で止めると
+ * 「親の兄弟」が元の位置に残り、伸びた部分木に食い込む。
+ * 下から上へ順に積み直して、変化を根まで伝える。
+ */
+export function restackAncestors(nodes: MindMapNode[], parentId: ID | null): MindMapNode[] {
+  let result = nodes;
+  let current: ID | null = parentId;
+  // 親子関係が壊れていても無限ループにしない。
+  const seen = new Set<ID>();
+  for (;;) {
+    result = restackSiblings(result, current);
+    if (current === null) return result;
+    if (seen.has(current)) return result;
+    seen.add(current);
+    current = getNode(result, current)?.parentId ?? null;
+  }
+}
+
+/**
  * これから parentId の子として作るノードの初期座標。
  * 直後に restackSiblings が order どおりに縦位置を直すので、ここでは
  * 「既存の兄弟の下」に置いておけばよい。
