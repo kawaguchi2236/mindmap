@@ -6,7 +6,7 @@ import {
   toFlowNodes,
   type MindMapFlowNode,
 } from "@/features/editor/flowNodes";
-import { NODE_HEIGHT, NODE_WIDTH } from "@/features/editor/layout";
+import { nodeBox } from "@/features/editor/layout";
 import { getVisibleNodes } from "@/features/editor/tree";
 import { buildTree, findByText } from "./helpers";
 
@@ -26,6 +26,7 @@ function makeFlowNodes(): (selectedText?: string, editingText?: string) => MindM
       selectedId: selectedText ? findByText(nodes, selectedText).id : null,
       editingId: editingText ? findByText(nodes, editingText).id : null,
       childCounts: new Map([[findByText(nodes, "root").id, 2]]),
+      totalCount: nodes.length,
     });
 }
 
@@ -57,8 +58,27 @@ describe("toFlowNodes / toFlowEdges", () => {
     const flow = makeFlowNodes()();
     expect(flow.length).toBeGreaterThan(0);
     for (const node of flow) {
-      expect(node.initialWidth).toBe(NODE_WIDTH);
-      expect(node.initialHeight).toBe(NODE_HEIGHT);
+      // 大きさは階層ごとの文字組みで決まる。data.depth と辻褄が合っていること。
+      const box = nodeBox(node.data.text, node.data.depth);
+      expect(node.initialWidth).toBe(box.width);
+      expect(node.initialHeight).toBe(box.height);
+    }
+  });
+
+  it("階層ごとに文字組みが変わる（ルートがもっとも大きい）", () => {
+    const flow = makeFlowNodes()();
+    const depthOf = (text: string) => flow.find((node) => node.data.text === text)?.data.depth;
+    expect(depthOf("root")).toBe(0);
+    expect(depthOf("A")).toBe(1);
+    expect(depthOf("A1")).toBe(2);
+  });
+
+  it("ルートだけが `ROOT · N NODES` を持つ", () => {
+    const flow = makeFlowNodes()();
+    const root = flow.find((node) => node.data.isRoot);
+    expect(root?.data.rootMeta).toBe(`ROOT · ${flow.length} NODES`);
+    for (const node of flow) {
+      if (!node.data.isRoot) expect(node.data.rootMeta).toBeNull();
     }
   });
 

@@ -1,6 +1,7 @@
 import { createNode } from "@/lib/model/factory";
 import type { ID, MindMapNode } from "@/lib/model/types";
-import { getChildren, getRoot } from "@/features/editor/tree";
+import { buildDepthIndex, getChildren, getRoot } from "@/features/editor/tree";
+import { nodeBox, type NodeBox } from "@/features/editor/layout";
 
 export const MAP_ID = "map-1";
 
@@ -61,4 +62,17 @@ export function outline(nodes: MindMapNode[]): string[] {
   const root = getRoot(nodes);
   if (root) walk(root.id, 0);
   return lines;
+}
+
+/**
+ * ノードの占める矩形。大きさは階層ごとの文字組みで決まるので、
+ * テスト側でも深さを見て求める（src/features/editor/layout.ts と同じ関数を使う）。
+ */
+export function boxOf(nodes: MindMapNode[], node: MindMapNode): NodeBox {
+  return nodeBox(node.text, buildDepthIndex(nodes).get(node.id) ?? 0);
+}
+
+/** boxOf().height の短縮。積み上がりの検証で多用する。 */
+export function heightOf(nodes: MindMapNode[], node: MindMapNode): number {
+  return boxOf(nodes, node).height;
 }

@@ -48,13 +48,15 @@ export function AdSlot({ slot, signedIn }: AdSlotProps) {
 
     return (
       <aside
-        className={`${styles.slot} ${styles.placeholder}`}
+        className={styles.slot}
         aria-label="広告枠（開発用の仮表示）"
         data-ad-placeholder="true"
       >
         <span className={styles.label}>広告</span>
-        <span className={styles.note}>
-          {slot} ／ NEXT_PUBLIC_AD_CLIENT が未設定のため、開発時だけの仮表示
+        <span className={`${styles.frame} ${styles.placeholder}`}>
+          <span className={styles.note}>
+            {slot} ／ NEXT_PUBLIC_AD_CLIENT が未設定のため、開発時だけの仮表示
+          </span>
         </span>
       </aside>
     );
@@ -68,6 +70,8 @@ export function AdSlot({ slot, signedIn }: AdSlotProps) {
   return (
     <aside className={styles.slot} aria-label="広告" data-ad-client={client} data-ad-slot={slot}>
       <span className={styles.label}>広告</span>
+      {/* 実際の広告タグはこの中に差し込む。高さは CSS で先に確保してある。 */}
+      <span className={styles.frame} />
     </aside>
   );
 }

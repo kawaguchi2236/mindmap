@@ -6,6 +6,7 @@ import type { SVGProps } from "react";
  */
 export type IconName =
   | "plus"
+  | "minus"
   | "trash"
   | "search"
   | "chevron-right"
@@ -17,7 +18,9 @@ export type IconName =
   | "recenter"
   | "close"
   | "check"
-  | "menu";
+  | "menu"
+  | "text"
+  | "collapse";
 
 /**
  * 24×24 のビューボックスに線画で描く。塗りは使わず currentColor のストロークだけ。
@@ -39,6 +42,7 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M14 11v5.5" />
     </>
   ),
+  minus: <path d="M5 12h14" />,
   search: (
     <>
       <circle cx="11" cy="11" r="6.5" />
@@ -102,6 +106,22 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M4 7h16" />
       <path d="M4 12h16" />
       <path d="M4 17h16" />
+    </>
+  ),
+  /* Aa。ノードのテキストを編集する操作に使う（ハンドオフの `text-aa`）。 */
+  text: (
+    <>
+      <path d="M3 18L8 6l5 12" />
+      <path d="M4.6 14h6.8" />
+      <path d="M20.5 12.5a3 3 0 1 0-6 0v2a3 3 0 1 0 6 0z" />
+      <path d="M20.5 10v8" />
+    </>
+  ),
+  /* 二重の山括弧。部分木を折りたたむ操作に使う（ハンドオフの `caret-double-left`）。 */
+  collapse: (
+    <>
+      <path d="M12.5 6l-6 6 6 6" />
+      <path d="M19 6l-6 6 6 6" />
     </>
   ),
 };

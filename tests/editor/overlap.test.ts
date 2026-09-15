@@ -13,14 +13,14 @@
  */
 import { describe, expect, it } from "vitest";
 import { copySubtree } from "@/features/editor/clipboard";
-import { estimateNodeHeight, layoutTree, NODE_WIDTH } from "@/features/editor/layout";
+import { layoutTree, nodeBox } from "@/features/editor/layout";
 import {
   createInitialState,
   editorReducer,
   type EditorAction,
   type EditorState,
 } from "@/features/editor/reducer";
-import { getVisibleNodes } from "@/features/editor/tree";
+import { buildDepthIndex, getVisibleNodes } from "@/features/editor/tree";
 import type { MindMapNode } from "@/lib/model/types";
 import { buildTree, findByText } from "./helpers";
 
@@ -32,14 +32,16 @@ const MANY_LINES =
 
 type Rect = { id: string; text: string; left: number; right: number; top: number; bottom: number };
 
-function toRect(node: MindMapNode): Rect {
+/** ノードの大きさは階層ごとの文字組みで決まるので、深さを渡して求める。 */
+function toRect(node: MindMapNode, depth: number): Rect {
+  const box = nodeBox(node.text, depth);
   return {
     id: node.id,
     text: node.text,
     left: node.x,
-    right: node.x + NODE_WIDTH,
+    right: node.x + box.width,
     top: node.y,
-    bottom: node.y + estimateNodeHeight(node.text),
+    bottom: node.y + box.height,
   };
 }
 
@@ -49,7 +51,8 @@ function intersects(a: Rect, b: Rect): boolean {
 
 /** 見えているノードのうち、矩形が重なっている組を返す。 */
 function findOverlaps(nodes: MindMapNode[]): string[] {
-  const rects = getVisibleNodes(nodes).map(toRect);
+  const depths = buildDepthIndex(nodes);
+  const rects = getVisibleNodes(nodes).map((node) => toRect(node, depths.get(node.id) ?? 0));
   const overlaps: string[] = [];
   for (let i = 0; i < rects.length; i += 1) {
     for (let j = i + 1; j < rects.length; j += 1) {
@@ -247,9 +250,9 @@ describe("ノードが重ならないこと", () => {
   });
 });
 
-describe("手で動かして重なった状態からでも、Enter / Tab で解消される", () => {
-  /** ノードをドラッグで重ねた状態を作る。 */
-  function dragOnto(state: EditorState, movedText: string, targetText: string): EditorState {
+describe("ドラッグで動かしても重ならない", () => {
+  /** ノードを別のノードの上へドラッグして落とす。 */
+  function dropOnto(state: EditorState, movedText: string, targetText: string): EditorState {
     const moved = findByText(state.nodes, movedText);
     const target = findByText(state.nodes, targetText);
     return editorReducer(state, {
@@ -265,53 +268,106 @@ describe("手で動かして重なった状態からでも、Enter / Tab で解�
     children: [{ text: "A", children: [{ text: "A1" }] }, { text: "B" }, { text: "C" }],
   };
 
-  it("重なった状態を作れていることをまず確認する", () => {
-    const state = dragOnto(start(SPEC), "C", "B");
-    expect(findOverlaps(state.nodes)).not.toEqual([]);
-  });
-
-  it("Enter（兄弟追加）を押すと重なりが解消する", () => {
-    let state = dragOnto(start(SPEC), "C", "B");
-    const b = findByText(state.nodes, "B");
-    state = editorReducer(state, { type: "createSibling", id: b.id });
+  it("他のノードの上に落としても重ならない", () => {
+    const state = dropOnto(start(SPEC), "C", "B");
     expectNoOverlap(state);
   });
 
-  it("Tab（子追加）を押すと重なりが解消する", () => {
-    let state = dragOnto(start(SPEC), "C", "B");
-    const b = findByText(state.nodes, "B");
-    state = editorReducer(state, { type: "createChild", id: b.id });
+  it("落としたノードはその場に残り、被った相手のほうが下がる", () => {
+    // ドロップ先はユーザーが指した場所。動かした本人を勝手に押し戻さない。
+    const before = start(SPEC);
+    const b = findByText(before.nodes, "B");
+    const state = dropOnto(before, "C", "B");
+
+    expect(findByText(state.nodes, "C").y).toBe(b.y + 4);
+    expect(findByText(state.nodes, "B").y).toBeGreaterThan(b.y);
     expectNoOverlap(state);
   });
 
-  it("文字を打っても重なりが解消する", () => {
-    let state = dragOnto(start(SPEC), "C", "B");
-    const b = findByText(state.nodes, "B");
-    state = editorReducer(state, { type: "updateText", id: b.id, text: MANY_LINES });
+  it("空いているところへ落としたら誰も動かない", () => {
+    const before = start(SPEC);
+    const c = findByText(before.nodes, "C");
+    const state = editorReducer(before, { type: "moveNode", id: c.id, x: 900, y: 900 });
+
+    for (const node of before.nodes) {
+      if (node.id === c.id) continue;
+      const after = state.nodes.find((n) => n.id === node.id)!;
+      expect({ x: after.x, y: after.y }).toEqual({ x: node.x, y: node.y });
+    }
     expectNoOverlap(state);
   });
 
-  it("新しいノードは空いているところに出る（既存のノードに被らない）", () => {
-    // ドラッグで散らかした状態でも、追加したノードが既存に重ならないこと。
-    let state = start(SPEC);
-    const a = findByText(state.nodes, "A");
-    state = editorReducer(state, { type: "moveNode", id: a.id, x: 400, y: 120 });
-    const c = findByText(state.nodes, "C");
-    state = editorReducer(state, { type: "moveNode", id: c.id, x: 400, y: 150 });
-
-    state = editorReducer(state, { type: "createChild", id: findByText(state.nodes, "B").id });
-    state = type(state, MANY_LINES);
+  it("自分の子の上に落としても重ならない", () => {
+    // 固定するのは動かしたノードだけなので、子のほうが逃げる。
+    const state = dropOnto(start(SPEC), "A", "A1");
     expectNoOverlap(state);
   });
 
-  it("先に置いたノードは動かさず、後から来たほうを下げる", () => {
-    let state = dragOnto(start(SPEC), "C", "B");
-    const beforeB = findByText(state.nodes, "B");
-    state = editorReducer(state, { type: "createChild", id: beforeB.id });
-    const afterB = findByText(state.nodes, "B");
-    // B は order が先なので動かない。後ろの C 側が下がる。
-    expect({ x: afterB.x, y: afterB.y }).toEqual({ x: beforeB.x, y: beforeB.y });
+  it("別の列へ落としても重ならない", () => {
+    const state = dropOnto(start(SPEC), "A1", "B");
     expectNoOverlap(state);
+  });
+
+  it("何度ドラッグしても重ならない", () => {
+    let state = start({
+      text: "root",
+      children: [
+        { text: TWO_LINES, children: [{ text: MANY_LINES }] },
+        { text: "B", children: [{ text: "B1" }, { text: "B2" }] },
+        { text: "C" },
+      ],
+    });
+    const targets = ["C", "B1", "B2", MANY_LINES, "B"];
+    targets.forEach((text, i) => {
+      const moved = findByText(state.nodes, text);
+      state = editorReducer(state, {
+        type: "moveNode",
+        id: moved.id,
+        // 既存のノードが並ぶ範囲を狙って、必ず何かに被らせる。
+        x: i % 2 === 0 ? 320 : 620,
+        y: 40 * i,
+      });
+      expectNoOverlap(state);
+    });
+  });
+
+  it("ドラッグのあとに Enter を押しても重ならない", () => {
+    let state = dropOnto(start(SPEC), "C", "B");
+    state = editorReducer(state, { type: "createSibling", id: findByText(state.nodes, "B").id });
+    expectNoOverlap(state);
+  });
+});
+
+describe("保存済みの重なった座標も解消される", () => {
+  /*
+   * ドラッグでは重ならなくなったが、レイアウトを直す前に保存されたマップには
+   * 重なった座標が残っている。開いたときと、次の操作のどちらでも解消する。
+   */
+  const SPEC = {
+    text: "root",
+    children: [
+      { text: "A", children: [{ text: "A1" }, { text: "A2" }] },
+      { text: "B", children: [{ text: "B1" }] },
+    ],
+  };
+
+  /** reducer を通さずに座標を重ねる（＝古い保存データが読み込まれた状態）。 */
+  function overlapped(nodes: MindMapNode[], movedText: string, targetText: string): MindMapNode[] {
+    const moved = findByText(nodes, movedText);
+    const target = findByText(nodes, targetText);
+    return nodes.map((node) =>
+      node.id === moved.id ? { ...node, x: target.x, y: target.y + 4 } : node,
+    );
+  }
+
+  it("重なった座標を作れていることをまず確認する", () => {
+    const nodes = overlapped(layoutTree(buildTree(SPEC)), "A2", "A1");
+    expect(findOverlaps(nodes)).not.toEqual([]);
+  });
+
+  it("開いた時点で解消される", () => {
+    const nodes = overlapped(layoutTree(buildTree(SPEC)), "A2", "A1");
+    expectNoOverlap(createInitialState(nodes));
   });
 
   it("操作した枝とは別の枝に残った重なりも解消される", () => {
@@ -320,17 +376,9 @@ describe("手で動かして重なった状態からでも、Enter / Tab で解�
      * 触らない。別の枝の中で重なっているものはそのまま残る。
      * ユーザーから見れば同じ「被っている」なので、ここも解消する必要がある。
      */
-    let state = start({
-      text: "root",
-      children: [
-        { text: "A", children: [{ text: "A1" }, { text: "A2" }] },
-        { text: "B", children: [{ text: "B1" }] },
-      ],
-    });
+    const base = start(SPEC);
     // A の枝の中で重ねる（A は以降の操作の経路に入らない）。
-    const a1 = findByText(state.nodes, "A1");
-    const a2 = findByText(state.nodes, "A2");
-    state = editorReducer(state, { type: "moveNode", id: a2.id, x: a1.x, y: a1.y + 6 });
+    let state: EditorState = { ...base, nodes: overlapped(base.nodes, "A2", "A1") };
     expect(findOverlaps(state.nodes)).not.toEqual([]);
 
     // B の枝で Enter を押す。経路は B → root で、A の子には触れない。
@@ -338,32 +386,14 @@ describe("手で動かして重なった状態からでも、Enter / Tab で解�
     expectNoOverlap(state);
   });
 
-  it("別の列へドラッグして重ねた場合も解消される", () => {
-    // 縦の積み直しは y しか見ないので、x をまたいで重ねたものは残ってしまう。
-    let state = start({
-      text: "root",
-      children: [
-        { text: "A", children: [{ text: "A1" }] },
-        { text: "B", children: [{ text: "B1" }] },
-      ],
-    });
-    // B1 を親の列（A や B が並ぶ列）へ動かして A に重ねる。
-    const b1 = findByText(state.nodes, "B1");
-    const a = findByText(state.nodes, "A");
-    state = editorReducer(state, { type: "moveNode", id: b1.id, x: a.x, y: a.y + 6 });
+  it("列をまたいで重なっていても解消される", () => {
+    // 縦の積み直しは y しか見ないので、x をまたいだ重なりはここで落とす。
+    const base = start(SPEC);
+    let state: EditorState = { ...base, nodes: overlapped(base.nodes, "B1", "A") };
     expect(findOverlaps(state.nodes)).not.toEqual([]);
 
-    // B1 に子を足す。B の子の積み直しは y しか直さないので、x のずれは残る。
     state = editorReducer(state, { type: "createChild", id: findByText(state.nodes, "B1").id });
     expectNoOverlap(state);
-  });
-
-  it("ドラッグそのものでは勝手に整列しない（ユーザーの操作を尊重する）", () => {
-    // 重なり解消は構造が変わったときだけ。ドラッグ中に勝手に動くと操作できない。
-    const state = dragOnto(start(SPEC), "C", "B");
-    const c = findByText(state.nodes, "C");
-    const b = findByText(state.nodes, "B");
-    expect(c.y).toBe(b.y + 4);
   });
 });
 
@@ -378,4 +408,50 @@ describe("重なり検出そのものの健全性", () => {
       [],
     );
   });
+});
+
+describe("どんな操作の並びでも重ならない（乱数）", () => {
+  /*
+   * 個別の経路を並べても、実際の使われ方（作る・打つ・動かすが混ざる）は
+   * 尽くせない。決まった種から操作列を作って、どの途中経過でも
+   * 「見えているノードが1組も重ならない」ことを確かめる。
+   * 種を固定しているので、落ちたら必ず同じ並びで再現できる。
+   */
+  function randomFrom(seed: number): () => number {
+    let value = seed;
+    return () => (value = (value * 1664525 + 1013904223) >>> 0) / 0x100000000;
+  }
+
+  const TEXTS = ["", "短い", "A", TWO_LINES, MANY_LINES, "Tabで追加した長いテキストのノード"];
+
+  for (const seed of [1, 7, 13, 42, 99, 271]) {
+    it(`種 ${seed} の操作列`, () => {
+      const random = randomFrom(seed);
+      const pick = <T>(items: T[]): T => items[Math.floor(random() * items.length)];
+      let state = start(ROOT_ONLY);
+
+      for (let step = 0; step < 120; step += 1) {
+        const id = pick(getVisibleNodes(state.nodes)).id;
+        const dice = random();
+        if (dice < 0.22) state = editorReducer(state, { type: "createChild", id });
+        else if (dice < 0.4) state = editorReducer(state, { type: "createSibling", id });
+        else if (dice < 0.56)
+          state = editorReducer(state, { type: "updateText", id, text: pick(TEXTS) });
+        else if (dice < 0.82)
+          // ドラッグ。既存のノードが並ぶ範囲を狙って、わざと被らせにいく。
+          state = editorReducer(state, {
+            type: "moveNode",
+            id,
+            x: Math.floor(random() * 900) - 100,
+            y: Math.floor(random() * 900) - 100,
+          });
+        else if (dice < 0.89) state = editorReducer(state, { type: "toggleCollapse", id });
+        else if (dice < 0.96) state = editorReducer(state, { type: "deleteNode", id });
+        else state = editorReducer(state, { type: "outdent", id });
+
+        // どの step で崩れたかが分かるように step ごと比較する。
+        expect({ step, overlaps: findOverlaps(state.nodes) }).toEqual({ step, overlaps: [] });
+      }
+    });
+  }
 });

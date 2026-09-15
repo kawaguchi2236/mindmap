@@ -1,0 +1,189 @@
+/*
+ * テンプレート一覧のレイアウト。design/ハンドオフ.md `#3c` に沿う。
+ *
+ * 色・余白・影はすべてトークン変数で指定する。ダークモードのメディアクエリは
+ * ここに書かない（globals.css が3状態ぶんのトークンを定義済みで、var() を
+ * 使っている限り自動で追従する）。
+ *
+ * ページ外周の余白は AppShell の main 側が持っているので、ここでは足さない。
+ */
+
+/* --- ヘッダーのナビ ------------------------------------------------------ */
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.navLink {
+  padding-block-end: 4px;
+  border-block-end: 1px solid transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-flat);
+  text-decoration: none;
+  transition: color var(--duration-fast) ease;
+}
+
+.navLink:hover {
+  color: var(--color-accent-text);
+}
+
+/* 現在の画面はアクセント色の下線で示す（ハンドオフ #3c）。 */
+.navLink[aria-current="page"] {
+  border-block-end-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+/* --- 見出し行 ------------------------------------------------------------ */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+/* 太罫の1px下に細罫を置く（新聞のヘッドルール）。 */
+.headRule {
+  height: 3px;
+  margin-block-start: 1px;
+  background: var(--color-border-strong);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-text);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  padding-bottom: 8px;
+}
+
+.tab {
+  padding-block-end: 4px;
+  border-block-end: 1px solid transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-flat);
+  transition: color var(--duration-fast) ease;
+}
+
+.tab:hover {
+  color: var(--color-accent-text);
+}
+
+.tab[data-selected] {
+  border-block-end-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+/* --- 一覧 ---------------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 38px 34px;
+  margin: 38px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 枠は持たない。プレビューの下罫だけで区切る（ハンドオフ #3c）。 */
+.item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: start;
+}
+
+.item:disabled {
+  cursor: progress;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  height: 120px;
+  border-block-end: 1px solid var(--color-border);
+}
+
+.previewArt {
+  max-width: 100%;
+}
+
+.item:hover:not(:disabled) .preview {
+  border-block-end-color: var(--color-accent);
+}
+
+.name {
+  margin-block-start: 12px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+.item:hover:not(:disabled) .name {
+  color: var(--color-accent-text);
+}
+
+.meta {
+  margin-block-start: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-flat);
+  letter-spacing: 0.12em;
+  color: var(--color-text-secondary);
+}
+
+/* --- 状態表示 ------------------------------------------------------------ */
+
+.notice {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3);
+  border-inline-start: 3px solid var(--color-danger);
+  background-color: var(--color-danger-tint);
+  color: var(--color-danger-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+/* --- 狭い画面 ------------------------------------------------------------ */
+
+@media (max-width: 1080px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px 24px;
+  }
+
+  .title {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -61,6 +61,9 @@ export function SettingsScreen({ user }: SettingsScreenProps) {
             <Link className={styles.navLink} href="/">
               エディタを開く
             </Link>
+            <Link className={styles.navLink} href="/templates">
+              テンプレート
+            </Link>
             <Link className={styles.navLink} href="/settings" aria-current="page">
               設定
             </Link>

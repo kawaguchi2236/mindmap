@@ -6,13 +6,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeProvider } from "@/components/theme";
 import { MapListScreen } from "@/features/maps";
 import { SettingsScreen } from "@/features/settings";
+import { TemplateScreen } from "@/features/templates";
 
 /**
  * 広告の設置位置の検証（CLAUDE.md §15）。
  *
  * §15 は「どこに出すか」より **「どこに出さないか」** が厳しい。ここでは
- * 出してよい2画面（マップ一覧・設定）に出ていることと、エディタ側に
- * 入り込んでいないことの両方を固定する。
+ * 出してよい3画面（マップ一覧・設定・テンプレート）に出ていることと、
+ * エディタ側に入り込んでいないことの両方を固定する。
  *
  * jsdom での検証なので、見た目（帯の高さ・キャンバスの作業領域を削っていないこと）は
  * ここでは確認できていない。実ブラウザで確認すること。
@@ -98,6 +99,28 @@ describe("設定画面の広告", () => {
     );
 
     expect(container.querySelectorAll('[data-ad-slot="settings"]')).toHaveLength(1);
+  });
+});
+
+describe("テンプレート画面の広告", () => {
+  it("一覧をすべて出したあとに1つだけ置く", () => {
+    const { container } = render(<TemplateScreen signedIn={false} />);
+
+    const slots = container.querySelectorAll("[data-ad-slot]");
+    expect(slots).toHaveLength(1);
+    expect(slots[0]).toHaveAttribute("data-ad-slot", "templates");
+
+    // テンプレートのグリッド（ul / li）の中に割り込ませない。
+    expect(slots[0].closest("ul")).toBeNull();
+    expect(slots[0].closest("li")).toBeNull();
+  });
+
+  it("テンプレートを選ぶ操作を広告が横取りしない", () => {
+    const { container } = render(<TemplateScreen signedIn={false} />);
+
+    const slot = container.querySelector("[data-ad-slot]") as HTMLElement;
+    expect(slot.querySelector("a")).toBeNull();
+    expect(slot.querySelector("button")).toBeNull();
   });
 });
 

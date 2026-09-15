@@ -1,11 +1,12 @@
 "use client";
 
 /**
- * キャンバスのツールバーに挿す PNG 書き出しボタン。
+ * キャンバスのクロームに挿す PNG 書き出しボタン。
  *
  * `useReactFlow()` を使うので **必ず `<ReactFlowProvider>` の内側**（=
- * `<ReactFlow>` の子）に置くこと。`.mindmap-canvas__actions` の中に置けば
- * 既存のボタンと同じ見た目で横に並ぶ（追加のスタイルは要らない）。
+ * `<ReactFlow>` の子）に置くこと。見た目は置き場所側が決める（`className` を
+ * 渡すとそのクラスが付く）。エディタの右上では、隣の「元に戻す」などと同じ
+ * 文字だけのアクションになる（design/ハンドオフ.md `#2b`）。
  *
  * 書き出しに失敗してもエディタは止めない。メッセージを出し、同じボタンを
  * もう一度押せば再試行できる（CLAUDE.md §29）。
@@ -19,7 +20,7 @@ import {
   type MouseEvent,
   type ReactElement,
 } from "react";
-import { Button, Icon } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { track } from "@/features/telemetry";
 import { exportMapToPng, findViewportElement } from "./exportPng";
 import { formatScale } from "./geometry";
@@ -34,9 +35,11 @@ type Status =
 export interface ExportPngButtonProps {
   /** マップのタイトル。ファイル名に使う。空でも壊れない。 */
   title: string | null | undefined;
+  /** 置き場所側の見た目を当てるためのクラス。 */
+  className?: string;
 }
 
-export function ExportPngButton({ title }: ExportPngButtonProps): ReactElement {
+export function ExportPngButton({ title, className }: ExportPngButtonProps): ReactElement {
   const { getNodes, getNodesBounds } = useReactFlow();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
@@ -87,10 +90,11 @@ export function ExportPngButton({ title }: ExportPngButtonProps): ReactElement {
   return (
     <>
       <Button
+        variant="ghost"
         size="sm"
+        className={className}
         onClick={handleClick}
         loading={status.kind === "working"}
-        startIcon={<Icon name="download" />}
         aria-label="マップを PNG で書き出す"
       >
         PNG

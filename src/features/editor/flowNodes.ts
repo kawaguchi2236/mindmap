@@ -7,7 +7,8 @@
  */
 import { Position, type Edge, type Node, type NodeHandle } from "@xyflow/react";
 import type { ID, MindMapNode } from "@/lib/model/types";
-import { estimateNodeHeight, NODE_WIDTH } from "./layout";
+import { nodeBox, tierOf } from "./layout";
+import { buildDepthIndex } from "./tree";
 
 export interface MindMapNodeData extends Record<string, unknown> {
   text: string;
@@ -16,6 +17,16 @@ export interface MindMapNodeData extends Record<string, unknown> {
   isRoot: boolean;
   collapsed: boolean;
   childCount: number;
+  /** ルートを 0 とした深さ。文字サイズと折り返し幅がこれで決まる。 */
+  depth: number;
+  /** ノードの折り返し上限幅（px）。レイアウトの見積もりと描画を一致させる。 */
+  maxWidth: number;
+  /** 見積もった幅（px）。接続線の始点と、編集中の入力欄の幅に使う。 */
+  width: number;
+  /** 見積もった行数。編集中の入力欄の行数に使う。 */
+  lines: number;
+  /** ルートの下に出す `ROOT · N NODES`。ルート以外は null。 */
+  rootMeta: string | null;
 }
 
 export type MindMapFlowNode = Node<MindMapNodeData, "mindmap">;
@@ -41,7 +52,7 @@ const HANDLE_SIZE = 1;
  * ノードの高さは文字数で変わるので、ハンドルも高さに合わせて作る。
  * ここがノード中心からずれると接続線が斜めにずれる。
  */
-function handlesFor(height: number): NodeHandle[] {
+function handlesFor(width: number, height: number): NodeHandle[] {
   const centerY = height / 2 - HANDLE_SIZE / 2;
   return [
     {
@@ -55,7 +66,7 @@ function handlesFor(height: number): NodeHandle[] {
     {
       type: "source",
       position: Position.Right,
-      x: NODE_WIDTH - HANDLE_SIZE,
+      x: width - HANDLE_SIZE,
       y: centerY,
       width: HANDLE_SIZE,
       height: HANDLE_SIZE,
@@ -67,15 +78,20 @@ export interface FlowNodeOptions {
   selectedId: ID | null;
   editingId: ID | null;
   childCounts: Map<ID, number>;
+  /** マップ全体のノード数。ルートの下の `ROOT · N NODES` に使う。 */
+  totalCount: number;
 }
 
 /** 表示対象のモデルノードを React Flow のノードへ変換する。 */
 export function toFlowNodes(
   visibleNodes: MindMapNode[],
-  { selectedId, editingId, childCounts }: FlowNodeOptions,
+  { selectedId, editingId, childCounts, totalCount }: FlowNodeOptions,
 ): MindMapFlowNode[] {
+  const depths = buildDepthIndex(visibleNodes);
   return visibleNodes.map((node) => {
-    const height = estimateNodeHeight(node.text);
+    const depth = depths.get(node.id) ?? 0;
+    const { width, height } = nodeBox(node.text, depth);
+    const isRoot = node.parentId === null;
     return {
       id: node.id,
       type: "mindmap" as const,
@@ -87,9 +103,9 @@ export function toFlowNodes(
        * レイアウトは元々この固定寸法で計算しているので、同じ値を先に渡しておく。
        * 実測が届けばそちらで上書きされる（nodeHasDimensions は measured を優先）。
        */
-      initialWidth: NODE_WIDTH,
+      initialWidth: width,
       initialHeight: height,
-      handles: handlesFor(height),
+      handles: handlesFor(width, height),
       // 編集中はドラッグを止めないとテキスト選択ができない。
       draggable: node.id !== editingId,
       selectable: true,
@@ -97,9 +113,14 @@ export function toFlowNodes(
         text: node.text,
         editing: node.id === editingId,
         selected: node.id === selectedId,
-        isRoot: node.parentId === null,
+        isRoot,
         collapsed: node.collapsed,
         childCount: childCounts.get(node.id) ?? 0,
+        depth,
+        maxWidth: tierOf(depth).maxWidth,
+        width,
+        lines: Math.max(1, Math.round(height / tierOf(depth).lineHeight)),
+        rootMeta: isRoot ? `ROOT · ${totalCount} NODES` : null,
       },
     };
   });

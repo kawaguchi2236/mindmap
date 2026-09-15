@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AppHeader, AppShell } from "@/components/layout";
+import { AppShell } from "@/components/layout";
 import { Button } from "@/components/ui";
 import { MindMapEditor } from "@/features/editor";
 import { SyncRunner } from "@/features/sync";
@@ -96,17 +96,13 @@ function Editor({ open, onOpenLatest }: { open: OpenState; onOpenLatest: () => v
 
   const failure = open.phase === "failed" ? open.error : error;
 
+  /*
+   * エディタはヘッダーバーを持たない（design/ハンドオフ.md `#2b`）。
+   * マップ名・保存状態・履歴・書き出しはキャンバスの四隅に浮かべるので、
+   * ここから渡すのは状態の文言だけ。表示位置は MindMapCanvas が決める。
+   */
   return (
-    <AppShell
-      variant="editor"
-      header={
-        <AppHeader
-          transparent
-          title={doc?.map.title ?? "Web MindMap"}
-          subtitle={describeStatus(status, lastSavedAt, online)}
-        />
-      }
-    >
+    <AppShell variant="editor">
       {failure ? (
         <ErrorPanel error={failure} />
       ) : open.phase === "missing" ? (
@@ -118,7 +114,11 @@ function Editor({ open, onOpenLatest }: { open: OpenState; onOpenLatest: () => v
           {/* ログイン中だけ同期する。showStatus={false} でキャンバス上には
               何も描かない（CLAUDE.md §9 キャンバスの面積を削らない）。 */}
           <SyncRunner showStatus={false} />
-          <MindMapEditor document={doc} onChange={handleChange} />
+          <MindMapEditor
+            document={doc}
+            onChange={handleChange}
+            status={describeStatus(status, lastSavedAt, online)}
+          />
         </>
       )}
     </AppShell>

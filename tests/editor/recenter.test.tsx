@@ -2,6 +2,7 @@ import { fireEvent, render, act, screen } from "@testing-library/react";
 import { StrictMode, useState, type ReactElement } from "react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { MindMapEditor } from "@/features/editor/MindMapEditor";
+import { nodeBox } from "@/features/editor/layout";
 import { createMapDocument } from "@/lib/model/factory";
 import type { MindMapDocument } from "@/lib/model/types";
 
@@ -81,6 +82,12 @@ beforeEach(() => {
   setCenterCalls.length = 0;
 });
 
+/** (0,0) に置かれたルート「ルート」の中心。 */
+function rootCenter(): [number, number] {
+  const box = nodeBox("ルート", 0);
+  return [box.width / 2, box.height / 2];
+}
+
 describe("センタリング", () => {
   it("初回表示でルートを中央に寄せる（採寸を待たない）", () => {
     render(
@@ -90,8 +97,8 @@ describe("センタリング", () => {
     );
 
     expect(setCenterCalls.length).toBeGreaterThan(0);
-    // ルートは (0,0)。ノード中心 (90, 22) を渡している。
-    expect(setCenterCalls[0].slice(0, 2)).toEqual([90, 22]);
+    // ルートは (0,0)。ノードの中心を渡している（大きさはルートの文字組みで決まる）。
+    expect(setCenterCalls[0].slice(0, 2)).toEqual(rootCenter());
   });
 
   it("「中央へ戻る」でルート中心を指定して呼び直す", () => {
@@ -107,6 +114,6 @@ describe("センタリング", () => {
     });
 
     expect(setCenterCalls).toHaveLength(1);
-    expect(setCenterCalls[0].slice(0, 2)).toEqual([90, 22]);
+    expect(setCenterCalls[0].slice(0, 2)).toEqual(rootCenter());
   });
 });

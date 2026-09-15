@@ -10,18 +10,19 @@ import type { ID, MindMapNode } from "@/lib/model/types";
 import type { ClipboardPayload } from "./clipboard";
 import { instantiateClipboard } from "./clipboard";
 import {
-  estimateNodeHeight,
+  columnStep,
   findNeighbor,
-  H_GAP,
   layoutTree,
-  NODE_WIDTH,
+  nodeBox,
   placeNewChild,
   reflow,
+  resolveOverlaps,
   shiftSubtree,
   type NavigateDirection,
 } from "./layout";
 import {
   getChildren,
+  getDepth,
   getNode,
   getParent,
   getRoot,
@@ -74,8 +75,17 @@ export function isUndoable(action: EditorAction): boolean {
   return UNDOABLE_ACTIONS.has(action.type);
 }
 
+/**
+ * 読み込んだノードから初期状態を作る。
+ *
+ * ここで一度だけ重なりを解消する。保存済みのマップには、レイアウトを直す前の
+ * 座標や、手で重ねたまま閉じた座標が残っている。開いた瞬間に被って見えるのを
+ * 防ぐため、開くときに必ず正す（重なっているものを下げるだけなので、
+ * 手で並べた配置はそのまま残る）。
+ */
 export function createInitialState(nodes: MindMapNode[]): EditorState {
-  return { nodes, selectedId: getRoot(nodes)?.id ?? null, editingId: null };
+  const resolved = resolveOverlaps(nodes);
+  return { nodes: resolved, selectedId: getRoot(resolved)?.id ?? null, editingId: null };
 }
 
 /** アクションの対象。明示されていなければ選択中ノード、それも無ければルート。 */
@@ -132,10 +142,20 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       const target = getNode(state.nodes, action.id);
       if (!target || target.text === action.text) return state;
       let nodes = updateNode(state.nodes, action.id, { text: action.text });
-      // 入力で行数が増えるとノードが縦に伸びる。高さが変わったときだけ
-      // 兄弟を積み直して、下のノードに食い込まないようにする。
-      if (estimateNodeHeight(target.text) !== estimateNodeHeight(action.text)) {
+      const depth = getDepth(state.nodes, target.id);
+      const before = nodeBox(target.text, depth);
+      const after = nodeBox(action.text, depth);
+      if (before.height !== after.height) {
+        // 行数が増える（減る）とノードが縦に伸び縮みする。兄弟を積み直して
+        // 下のノードに食い込まないようにする。
         nodes = reflow(nodes, target.parentId);
+      } else if (after.width > before.width) {
+        /*
+         * 行数は同じでも横に伸びることがある。手で並べたノードどうしは
+         * 列が揃っていないので、これだけで横から被る。打っている本人は
+         * 動かさず（カーソルが飛ぶ）、被った相手のほうを下げる。
+         */
+        nodes = resolveOverlaps(nodes, target.id);
       }
       return { ...state, nodes };
     }
@@ -176,7 +196,13 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
 
       let nodes = reparent(state.nodes, target.id, grandParent.id, parent.order + 0.5);
       if (nodes === state.nodes) return state;
-      nodes = shiftSubtree(nodes, target.id, grandParent.x + NODE_WIDTH + H_GAP - target.x, 0);
+      const grandParentDepth = getDepth(state.nodes, grandParent.id);
+      nodes = shiftSubtree(
+        nodes,
+        target.id,
+        grandParent.x + columnStep(grandParentDepth) - target.x,
+        0,
+      );
       nodes = normalizeOrders(nodes, grandParent.id);
       nodes = normalizeOrders(nodes, parent.id);
       // parent → grandParent → … と根まで伝えるので 1 回で足りる。
@@ -198,7 +224,14 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
     case "moveNode": {
       const target = getNode(state.nodes, action.id);
       if (!target || (target.x === action.x && target.y === action.y)) return state;
-      return { ...state, nodes: updateNode(state.nodes, action.id, { x: action.x, y: action.y }) };
+      let nodes = updateNode(state.nodes, action.id, { x: action.x, y: action.y });
+      /*
+       * 落とした場所はユーザーが指した場所なので、動かしたノード自身は
+       * そこに残す。代わりに、被ってしまった相手のほうを下へ逃がす。
+       * 積み直し（restack）は呼ばない。呼ぶと手で並べた配置が戻ってしまう。
+       */
+      nodes = resolveOverlaps(nodes, action.id);
+      return { ...state, nodes };
     }
 
     case "toggleCollapse": {

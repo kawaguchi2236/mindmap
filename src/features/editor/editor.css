@@ -1,7 +1,13 @@
 /*
- * エディタの最小限のスタイル。色は src/app/globals.css のデザイントークンを参照し、
- * 直書きしない。トークン未定義の環境でも読めるようフォールバックを添える。
- * ダークモードの値も globals.css 側で同じ変数名に定義されている。
+ * エディタの見た目。design/ハンドオフ.md `#2b`（Press / 紙のキャンバス）に沿う。
+ *
+ * 色は src/app/globals.css のデザイントークンを参照し、直書きしない。
+ * ダークモードの分岐もここには書かない（globals.css が3状態ぶんのトークンを
+ * 定義済みなので var() を使っている限り自動で追従する）。
+ *
+ * セレクタに `.mindmap-canvas` を前置しているものは、React Flow 自身の
+ * スタイルシート（`@xyflow/react/dist/style.css`）を上書きするため。
+ * 詳細度を 2 クラス以上にしておけば、読み込み順に左右されない。
  */
 
 .mindmap-editor {
@@ -12,100 +18,419 @@
 }
 
 .mindmap-canvas {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
   height: 100%;
-  background: var(--color-canvas-bg, #f3f2f2);
+  background: var(--color-canvas-bg);
 }
 
+/* 接続線。ハンドオフの指定は 1px のヘアライン。太さで存在を主張させない。 */
 .mindmap-canvas .react-flow__edge-path {
-  stroke: var(--color-edge, rgba(32, 30, 29, 0.22));
-  stroke-width: 2;
+  stroke: var(--color-edge);
+  stroke-width: 1;
 }
 
-.mindmap-canvas__actions {
-  display: flex;
-  gap: 8px;
-}
-
-.mindmap-canvas__actions button {
-  padding: 6px 12px;
-  border: 1px solid var(--color-border, #d7d3d3);
-  border-radius: 6px;
-  background: var(--color-surface-floating, #f8f4f4);
-  color: var(--color-text, #201e1d);
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.mindmap-canvas__actions button:hover {
-  background: var(--color-accent-tint, #e9f8ff);
-}
+/* =========================================================================
+   ノード — 枠を持たない。階層ごとの文字サイズと濃度だけで構造を見せる
+   ========================================================================= */
 
 .mindmap-node {
   position: relative;
-  display: flex;
-  align-items: center;
   box-sizing: border-box;
-  padding: 10px 28px 10px 12px;
-  border: 1px solid var(--color-border, #d7d3d3);
-  border-radius: 8px;
-  background: var(--color-surface, #eae9e9);
-  color: var(--color-text, #201e1d);
-  font-size: 14px;
-  line-height: 1.4;
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(45, 43, 43, 0.14));
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  /* 行の高さは階層ごとに違う。JS 側が --node-line-height を渡す。 */
+  line-height: var(--node-line-height, 26px);
+  letter-spacing: normal;
+  color: var(--color-node-leaf);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: default;
 }
 
-.mindmap-node[data-root] {
-  font-weight: 600;
-  border-color: var(--color-accent, #0088b0);
+.mindmap-node[data-tier="0"] {
+  color: var(--color-node-root);
+  letter-spacing: -0.01em;
+}
+
+.mindmap-node[data-tier="1"] {
+  color: var(--color-node-branch);
+}
+
+/* 選択中はアクセント色の下線で示す（ハンドオフ #2b）。
+   下線は ::after で浮かせる。padding で作るとノードの高さが変わり、
+   接続線の接続点（高さの中央）がずれてしまう。 */
+.mindmap-node[data-selected]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -4px;
+  height: 1px;
+  background: var(--color-accent);
 }
 
 .mindmap-node[data-selected] {
-  outline: 2px solid var(--color-accent, #0088b0);
-  outline-offset: 1px;
+  color: var(--color-node-selected);
+}
+
+/* 編集中は本文色に戻す（選択色のままだと入力した文字が読みにくい）。 */
+.mindmap-node[data-editing] {
+  color: var(--color-text);
 }
 
 .mindmap-node__text {
-  flex: 1 1 auto;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-}
-
-.mindmap-node__text:empty::after {
-  content: "";
+  display: block;
 }
 
 .mindmap-node__input {
-  flex: 1 1 auto;
+  display: block;
   width: 100%;
-  resize: none;
+  padding: 0;
   border: none;
   outline: none;
-  padding: 0;
   background: transparent;
   color: inherit;
   font: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  resize: none;
   overflow: hidden;
 }
 
-.mindmap-node__toggle {
+/* ルート直下の `ROOT · N NODES`。絶対配置なのでノードの高さを変えない。 */
+.mindmap-node__meta {
   position: absolute;
-  right: 4px;
-  top: 50%;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  margin-block-start: 7px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-flat);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* 折りたたみ中の子数バッジ。テキストの右に 9px 空けて置く。 */
+.mindmap-node__badge {
+  position: absolute;
+  inset-inline-start: 100%;
+  inset-block-start: 50%;
   transform: translateY(-50%);
+  margin-inline-start: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 18px;
   height: 18px;
-  border: 1px solid var(--color-border, #d7d3d3);
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  background: var(--color-surface-floating, #f8f4f4);
-  color: var(--color-text, #201e1d);
-  font-size: 10px;
-  line-height: 1;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-flat);
   cursor: pointer;
+}
+
+.mindmap-node__badge:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+/* =========================================================================
+   コンテキストツールバー — 選択中のノードにだけ浮かぶ
+   ========================================================================= */
+
+/*
+ * NodeToolbar は自身の style 属性で position と transform を決めているので、
+ * ここで transform を触ってはいけない（位置が飛ぶ）。登場の演出は
+ * opacity だけで付ける。
+ */
+.mindmap-toolbar.react-flow__node-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-floating);
+  backdrop-filter: var(--backdrop-floating);
+  box-shadow: var(--shadow-md);
+  animation: mindmap-toolbar-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes mindmap-toolbar-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mindmap-toolbar__label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-flat);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-text-secondary);
+}
+
+.mindmap-toolbar__rule {
+  width: 1px;
+  height: 14px;
+  background: var(--color-border);
+}
+
+.mindmap-toolbar__button {
+  display: flex;
+  align-items: center;
+  color: var(--color-icon);
+  transition: color var(--duration-fast) ease;
+}
+
+.mindmap-toolbar__button[data-accent="true"] {
+  color: var(--color-accent-text);
+}
+
+.mindmap-toolbar__button:hover {
+  color: var(--color-accent-text);
+}
+
+/* =========================================================================
+   四隅のクローム — ヘッダーバーを持たず、キャンバスを全面で使う
+   ========================================================================= */
+
+/* React Flow の既定は margin: 15px。ハンドオフの 40px / 34px に寄せる。 */
+.mindmap-canvas .react-flow__panel.mindmap-chrome {
+  margin: 0;
+  font-family: var(--font-ui);
+}
+
+.mindmap-canvas .react-flow__panel.mindmap-chrome--identity {
+  inset-block-start: 34px;
+  inset-inline-start: 40px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.mindmap-canvas .react-flow__panel.mindmap-chrome--actions {
+  inset-block-start: 30px;
+  inset-inline-end: 40px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.mindmap-canvas .react-flow__panel.mindmap-chrome--hints {
+  inset-block-end: 40px;
+  inset-inline-start: 40px;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.mindmap-canvas .react-flow__panel.mindmap-chrome--view {
+  inset-block-end: 40px;
+  inset-inline-end: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mindmap-chrome__mark {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.mindmap-chrome__title {
+  max-width: 40ch;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-flat);
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mindmap-chrome__status {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-flat);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.mindmap-chrome--hints,
+.mindmap-chrome--actions {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-flat);
+  color: var(--color-text-secondary);
+}
+
+/*
+ * 文字だけのアクション。リンク（globals.css の `a`）と Button コンポーネントの
+ * 既定を打ち消すので、セレクタを 3 クラスにして確実に勝たせる
+ * （CSS Module のクラスは 1 クラスぶんの詳細度しかない）。
+ */
+.mindmap-canvas .react-flow__panel .mindmap-chrome__action {
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-flat);
+  letter-spacing: normal;
+  text-decoration: none;
+  transition: color var(--duration-fast) ease;
+}
+
+.mindmap-canvas .react-flow__panel .mindmap-chrome__action:hover:not(:disabled) {
+  background: none;
+  color: var(--color-accent-text);
+}
+
+.mindmap-canvas .react-flow__panel .mindmap-chrome__action:disabled {
+  color: var(--color-text-disabled);
+  cursor: default;
+}
+
+.mindmap-canvas .react-flow__panel .mindmap-chrome__icon {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  color: var(--color-icon);
+  transition: color var(--duration-fast) ease;
+}
+
+.mindmap-canvas .react-flow__panel .mindmap-chrome__icon:hover {
+  color: var(--color-accent-text);
+}
+
+.mindmap-chrome__zoom {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.12em;
+  color: var(--color-text-secondary);
+}
+
+/* =========================================================================
+   四隅のトンボ
+   ========================================================================= */
+
+.mindmap-crop {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-canvas-chrome);
+  pointer-events: none;
+}
+
+.mindmap-crop span {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+}
+
+.mindmap-crop span[data-corner="tl"] {
+  inset-block-start: 28px;
+  inset-inline-start: 28px;
+  border-block-start: 1px solid var(--color-canvas-mark);
+  border-inline-start: 1px solid var(--color-canvas-mark);
+}
+
+.mindmap-crop span[data-corner="tr"] {
+  inset-block-start: 28px;
+  inset-inline-end: 28px;
+  border-block-start: 1px solid var(--color-canvas-mark);
+  border-inline-end: 1px solid var(--color-canvas-mark);
+}
+
+.mindmap-crop span[data-corner="bl"] {
+  inset-block-end: 28px;
+  inset-inline-start: 28px;
+  border-block-end: 1px solid var(--color-canvas-mark);
+  border-inline-start: 1px solid var(--color-canvas-mark);
+}
+
+.mindmap-crop span[data-corner="br"] {
+  inset-block-end: 28px;
+  inset-inline-end: 28px;
+  border-block-end: 1px solid var(--color-canvas-mark);
+  border-inline-end: 1px solid var(--color-canvas-mark);
+}
+
+/* React Flow の帰属表示。四隅はクロームで使うので下中央に置いている。 */
+.mindmap-canvas .react-flow__attribution {
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--tracking-meta);
+}
+
+.mindmap-canvas .react-flow__attribution a {
+  color: var(--color-text-disabled);
+  text-decoration: none;
+}
+
+/* 読み上げ専用。アイコンだけのボタンに名前を与える。 */
+.mindmap-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* 狭い画面ではクロームを画面外周に寄せる（キャンバスの面積を優先する）。 */
+@media (max-width: 760px) {
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--identity,
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--hints {
+    inset-inline-start: 20px;
+  }
+
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--actions,
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--view {
+    inset-inline-end: 20px;
+  }
+
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--identity {
+    inset-block-start: 20px;
+  }
+
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--actions {
+    inset-block-start: 18px;
+  }
+
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--hints,
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--view {
+    inset-block-end: 20px;
+  }
+
+  /* ヒントは場所を取るので、狭い画面では出さない（操作自体は変わらない）。 */
+  .mindmap-canvas .react-flow__panel.mindmap-chrome--hints {
+    display: none;
+  }
 }

@@ -11,7 +11,14 @@
   min-height: 0;
 }
 
+/*
+ * 縦 flex なのは、最下部の広告帯を `margin-top: auto` で画面の下に
+ * 逃がすため（design/ハンドオフ.md `#2c` / `#3b` / `#3c`）。
+ * 本文が短いときに帯が本文の直下に張り付くのを避ける。
+ */
 .main {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;

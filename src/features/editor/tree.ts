@@ -225,3 +225,26 @@ export function cloneSubtree(
     };
   });
 }
+
+/**
+ * 全ノードの深さを一度に求める（ルート 0）。
+ *
+ * レイアウトはノードの大きさを階層ごとの書体から決めるため、ほぼすべての
+ * 計算で深さが必要になる。1件ずつ getDepth を呼ぶと O(n × 深さ) で祖先を
+ * 辿り直すので、親→子に一度だけ降りて配る。
+ * 親が見つからないノード（データが壊れている場合）は 0 として扱う。
+ */
+export function buildDepthIndex(nodes: MindMapNode[]): Map<ID, number> {
+  const index = buildChildIndex(nodes);
+  const depths = new Map<ID, number>();
+  const walk = (parentId: ID | null, depth: number): void => {
+    for (const child of index.get(parentId) ?? []) {
+      if (depths.has(child.id)) continue; // 循環していても止まる
+      depths.set(child.id, depth);
+      walk(child.id, depth + 1);
+    }
+  };
+  walk(null, 0);
+  for (const node of nodes) if (!depths.has(node.id)) depths.set(node.id, 0);
+  return depths;
+}
