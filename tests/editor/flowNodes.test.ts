@@ -2,11 +2,12 @@ import { applyNodeChanges, type NodeChange } from "@xyflow/react";
 import { describe, expect, it } from "vitest";
 import {
   mergePreservingMeasured,
+  nodesBounds,
   toFlowEdges,
   toFlowNodes,
   type MindMapFlowNode,
 } from "@/features/editor/flowNodes";
-import { nodeBox } from "@/features/editor/layout";
+import { layoutTree, nodeBox } from "@/features/editor/layout";
 import { getVisibleNodes } from "@/features/editor/tree";
 import { buildTree, findByText } from "./helpers";
 
@@ -162,5 +163,46 @@ describe("mergePreservingMeasured", () => {
   it("前回が空（初回描画）のときはそのまま返す", () => {
     const next = makeFlowNodes()();
     expect(mergePreservingMeasured([], next)).toBe(next);
+  });
+});
+
+/**
+ * 外接矩形。初回表示で「木全体が画面に収まるか」を判断するのに使う。
+ * React Flow の getNodesBounds() は measured を見るため、実測が届かない
+ * この作りでは 0 が返る。だから固定寸法から計算していることを固定する。
+ */
+describe("nodesBounds", () => {
+  it("ノードが無ければ null", () => {
+    expect(nodesBounds([])).toBeNull();
+  });
+
+  it("全ノードを囲む矩形を返す（measured が無くても 0 にならない）", () => {
+    // 座標はレイアウト後の値で見る（実際のキャンバスと同じ入力にする）。
+    const nodes = layoutTree(buildTree(SPEC));
+    const flow = toFlowNodes(getVisibleNodes(nodes), {
+      selectedId: null,
+      editingId: null,
+      childCounts: new Map(),
+      totalCount: nodes.length,
+    });
+    // measured は一度も入らない（jsdom は採寸しない）。
+    expect(flow.every((node) => node.measured === undefined)).toBe(true);
+
+    const box = nodesBounds(flow);
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThan(0);
+    expect(box!.height).toBeGreaterThan(0);
+
+    // 各ノードが矩形の中に入っている。
+    for (const node of flow) {
+      expect(node.position.x).toBeGreaterThanOrEqual(box!.x);
+      expect(node.position.y).toBeGreaterThanOrEqual(box!.y);
+      expect(node.position.x + (node.initialWidth ?? 0)).toBeLessThanOrEqual(box!.x + box!.width);
+      expect(node.position.y + (node.initialHeight ?? 0)).toBeLessThanOrEqual(box!.y + box!.height);
+    }
+
+    // 子まで含んでいる ＝ ルート1つぶんより広い。
+    const rootOnly = nodeBox("root", 0);
+    expect(box!.width).toBeGreaterThan(rootOnly.width);
   });
 });

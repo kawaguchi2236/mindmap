@@ -55,6 +55,7 @@ import type { ID } from "@/lib/model/types";
 import { Icon } from "@/components/ui";
 import {
   mergePreservingMeasured,
+  nodesBounds,
   toFlowEdges,
   toFlowNodes,
   type MindMapFlowNode,
@@ -387,13 +388,42 @@ export function MindMapCanvas({
    * duration 0 で動かすのは、非表示タブでは requestAnimationFrame が止まり
    * アニメーション付きの遷移が完了しないため。
    */
-  const canvasReady = useStore((s) => s.width > 0 && s.height > 0);
+  const canvasWidth = useStore((s) => s.width);
+  const canvasHeight = useStore((s) => s.height);
+  const canvasReady = canvasWidth > 0 && canvasHeight > 0;
+
+  /*
+   * 初回に開いたときだけの表示位置。
+   *
+   * ルートを画面中央に置くと、右へ伸びる木では画面の左半分が空くだけで、子が
+   * 右の外に出る。テンプレートのように最初から枝がある木だと、開いた瞬間に
+   * ほぼ全部が画面外で「何も無い」ように見える。
+   * 等倍で木全体が収まるなら外接矩形の中心へ、収まらないならルートへ寄せる。
+   * ズームは動かさない（勝手に縮めて読めなくしない）。
+   *
+   * 「中央へ戻る（⌘0）」はハンドオフのキー表どおりルート中心のまま変えない。
+   * こちらは初回だけの話で、ユーザーが明示的に押したときの意味は動かさない。
+   */
+  const openView = useCallback(
+    (duration: number) => {
+      const box = nodesBounds(derivedNodes);
+      const fits =
+        box !== null && box.width <= canvasWidth * 0.92 && box.height <= canvasHeight * 0.92;
+      if (box && fits) {
+        setCenter(box.x + box.width / 2, box.y + box.height / 2, { zoom: 1, duration });
+        return;
+      }
+      recenter(duration);
+    },
+    [derivedNodes, canvasWidth, canvasHeight, setCenter, recenter],
+  );
+
   const centeredRef = useRef(false);
   useEffect(() => {
     if (centeredRef.current || !canvasReady || modelNodes.length === 0) return;
     centeredRef.current = true;
-    recenter(0);
-  }, [canvasReady, modelNodes, recenter]);
+    openView(0);
+  }, [canvasReady, modelNodes, openView]);
 
   /*
    * ⌘/Ctrl + 0 で中央へ戻る（ハンドオフのキーボード表。左下のヒントに出す）。
@@ -456,10 +486,17 @@ export function MindMapCanvas({
             color="var(--color-canvas-dot)"
           />
 
-          {/* --- 左上: マップ名と状態 ------------------------------------ */}
+          {/* --- 左上: マップ名と状態 ------------------------------------
+           * マーク＋マップ名はそのままマップ一覧へのリンクにする（ブランドを
+           * 押すと家に帰る、の作法）。左上は「いま何を開いているか」の表示なので、
+           * ここが戻る導線を兼ねるのが一番自然で、見た目も #2b のまま動かない。
+           */}
           <Panel position="top-left" className="mindmap-chrome mindmap-chrome--identity">
-            <span className="mindmap-chrome__mark" aria-hidden="true" />
-            <span className="mindmap-chrome__title">{title || "無題のマップ"}</span>
+            <Link className="mindmap-chrome__home" href="/maps" title="マップ一覧へ戻る">
+              <span className="mindmap-chrome__mark" aria-hidden="true" />
+              <span className="mindmap-chrome__title">{title || "無題のマップ"}</span>
+              <span className="mindmap-visually-hidden">マップ一覧へ戻る</span>
+            </Link>
             {status ? <span className="mindmap-chrome__status">{status}</span> : null}
           </Panel>
 
@@ -483,6 +520,14 @@ export function MindMapCanvas({
             </button>
             {/* 書き出しは担当 B の実装。ReactFlowProvider の内側でだけ動く。 */}
             <ExportPngButton title={title} className="mindmap-chrome__action" />
+            {/*
+             * エディタから出る導線。エディタは `/` なので、直接ここへ来た場合は
+             * ブラウザの戻るでは一覧に辿り着けない。目に見える形で置いておく。
+             * 左上のマップ名も同じ先へのリンクだが、あちらは気づかれにくい。
+             */}
+            <Link className="mindmap-chrome__action" href="/maps">
+              マップ一覧
+            </Link>
             {/*
              * ハンドオフ #2b の右上はアバター（アカウント）。Phase 1 のエディタに
              * アカウントメニューは無いので、同じ位置を設定への導線にする。

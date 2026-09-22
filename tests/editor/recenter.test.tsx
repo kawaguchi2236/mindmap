@@ -2,9 +2,12 @@ import { fireEvent, render, act, screen } from "@testing-library/react";
 import { StrictMode, useState, type ReactElement } from "react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { MindMapEditor } from "@/features/editor/MindMapEditor";
-import { nodeBox } from "@/features/editor/layout";
+import { layoutTree, nodeBox } from "@/features/editor/layout";
+import { nodesBounds, toFlowNodes } from "@/features/editor/flowNodes";
+import { getVisibleNodes } from "@/features/editor/tree";
 import { createMapDocument } from "@/lib/model/factory";
 import type { MindMapDocument } from "@/lib/model/types";
+import { buildTree } from "./helpers";
 
 /**
  * 「中央へ戻る」と初回センタリングの回帰テスト。
@@ -88,6 +91,34 @@ function rootCenter(): [number, number] {
   return [box.width / 2, box.height / 2];
 }
 
+/** 枝のある木のドキュメント。テンプレートから開いた直後と同じ形。 */
+function branchedDocument(): MindMapDocument {
+  const base = createMapDocument({ title: "テスト" }, "ルート");
+  const nodes = layoutTree(
+    buildTree({
+      text: "ルート",
+      children: [
+        { text: "外部環境（動かせない）", children: [{ text: "機会 O" }, { text: "脅威 T" }] },
+        { text: "内部環境（変えられる）", children: [{ text: "強み S" }, { text: "弱み W" }] },
+      ],
+    }),
+  ).map((node) => ({ ...node, mapId: base.map.id }));
+  return { ...base, nodes };
+}
+
+/** 外接矩形の中心。実装と同じ純関数から求める。 */
+function boundsCenter(doc: MindMapDocument): [number, number] {
+  const flow = toFlowNodes(getVisibleNodes(doc.nodes), {
+    selectedId: null,
+    editingId: null,
+    childCounts: new Map(),
+    totalCount: doc.nodes.length,
+  });
+  const box = nodesBounds(flow);
+  if (!box) throw new Error("外接矩形が求まりません");
+  return [box.x + box.width / 2, box.y + box.height / 2];
+}
+
 describe("センタリング", () => {
   it("初回表示でルートを中央に寄せる（採寸を待たない）", () => {
     render(
@@ -99,6 +130,28 @@ describe("センタリング", () => {
     expect(setCenterCalls.length).toBeGreaterThan(0);
     // ルートは (0,0)。ノードの中心を渡している（大きさはルートの文字組みで決まる）。
     expect(setCenterCalls[0].slice(0, 2)).toEqual(rootCenter());
+  });
+
+  /**
+   * ルートを画面中央に置くと、右へ伸びる木では左半分が空くだけで子が画面外に出る。
+   * テンプレートから開いた直後がまさにこれで、型がほとんど見えなかった。
+   * 等倍で収まる木は外接矩形の中心に寄せる（ズームは変えない）。
+   */
+  it("枝のある木は木全体が収まる位置に寄せる（ルート中心ではない）", () => {
+    const doc = branchedDocument();
+    render(
+      <StrictMode>
+        <Host initial={doc} />
+      </StrictMode>,
+    );
+
+    expect(setCenterCalls.length).toBeGreaterThan(0);
+    expect(setCenterCalls[0].slice(0, 2)).toEqual(boundsCenter(doc));
+    // ルート中心のままなら右側が見えない。直っていることを明示的に見る。
+    const [x] = setCenterCalls[0] as [number, number];
+    expect(x).toBeGreaterThan(rootCenter()[0]);
+    // 倍率は動かさない（勝手に縮めて読めなくしない）。
+    expect(setCenterCalls[0][2]).toMatchObject({ zoom: 1 });
   });
 
   it("「中央へ戻る」でルート中心を指定して呼び直す", () => {

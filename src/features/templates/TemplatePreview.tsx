@@ -51,6 +51,28 @@ const SHAPES: Record<TemplatePreviewKind, ReactElement> = {
       <rect x="98" y="70" width="52" height="11" fill={FILL} />
     </>
   ),
+  /*
+   * ロジックツリー。1つの論点が2段で分かれていく。
+   * WBS（breakdown）とは線の引き方で描き分ける：あちらは曲線、こちらは直角。
+   * 論理の分解は「どこで枝が分かれたか」が読めることが大事なので、
+   * 縦の幹と横の枝だけで描く。
+   */
+  tree: (
+    <>
+      <g fill="none" stroke={LINE}>
+        <path d="M32,48 H46 M46,24 V72 M46,24 H50 M46,72 H50" />
+        <path d="M90,24 H100 M100,10 V38 M100,10 H110 M100,38 H110" />
+        <path d="M90,72 H100 M100,58 V86 M100,58 H110 M100,86 H110" />
+      </g>
+      <rect x="2" y="41" width="30" height="14" fill={ACCENT} />
+      <rect x="50" y="19" width="40" height="10" fill={FILL} />
+      <rect x="50" y="67" width="40" height="10" fill={FILL} />
+      <rect x="110" y="6" width="44" height="8" fill={FILL} />
+      <rect x="110" y="34" width="44" height="8" fill={FILL} />
+      <rect x="110" y="54" width="44" height="8" fill={FILL} />
+      <rect x="110" y="82" width="44" height="8" fill={FILL} />
+    </>
+  ),
   // OKR。1つの目標の下に指標が積まれる。
   stack: (
     <>
@@ -87,25 +109,38 @@ const SHAPES: Record<TemplatePreviewKind, ReactElement> = {
       <rect x="78" y="62" width="64" height="9" fill={FILL} />
     </>
   ),
-  // 学習ノート。カードが並ぶ。
-  cards: (
-    <>
-      <rect x="4" y="18" width="46" height="58" fill="none" stroke={LINE} />
-      <rect x="60" y="18" width="46" height="58" fill="none" stroke={LINE} />
-      <rect x="116" y="18" width="34" height="58" fill={ACCENT} opacity="0.16" stroke={ACCENT} />
-    </>
-  ),
-  // キャリア。段を上がっていく。
-  ladder: (
+  /*
+   * 学習ノート。コーネル式の3領域（左のキーワード欄・右のノート欄・下のサマリー欄）。
+   * サマリーだけアクセントにしているのは、最後に自分の言葉で埋める箱だから。
+   */
+  cornell: (
     <>
       <g fill="none" stroke={LINE}>
-        <path d="M6,84 L40,84 L40,62 L74,62 L74,40 L108,40" />
+        <rect x="8" y="8" width="38" height="58" />
+        <rect x="50" y="8" width="104" height="58" />
       </g>
-      <rect x="6" y="86" width="34" height="6" fill={FILL} />
-      <rect x="40" y="64" width="34" height="6" fill={FILL} />
-      <rect x="74" y="42" width="34" height="6" fill={FILL} />
-      <rect x="108" y="14" width="44" height="14" fill={ACCENT} opacity="0.65" />
-      <path d="M108,40 L130,40 L130,30" fill="none" stroke={LINE} />
+      <g fill={FILL}>
+        <rect x="16" y="18" width="22" height="6" />
+        <rect x="16" y="32" width="18" height="6" />
+        <rect x="58" y="18" width="70" height="6" />
+        <rect x="58" y="32" width="84" height="6" />
+        <rect x="58" y="46" width="60" height="6" />
+      </g>
+      <rect x="8" y="72" width="146" height="16" fill={ACCENT} opacity="0.16" stroke={ACCENT} />
+    </>
+  ),
+  /*
+   * キャリア棚卸し。Will / Can / Must の3つの輪。
+   * 重なりにアクセントを置いて「次の一歩はここ」を示す。
+   */
+  venn: (
+    <>
+      <g fill="none" stroke={LINE}>
+        <circle cx="62" cy="36" r="24" />
+        <circle cx="108" cy="36" r="24" />
+        <circle cx="85" cy="64" r="24" />
+      </g>
+      <circle cx="85" cy="47" r="7" fill={ACCENT} />
     </>
   ),
   // 空のマップ。破線の枠とプラス。

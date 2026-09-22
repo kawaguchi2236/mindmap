@@ -74,6 +74,36 @@ describe("layout", () => {
     );
   });
 
+  it("restackSiblings は子群を親の中心に対して上下対称に積む", () => {
+    // Enter / Tab の経路（reflow → restackAncestors → restackSiblings）は
+    // 一括整列を通らない。ここが上端固定だと、子は親の下へ伸びるばかりで
+    // 親が子群の先頭に張り付く。
+    const source = buildTree({
+      text: "root",
+      children: [{ text: "A" }, { text: "B" }, { text: "C" }],
+    });
+    // placeNewChild が置いたまま（親の高さから下へ積んだだけ）の状態を作る。
+    const root = findByText(source, "root");
+    let cursor = root.y;
+    const stacked = source.map((node) => {
+      if (node.parentId === null) return node;
+      const y = cursor;
+      cursor += heightOf(source, node) + V_GAP;
+      return { ...node, x: depthToX(1), y };
+    });
+
+    const nodes = restackSiblings(stacked, rootId(stacked));
+    const first = findByText(nodes, "A");
+    const last = findByText(nodes, "C");
+    const after = findByText(nodes, "root");
+    const childrenCenter = (first.y + last.y + heightOf(nodes, last)) / 2;
+    expect(after.y + heightOf(nodes, after) / 2).toBe(childrenCenter);
+    // 上下に均等に開く：先頭の子は親より上へ出る。
+    expect(first.y).toBeLessThan(after.y);
+    // 親は動かさない（打っている最中にルートが飛ばない）。
+    expect(after.y).toBe(root.y);
+  });
+
   it("placeNewChild は既存の兄弟の下に置く", () => {
     const nodes = layoutTree(buildTree(SPEC));
     const root = findByText(nodes, "root");

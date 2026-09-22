@@ -245,6 +245,25 @@
   gap: 14px;
 }
 
+/*
+ * 左上のマーク＋マップ名はマップ一覧へのリンク。リンクの既定（アクセント色・下線）を
+ * 打ち消して、見た目は素のときと完全に同じにする。ホバー時だけ他のクロームと
+ * 同じ色の変化を出す。並び（gap 14px / baseline）は親パネルと同じ値にしてあるので、
+ * リンクで包んでも要素の位置は 1px も動かない。
+ */
+.mindmap-canvas .react-flow__panel .mindmap-chrome__home {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mindmap-canvas .react-flow__panel .mindmap-chrome__home:hover .mindmap-chrome__title,
+.mindmap-canvas .react-flow__panel .mindmap-chrome__home:focus-visible .mindmap-chrome__title {
+  color: var(--color-accent-text);
+}
+
 .mindmap-chrome__mark {
   flex: none;
   width: 10px;
@@ -432,5 +451,10 @@
   /* ヒントは場所を取るので、狭い画面では出さない（操作自体は変わらない）。 */
   .mindmap-canvas .react-flow__panel.mindmap-chrome--hints {
     display: none;
+  }
+
+  /* 右上の項目が増えたぶん、長いマップ名は早めに省略して重なりを避ける。 */
+  .mindmap-chrome__title {
+    max-width: 16ch;
   }
 }

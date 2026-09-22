@@ -81,6 +81,17 @@ describe("四隅のクローム", () => {
     expect(screen.getByRole("link", { name: "設定" })).toHaveAttribute("href", "/settings");
   });
 
+  /**
+   * エディタは `/` なので、直接ここへ来るとブラウザの戻るでは一覧へ辿り着けない。
+   * 「マップを開いたら出られない」状態に退行していないかを固定する。
+   */
+  it("マップ一覧へ戻れる（右上の導線と、左上のマップ名の両方から）", () => {
+    mount();
+    expect(screen.getByRole("link", { name: "マップ一覧" })).toHaveAttribute("href", "/maps");
+    // 左上はマップ名 + 読み上げ用の説明が名前になる。
+    expect(screen.getByRole("link", { name: /設計メモ/ })).toHaveAttribute("href", "/maps");
+  });
+
   it("何もしていないうちは Undo / Redo を押せない", () => {
     mount();
     expect(screen.getByRole("button", { name: "元に戻す" })).toBeDisabled();

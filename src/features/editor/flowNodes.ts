@@ -126,6 +126,39 @@ export function toFlowNodes(
   });
 }
 
+/** キャンバス座標の矩形。React Flow の `Rect` と同じ形。 */
+export interface NodesBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * 表示中のノード全体の外接矩形。
+ *
+ * React Flow の `getNodesBounds()` を使わないのは、あれが `measured` を見るため。
+ * このエディタは実測を待たない作り（上の initialWidth のコメント）なので、
+ * 採寸が届かない環境では 0 が返ってしまう。レイアウトが使っているのと同じ
+ * 固定寸法から計算すれば、実測の有無に関係なく同じ値になる。
+ */
+export function nodesBounds(nodes: MindMapFlowNode[]): NodesBounds | null {
+  if (nodes.length === 0) return null;
+  let left = Infinity;
+  let top = Infinity;
+  let right = -Infinity;
+  let bottom = -Infinity;
+  for (const node of nodes) {
+    const width = node.initialWidth ?? 0;
+    const height = node.initialHeight ?? 0;
+    left = Math.min(left, node.position.x);
+    top = Math.min(top, node.position.y);
+    right = Math.max(right, node.position.x + width);
+    bottom = Math.max(bottom, node.position.y + height);
+  }
+  return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
 /** 親子エッジ。両端が表示されているものだけ描く。 */
 export function toFlowEdges(visibleNodes: MindMapNode[]): Edge[] {
   const visibleIds = new Set(visibleNodes.map((node) => node.id));

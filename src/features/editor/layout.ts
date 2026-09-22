@@ -300,6 +300,13 @@ export function shiftSubtree(nodes: MindMapNode[], id: ID, dx: number, dy: numbe
  * ある親の子たちを order 順に縦へ積み直す。
  * 各子は部分木ごと剛体移動するので、子孫内で手動調整した相対位置は保たれる。
  * ノードを増やしたときに「場所を空ける」ための処理。
+ *
+ * 積む位置は**親の中心**を軸にする（layoutTree と同じ考え方）。上端を保つと
+ * 子が増えるたびに下だけへ伸びていき、親が子群の先頭に張り付いて
+ * 上下非対称な木になる。親を動かさず子群のほうを中央へ寄せるので、
+ * ルートは打っている最中に動かない。
+ *
+ * 親がいない（＝ルートたち）ときだけは軸が無いので、従来どおり上端を保つ。
  */
 export function restackSiblings(nodes: MindMapNode[], parentId: ID | null): MindMapNode[] {
   const ctx = contextOf(nodes);
@@ -308,6 +315,12 @@ export function restackSiblings(nodes: MindMapNode[], parentId: ID | null): Mind
 
   const bounds = children.map((child) => boundsIn(ctx, child));
   let cursor = Math.min(...bounds.map((b) => b.top));
+  const parent = getNode(nodes, parentId);
+  if (parent) {
+    const total =
+      bounds.reduce((sum, b) => sum + (b.bottom - b.top), 0) + V_GAP * (children.length - 1);
+    cursor = parent.y + heightOf(ctx, parent) / 2 - total / 2;
+  }
   let result = nodes;
   children.forEach((child, i) => {
     const delta = cursor - bounds[i].top;
