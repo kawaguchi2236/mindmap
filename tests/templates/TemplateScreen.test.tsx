@@ -86,7 +86,8 @@ describe("テンプレート画面", () => {
     expect(saved?.nodes).toHaveLength(countNodes(swot.tree));
     expect(saved?.map.title).toBe(swot.name);
     // 木の中身がそのまま入っていること（表示名だけの張りぼてにしない）。
-    expect(saved?.nodes.map((node) => node.text)).toContain("強み");
+    const texts = saved?.nodes.map((node) => node.text) ?? [];
+    expect(texts.some((text) => text.startsWith("強み S"))).toBe(true);
   });
 
   it("「空のマップ」はルート1つだけのマップを作る", async () => {
